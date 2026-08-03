@@ -43,5 +43,11 @@ next-env.d.ts
 # Environment files
 .env
 env.local
+.env.local
+
 .env.*
 !.env.example
+ 
+#  Agents
+ CLAUDE.md
+ AGENTS.md
