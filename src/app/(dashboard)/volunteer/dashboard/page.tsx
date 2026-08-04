@@ -49,7 +49,7 @@ export default function VolunteerDashboardPage() {
   return (
     <div className="space-y-8 animate-fade-in pb-12 max-w-6xl mx-auto">
       {/* Header Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Badge className="bg-[#7CEAAB] text-[#01424E] font-bold">Volunteer Workspace</Badge>
@@ -62,68 +62,69 @@ export default function VolunteerDashboardPage() {
               : `You don't have any active tasks right now.`}
           </p>
         </div>
-        <Button asChild size="lg" className="bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 font-bold shadow-lg shrink-0">
-          <Link href="/volunteer/scanner">
-            <ScanLine className="mr-2 h-5 w-5" /> Open QR Scanner
+        <Button asChild size="lg" className="bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 font-bold shadow-lg shrink-0 rounded-xl">
+          <Link href="/volunteer/scanner" className="inline-flex items-center justify-center gap-2">
+            <ScanLine className="h-5 w-5 shrink-0" />
+            <span>Open QR Scanner</span>
           </Link>
         </Button>
       </div>
 
-      {/* Metrics */}
+      {/* Metrics (Stat Cards with lowered titles & balanced padding) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-slate-200 dark:border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Assigned Events</CardTitle>
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Assigned Events</span>
             <Calendar className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-[#01424E] dark:text-teal-200">{assignedEvents}</div>
-            <p className="text-xs text-muted-foreground mt-1">Approved Applications</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold text-[#01424E] dark:text-teal-200 leading-none">{assignedEvents}</div>
+            <p className="text-xs text-muted-foreground mt-1.5 font-medium">Approved Applications</p>
+          </div>
+        </div>
 
-        <Card className="border-slate-200 dark:border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Today's Tasks</CardTitle>
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Today's Tasks</span>
             <ClipboardList className="h-4 w-4 text-[#007C46]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-[#01424E] dark:text-teal-200">{totalTasks}</div>
-            <p className="text-xs text-muted-foreground mt-1">{totalTasks - completedTasks} Pending tasks</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold text-[#01424E] dark:text-teal-200 leading-none">{totalTasks}</div>
+            <p className="text-xs text-muted-foreground mt-1.5 font-medium">{totalTasks - completedTasks} Pending tasks</p>
+          </div>
+        </div>
 
-        <Card className="border-slate-200 dark:border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Check-ins Handled</CardTitle>
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Check-ins Handled</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-[#007C46]">{checkinsHandled}</div>
-            <p className="text-xs text-muted-foreground mt-1">Estimated Valid Scans</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold text-[#007C46] leading-none">{checkinsHandled}</div>
+            <p className="text-xs text-muted-foreground mt-1.5 font-medium">Estimated Valid Scans</p>
+          </div>
+        </div>
 
-        <Card className="border-slate-200 dark:border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Hours Contributed</CardTitle>
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Hours Contributed</span>
             <Clock className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-[#01424E] dark:text-teal-200">{hoursContributed} hrs</div>
-            <p className="text-xs text-muted-foreground mt-1">{certificatesCount > 0 ? `${certificatesCount} Certificates` : 'Certificate Eligible'}</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold text-[#01424E] dark:text-teal-200 leading-none">{hoursContributed} hrs</div>
+            <p className="text-xs text-muted-foreground mt-1.5 font-medium">{certificatesCount > 0 ? `${certificatesCount} Certificates` : 'Certificate Eligible'}</p>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions & Tasks Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800">
-          <CardHeader>
+          <CardHeader className="p-5 pb-1">
             <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-200">Today's Assigned Responsibilities</CardTitle>
             <CardDescription>Checklist tasks assigned by event organizer</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-5 pt-2">
             {tasks.length > 0 ? tasks.map((task) => {
               const isAccepted = task.status === 'accepted' || !!task.accepted_at;
               return (
@@ -168,39 +169,51 @@ export default function VolunteerDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Shortcuts */}
+        {/* Volunteer Actions */}
         <Card className="border-slate-200 dark:border-slate-800">
-          <CardHeader>
+          <CardHeader className="p-5 pb-1">
             <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-200">Volunteer Actions</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
-            <Button asChild variant="outline" className="h-20 flex-col gap-1 border-slate-200 hover:border-[#7CEAAB]">
-              <Link href="/volunteer/scanner">
+          <CardContent className="grid grid-cols-2 gap-3 p-5 pt-2">
+            <Link
+              href="/volunteer/scanner"
+              className="flex flex-col items-center justify-center text-center p-4 min-h-[90px] rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 shadow-xs hover:shadow-md hover:border-[#7CEAAB] transition-all group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <ScanLine className="h-5 w-5 text-[#01424E] dark:text-[#7CEAAB]" />
-                <span className="text-xs font-bold">QR Scanner</span>
-              </Link>
-            </Button>
+              </div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-none">QR Scanner</span>
+            </Link>
 
-            <Button asChild variant="outline" className="h-20 flex-col gap-1 border-slate-200 hover:border-[#7CEAAB]">
-              <Link href="/volunteer/tasks">
+            <Link
+              href="/volunteer/tasks"
+              className="flex flex-col items-center justify-center text-center p-4 min-h-[90px] rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 shadow-xs hover:shadow-md hover:border-[#7CEAAB] transition-all group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <ClipboardList className="h-5 w-5 text-[#007C46]" />
-                <span className="text-xs font-bold">My Tasks</span>
-              </Link>
-            </Button>
+              </div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-none">My Tasks</span>
+            </Link>
 
-            <Button asChild variant="outline" className="h-20 flex-col gap-1 border-slate-200 hover:border-[#7CEAAB]">
-              <Link href="/volunteer/attendance">
+            <Link
+              href="/volunteer/attendance"
+              className="flex flex-col items-center justify-center text-center p-4 min-h-[90px] rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 shadow-xs hover:shadow-md hover:border-[#7CEAAB] transition-all group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <span className="text-xs font-bold">Check-in Log</span>
-              </Link>
-            </Button>
+              </div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-none">Check-in Log</span>
+            </Link>
 
-            <Button asChild variant="outline" className="h-20 flex-col gap-1 border-slate-200 hover:border-[#7CEAAB]">
-              <Link href="/volunteer/certificates">
+            <Link
+              href="/volunteer/certificates"
+              className="flex flex-col items-center justify-center text-center p-4 min-h-[90px] rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 shadow-xs hover:shadow-md hover:border-[#7CEAAB] transition-all group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <Award className="h-5 w-5 text-amber-500" />
-                <span className="text-xs font-bold">Certificates</span>
-              </Link>
-            </Button>
+              </div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-none">Certificates</span>
+            </Link>
           </CardContent>
         </Card>
       </div>

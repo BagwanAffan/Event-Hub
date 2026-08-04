@@ -70,12 +70,15 @@ export const eventService = {
         .select("*, profiles!events_created_by_fkey(full_name, email, profile_picture)", { count: "exact" });
 
       if (status) query = query.eq("status", status);
-      if (category) query = query.eq("category", category);
+      if (category && category !== 'all' && category !== 'All') {
+        query = query.ilike("category", `%${category}%`);
+      }
       if (created_by) query = query.eq("created_by", created_by);
       if (need_volunteers !== undefined) query = query.eq("need_volunteers", need_volunteers);
-      if (search) {
+      if (search && search.trim()) {
+        const s = search.trim();
         query = query.or(
-          `title.ilike.%${search}%,short_description.ilike.%${search}%,category.ilike.%${search}%,venue.ilike.%${search}%`
+          `title.ilike.%${s}%,short_description.ilike.%${s}%,description.ilike.%${s}%,category.ilike.%${s}%,venue.ilike.%${s}%,building.ilike.%${s}%`
         );
       }
       if (upcoming) {
@@ -109,10 +112,13 @@ export const eventService = {
         .neq("status", "cancelled")
         .neq("status", "archived");
 
-      if (category) query = query.eq("category", category);
-      if (search) {
+      if (category && category !== 'all' && category !== 'All') {
+        query = query.ilike("category", `%${category}%`);
+      }
+      if (search && search.trim()) {
+        const s = search.trim();
         query = query.or(
-          `title.ilike.%${search}%,short_description.ilike.%${search}%,category.ilike.%${search}%`
+          `title.ilike.%${s}%,short_description.ilike.%${s}%,description.ilike.%${s}%,category.ilike.%${s}%,venue.ilike.%${s}%`
         );
       }
 
@@ -120,7 +126,7 @@ export const eventService = {
       const to = from + limit - 1;
 
       const { data, error, count } = await query
-        .order("start_date", { ascending: true })
+        .order("created_at", { ascending: false })
         .range(from, to);
 
       if (error || !data || data.length === 0) {

@@ -675,7 +675,7 @@ export default function QRScannerPage() {
                   <TableHead className="font-bold text-xs uppercase">Check-In</TableHead>
                   <TableHead className="font-bold text-xs uppercase">Check-Out</TableHead>
                   <TableHead className="font-bold text-xs uppercase">Duration</TableHead>
-                  <TableHead className="font-bold text-xs uppercase text-right">Status</TableHead>
+                  <TableHead className="font-bold text-xs uppercase text-center">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -686,7 +686,7 @@ export default function QRScannerPage() {
                     <TableCell className="text-muted-foreground font-mono">{scan.checkInTime}</TableCell>
                     <TableCell className="text-muted-foreground font-mono">{scan.checkOutTime || '-'}</TableCell>
                     <TableCell className="text-muted-foreground font-mono">{scan.duration || '-'}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       {scan.status === 'pending_checkout' ? (
                         <Badge className="bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/50 dark:text-amber-300 text-[10px] font-bold">
                           Pending Checkout

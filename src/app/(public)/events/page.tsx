@@ -37,14 +37,25 @@ export default function PublicEventsPage() {
   }, [category]);
 
   const filtered = events.filter((e) => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (
-      e.title.toLowerCase().includes(s) ||
+    const s = search.toLowerCase().trim();
+    const matchesSearch =
+      !s ||
+      e.title?.toLowerCase().includes(s) ||
       e.short_description?.toLowerCase().includes(s) ||
       e.description?.toLowerCase().includes(s) ||
-      e.category.toLowerCase().includes(s)
-    );
+      e.category?.toLowerCase().includes(s) ||
+      e.venue?.toLowerCase().includes(s) ||
+      e.profiles?.full_name?.toLowerCase().includes(s);
+
+    const cat = category.toLowerCase().trim();
+    const eventCat = (e.category || '').toLowerCase().trim();
+    const matchesCategory =
+      cat === 'all' ||
+      eventCat === cat ||
+      eventCat.includes(cat) ||
+      cat.includes(eventCat);
+
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -79,10 +90,14 @@ export default function PublicEventsPage() {
           className="flex h-11 w-full sm:w-[220px] items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-background px-3.5 py-2 text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-[#01424E] outline-none cursor-pointer"
         >
           <option value="all">All Categories</option>
-          <option value="hackathon">Hackathons &amp; Coding</option>
-          <option value="workshop">Workshops &amp; AI Summits</option>
-          <option value="robotics">Robotics &amp; Engineering</option>
-          <option value="cultural">Cultural &amp; Arts</option>
+          <option value="Hackathon">Hackathons &amp; Coding</option>
+          <option value="Technical">Technical</option>
+          <option value="Cultural">Cultural &amp; Arts</option>
+          <option value="Sports">Sports</option>
+          <option value="Workshop">Workshops &amp; AI Summits</option>
+          <option value="Seminar">Seminars &amp; Keynotes</option>
+          <option value="Robotics">Robotics &amp; Engineering</option>
+          <option value="Other">Other</option>
         </select>
       </div>
 

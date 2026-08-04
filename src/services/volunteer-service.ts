@@ -102,6 +102,79 @@ export const volunteerService = {
     }
   },
 
+  async getVolunteerSkills(userId: string): Promise<string[]> {
+    if (!userId) return [];
+    try {
+      const { data, error } = await supabase
+        .from("volunteers")
+        .select("skills")
+        .eq("user_id", userId);
+
+      const dbSkills: string[] = [];
+      if (!error && data) {
+        data.forEach((row: any) => {
+          const parsed = parseSkills(row.skills);
+          parsed.forEach((s: string) => {
+            if (s && !dbSkills.includes(s)) {
+              dbSkills.push(s);
+            }
+          });
+        });
+      }
+
+      let localSkills: string[] = [];
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem(`volunteer_skills_${userId}`);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) localSkills = parsed;
+          }
+        } catch {}
+      }
+
+      const combined = Array.from(new Set([...dbSkills, ...localSkills]))
+        .map((s) => (typeof s === "string" ? s.trim() : ""))
+        .filter(Boolean);
+
+      return combined;
+    } catch {
+      return [];
+    }
+  },
+
+  async updateVolunteerSkills(userId: string, skills: string[]): Promise<string[]> {
+    if (!userId) return [];
+    try {
+      const cleanSkills = Array.from(
+        new Set((skills || []).map((s) => (typeof s === "string" ? s.trim() : "")).filter(Boolean))
+      );
+      const serialized = JSON.stringify(cleanSkills);
+
+      const { data: userVols } = await supabase
+        .from("volunteers")
+        .select("id")
+        .eq("user_id", userId);
+
+      if (userVols && userVols.length > 0) {
+        await supabase
+          .from("volunteers")
+          .update({ skills: serialized })
+          .eq("user_id", userId);
+      }
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(`volunteer_skills_${userId}`, serialized);
+        } catch {}
+      }
+
+      return cleanSkills;
+    } catch {
+      return skills || [];
+    }
+  },
+
   async applyAsVolunteer(eventId: string, userId: string, skills?: string[] | string, notes?: string) {
     try {
       const serializedSkills = skills ? serializeSkills(skills) : undefined;
@@ -172,27 +245,6 @@ export const volunteerService = {
     return { ...data, skills: parseSkills(data.skills as any) } as Volunteer;
   },
 
-  async markAsNotPresent(id: string) {
-    const { data, error } = await supabase
-      .from("volunteers")
-      .update({
-        application_status: "not_present",
-      })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error marking volunteer not present in Supabase:", error);
-      throw new Error(error.message || "Failed to mark volunteer as not present");
-    }
-
-    if (!data) {
-      throw new Error("Volunteer record not found");
-    }
-
-    return { ...data, skills: parseSkills(data.skills as any) } as Volunteer;
-  },
 
   async getAssignedTasks(userId: string) {
     try {

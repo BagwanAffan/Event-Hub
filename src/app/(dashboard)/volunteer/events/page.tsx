@@ -146,14 +146,19 @@ export default function VolunteerEventsPage() {
             const startTime = evt.start_date ? format(new Date(evt.start_date), 'hh:mm a') : 'N/A';
             const organizerName = evt.profiles?.full_name || 'Organizer';
             return (
-              <Card key={evt.id} className="overflow-hidden hover:shadow-lg transition-all border-slate-200 dark:border-slate-800">
-                <div
-                  className="h-36 bg-cover bg-center relative"
-                  style={{
-                    backgroundImage: `linear-gradient(135deg, rgba(1,66,78,0.75), rgba(0,124,70,0.65)), url(${evt.banner_url || evt.poster_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200'})`,
-                  }}
-                >
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+              <Card key={evt.id} className="pt-0 p-0 gap-0 overflow-hidden hover:shadow-lg transition-all border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col h-full bg-card">
+                <div className="relative w-full h-36 overflow-hidden rounded-t-2xl bg-slate-900 shrink-0">
+                  <img
+                    src={evt.banner_url || evt.poster_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200'}
+                    alt={evt.title}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200';
+                    }}
+                    className="w-full h-full object-cover object-center block"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 pointer-events-none" />
+
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
                     <Badge className="bg-white/90 text-[#01424E] border-0 backdrop-blur text-[10px] uppercase tracking-wider font-bold">
                       {evt.category || 'General'}
                     </Badge>
@@ -161,21 +166,21 @@ export default function VolunteerEventsPage() {
                       {evt.event_type || 'Offline'}
                     </Badge>
                   </div>
-                  <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">
+                  <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end z-10">
                     <div>
-                      <div className="flex items-center gap-2 text-white/90 text-xs mb-1">
-                        <Users className="h-3.5 w-3.5" />
-                        <span>Organized by {organizerName}</span>
+                      <div className="flex items-center gap-2 text-white/90 text-xs mb-1 font-medium">
+                        <Users className="h-3.5 w-3.5 shrink-0 text-[#7CEAAB]" />
+                        <span className="truncate max-w-[160px]">Organized by {organizerName}</span>
                       </div>
                     </div>
                     {(evt.registration_fee || 0) > 0 ? (
-                      <Badge className="bg-amber-400 text-amber-950 border-0">Paid Event</Badge>
+                      <Badge className="bg-amber-400 text-amber-950 border-0 font-bold text-[10px]">Paid Event</Badge>
                     ) : (
-                      <Badge className="bg-emerald-400 text-emerald-950 border-0">Free</Badge>
+                      <Badge className="bg-emerald-400 text-emerald-950 border-0 font-bold text-[10px]">Free</Badge>
                     )}
                   </div>
                 </div>
-                <CardHeader>
+                <CardHeader className="p-5 pb-2">
                   <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-lg leading-snug line-clamp-2 text-[#01424E] dark:text-teal-100">{evt.title}</CardTitle>
                     {applied && (
@@ -194,7 +199,7 @@ export default function VolunteerEventsPage() {
                     {evt.short_description || evt.description || 'No description provided.'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-5 pt-2 pb-5 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5 text-sm">
                     <div className="flex items-center text-muted-foreground">
                       <MapPin className="mr-2 h-4 w-4 text-[#007C46]" />

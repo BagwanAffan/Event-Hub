@@ -140,36 +140,29 @@ export default function StudentDashboardPage() {
         </div>
       )}
 
-      {/* Quick Actions (Redesigned) */}
+      {/* Quick Actions */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-bold text-[#01424E] dark:text-teal-100">Quick Portal Shortcuts</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Jump directly to your most used student modules</p>
-        </div>
+        <h2 className="text-xl font-bold text-[#01424E] dark:text-teal-100">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
           <QuickActionLink
             href="/student/events"
-            icon={<CalendarDays className="h-6 w-6" />}
+            icon={<CalendarDays className="h-5 w-5 text-[#01424E] dark:text-teal-200" />}
             label="Browse Events"
-            description="Explore available campus events & hackathons"
           />
           <QuickActionLink
             href="/student/registrations"
-            icon={<Ticket className="h-6 w-6" />}
-            label="My Passes"
-            description="View your tickets & QR attendance passes"
+            icon={<CheckCircle2 className="h-5 w-5 text-[#01424E] dark:text-teal-200" />}
+            label="My Registrations"
           />
           <QuickActionLink
             href="/student/teams"
-            icon={<Users className="h-6 w-6" />}
+            icon={<Activity className="h-5 w-5 text-[#01424E] dark:text-teal-200" />}
             label="My Teams"
-            description="Manage team formations & member invites"
           />
           <QuickActionLink
             href="/student/certificates"
-            icon={<Award className="h-6 w-6" />}
+            icon={<Award className="h-5 w-5 text-[#01424E] dark:text-teal-200" />}
             label="Certificates"
-            description="Download & verify your earned awards"
           />
         </div>
       </div>
@@ -243,30 +236,20 @@ function QuickActionLink({
   href,
   icon,
   label,
-  description
 }: {
   href: string;
   icon: React.ReactNode;
   label: string;
-  description: string;
 }) {
   return (
-    <Card className="h-full border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group hover:border-[#7CEAAB] overflow-hidden">
-      <Button
-        asChild
-        variant="ghost"
-        className="w-full h-full p-5 flex flex-col items-start justify-between text-left gap-4 rounded-2xl cursor-pointer hover:bg-transparent"
-      >
-        <Link href={href} className="w-full flex flex-col items-start justify-between h-full gap-4">
-          <div className="p-3 rounded-2xl bg-[#edfcf6] dark:bg-teal-950/40 text-[#007C46] group-hover:bg-[#007C46] group-hover:text-white transition-colors duration-200 shrink-0">
-            {icon}
-          </div>
-          <div className="space-y-1">
-            <span className="font-bold text-sm text-[#01424E] dark:text-teal-100 block">{label}</span>
-            <span className="text-xs text-muted-foreground leading-relaxed block font-normal">{description}</span>
-          </div>
-        </Link>
-      </Button>
-    </Card>
+    <Link
+      href={href}
+      className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer"
+    >
+      <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] dark:text-teal-200">
+        {icon}
+      </div>
+      <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{label}</span>
+    </Link>
   );
 }

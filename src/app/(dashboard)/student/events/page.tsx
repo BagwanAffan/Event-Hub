@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { eventService } from '@/services/event-service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,13 +11,28 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { EventCard } from '@/components/shared/event-card';
 
-const CATEGORIES = ['All', 'Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar'];
+const DEFAULT_CATEGORIES = ['All', 'Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Hackathon'];
 
-export default function ExploreEventsPage() {
+const formatCategory = (cat: string) => {
+  if (!cat) return '';
+  const trimmed = cat.trim();
+  if (trimmed.toLowerCase() === 'all') return 'All';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+};
+
+function StudentEventsContent() {
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  useEffect(() => {
+    const q = searchParams.get('search') || searchParams.get('q');
+    if (q) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -38,12 +54,40 @@ export default function ExploreEventsPage() {
     fetchEvents();
   }, []);
 
+  const categoryMap = new Map<string, string>();
+  [...DEFAULT_CATEGORIES, ...events.map((e) => e.category)]
+    .filter(Boolean)
+    .forEach((c) => {
+      const formatted = formatCategory(c);
+      const key = formatted.toLowerCase();
+      if (!categoryMap.has(key)) {
+        categoryMap.set(key, formatted);
+      }
+    });
+  const availableCategories = Array.from(categoryMap.values());
+
   const filteredEvents = events.filter((event) => {
+    const s = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      event.short_description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || event.category === selectedCategory;
+      !s ||
+      event.title?.toLowerCase().includes(s) ||
+      event.short_description?.toLowerCase().includes(s) ||
+      event.description?.toLowerCase().includes(s) ||
+      event.category?.toLowerCase().includes(s) ||
+      event.venue?.toLowerCase().includes(s) ||
+      event.building?.toLowerCase().includes(s) ||
+      event.event_type?.toLowerCase().includes(s) ||
+      event.profiles?.full_name?.toLowerCase().includes(s);
+
+    const cat = selectedCategory.toLowerCase().trim();
+    const eventCat = (event.category || '').toLowerCase().trim();
+
+    const matchesCategory =
+      cat === 'all' ||
+      eventCat === cat ||
+      eventCat.includes(cat) ||
+      cat.includes(eventCat);
+
     return matchesSearch && matchesCategory;
   });
 
@@ -70,7 +114,7 @@ export default function ExploreEventsPage() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto scrollbar-hide">
-          {CATEGORIES.map(category => (
+          {availableCategories.map(category => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
@@ -118,5 +162,13 @@ export default function ExploreEventsPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+export default function ExploreEventsPage() {
+  return (
+    <Suspense fallback={<div className="py-12 text-center text-xs text-muted-foreground">Loading campus events...</div>}>
+      <StudentEventsContent />
+    </Suspense>
   );
 }

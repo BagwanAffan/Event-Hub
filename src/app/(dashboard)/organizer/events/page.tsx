@@ -123,10 +123,18 @@ export default function OrganizerEventsPage() {
     }
   };
 
-  const filteredEvents = events.filter(evt => {
-    const matchesSearch = evt.title.toLowerCase().includes(search.toLowerCase()) || 
-                          evt.category.toLowerCase().includes(search.toLowerCase()) ||
-                          (evt.venue && evt.venue.toLowerCase().includes(search.toLowerCase()));
+  const filteredEvents = events.filter((evt) => {
+    const s = search.toLowerCase().trim();
+    const matchesSearch =
+      !s ||
+      evt.title?.toLowerCase().includes(s) ||
+      evt.category?.toLowerCase().includes(s) ||
+      evt.venue?.toLowerCase().includes(s) ||
+      evt.building?.toLowerCase().includes(s) ||
+      evt.short_description?.toLowerCase().includes(s) ||
+      evt.description?.toLowerCase().includes(s) ||
+      evt.event_type?.toLowerCase().includes(s);
+
     const matchesStatus = statusFilter === 'all' || evt.status === statusFilter;
     return matchesSearch && matchesStatus;
   });

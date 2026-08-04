@@ -34,7 +34,7 @@ export default function CreateEventPage() {
     title: '',
     short_description: '',
     description: '',
-    category: 'hackathon',
+    category: 'Hackathon',
     event_type: 'offline',
     venue: 'Main Campus Auditorium',
     building: 'Block B, 3rd Floor',
@@ -255,11 +255,14 @@ export default function CreateEventPage() {
                 <Select value={formData.category} onValueChange={(val) => handleChange('category', val)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="hackathon">Hackathon</SelectItem>
-                    <SelectItem value="workshop">Workshop & Keynote</SelectItem>
-                    <SelectItem value="robotics">Robotics & Engineering</SelectItem>
-                    <SelectItem value="cultural">Cultural & Arts</SelectItem>
-                    <SelectItem value="sports">Sports Tournament</SelectItem>
+                    <SelectItem value="Hackathon">Hackathon</SelectItem>
+                    <SelectItem value="Technical">Technical</SelectItem>
+                    <SelectItem value="Cultural">Cultural</SelectItem>
+                    <SelectItem value="Sports">Sports</SelectItem>
+                    <SelectItem value="Workshop">Workshop</SelectItem>
+                    <SelectItem value="Seminar">Seminar</SelectItem>
+                    <SelectItem value="Robotics">Robotics & Engineering</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

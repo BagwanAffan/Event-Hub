@@ -9,6 +9,7 @@ import { useSidebarStore } from '@/store/sidebar-store';
 import { useAuth } from '@/hooks/use-auth';
 import { useProfileCompletion } from '@/hooks/use-profile-completion';
 import { notificationService, profileReminderActionUrl } from '@/services/notification-service';
+import { eventService } from '@/services/event-service';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,7 +46,28 @@ export function TopNavbar() {
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearchingEvents, setIsSearchingEvents] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearchingEvents(true);
+      try {
+        const res = await eventService.getPublicEvents({ search: searchQuery.trim(), limit: 5 });
+        setSearchResults(res.data || []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearchingEvents(false);
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Handle Ctrl+K shortcut
   useEffect(() => {
@@ -293,25 +315,65 @@ export function TopNavbar() {
             </DialogTitle>
           </DialogHeader>
           <div className="p-4 space-y-4 text-xs">
-            <Input
-              autoFocus
-              placeholder="Search pages, events, certificates..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 text-xs"
-            />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  setIsSearchOpen(false);
+                  router.push(`/${role}/events?search=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
+            >
+              <Input
+                autoFocus
+                placeholder="Search events, venue, pages (Press Enter)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 text-xs"
+              />
+            </form>
+
+            {/* Event Search Results */}
+            {searchQuery.trim() && (
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Matching Events</span>
+                {isSearchingEvents ? (
+                  <div className="p-2 text-xs text-muted-foreground">Searching campus events...</div>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map((evt) => (
+                    <button
+                      key={evt.id}
+                      onClick={() => handleCommandSelect(`/${role}/events/${evt.id}`)}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer border border-transparent hover:border-slate-200"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{evt.title}</span>
+                        <span className="text-[10px] text-muted-foreground">{evt.category || 'Event'} • {evt.venue || 'Campus'}</span>
+                      </div>
+                      <span className="text-muted-foreground font-mono">→</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="p-2 text-xs text-muted-foreground">No events found matching "{searchQuery}"</div>
+                )}
+              </div>
+            )}
+
+            {/* Quick Shortcuts */}
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Quick Shortcuts</span>
-              {quickNav.map((item, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleCommandSelect(item.href)}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer"
-                >
-                  <span>{item.label}</span>
-                  <span className="text-muted-foreground font-mono">→</span>
-                </button>
-              ))}
+              {quickNav
+                .filter((item) => !searchQuery.trim() || item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleCommandSelect(item.href)}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer"
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-muted-foreground font-mono">→</span>
+                  </button>
+                ))}
             </div>
           </div>
         </DialogContent>

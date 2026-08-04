@@ -38,7 +38,7 @@ export function EventCard({ event, linkPrefix = '/events' }: EventCardProps) {
   const href = `${linkPrefix}/${event.id}`;
 
   return (
-    <Card className="overflow-hidden flex flex-col h-full border-slate-200 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group rounded-2xl bg-card">
+    <Card className="pt-0 p-0 gap-0 overflow-hidden flex flex-col h-full border-slate-200 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group rounded-2xl bg-card">
       {/* Image Header Container */}
       <div className="aspect-video relative w-full overflow-hidden bg-slate-900 shrink-0">
         <img

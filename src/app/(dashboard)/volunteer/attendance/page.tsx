@@ -104,7 +104,7 @@ export default function AttendanceRecordsPage() {
                 <TableHead className="font-bold text-xs uppercase">Check-In</TableHead>
                 <TableHead className="font-bold text-xs uppercase">Check-Out</TableHead>
                 <TableHead className="font-bold text-xs uppercase">Duration</TableHead>
-                <TableHead className="font-bold text-xs uppercase text-right">Status</TableHead>
+                <TableHead className="font-bold text-xs uppercase text-center">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -138,7 +138,7 @@ export default function AttendanceRecordsPage() {
                       {duration}
                     </TableCell>
 
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       {isPendingCheckout ? (
                         <Badge className="bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/50 dark:text-amber-300 font-bold text-[10px]">
                           <Clock className="mr-1 h-3 w-3 text-amber-600" /> Pending Checkout

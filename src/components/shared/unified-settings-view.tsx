@@ -41,7 +41,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
-type TabKey = 'general' | 'appearance' | 'notifications' | 'security' | 'account' | 'about';
+type TabKey = 'appearance' | 'notifications' | 'security' | 'account' | 'about';
 
 interface UnifiedSettingsProps {
   role: 'student' | 'organizer' | 'volunteer' | 'admin';
@@ -52,7 +52,7 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
   const { theme, setTheme } = useTheme();
   const { profile } = useAuth();
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabKey>('general');
+  const [activeTab, setActiveTab] = useState<TabKey>('appearance');
 
   // Security State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -147,7 +147,6 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
   const initials = profile?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || role.charAt(0).toUpperCase();
 
   const tabs: { id: TabKey; label: string; icon: any; count?: number }[] = [
-    { id: 'general', label: 'General', icon: Settings, count: 1 },
     { id: 'appearance', label: 'Appearance', icon: Sun, count: 3 },
     { id: 'notifications', label: 'Notifications', icon: Bell, count: 7 },
     { id: 'security', label: 'Security', icon: Lock },
@@ -168,7 +167,7 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
       </div>
 
       {/* Segmented Pill Tab Bar */}
-      <div className="bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-1.5 flex items-center gap-1.5 overflow-x-auto scrollbar-hide shadow-sm">
+      <div className="w-fit max-w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-1.5 flex items-center gap-1.5 overflow-x-auto scrollbar-hide shadow-sm">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -204,39 +203,6 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
 
       {/* Active Tab Section Content */}
       <div className="space-y-6">
-        {/* GENERAL TAB */}
-        {activeTab === 'general' && (
-          <Card className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-card p-6 shadow-sm animate-fade-in space-y-6">
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div className="p-2.5 rounded-xl bg-[#edfcf6] dark:bg-teal-950/40 text-[#007C46]">
-                <Settings className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-[#01424E] dark:text-teal-100">General Settings</h2>
-                <p className="text-xs text-muted-foreground">Configure language preferences and general portal options</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 max-w-sm">
-              <div className="space-y-2">
-                <Label htmlFor="language-select" className="text-xs font-semibold">Portal Language</Label>
-                <Select value={language} onValueChange={(val) => setLanguage(val || 'English')}>
-                  <SelectTrigger id="language-select" className="w-full text-xs h-9">
-                    <SelectValue placeholder="Select Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="English" className="text-xs">English (US)</SelectItem>
-                    <SelectItem value="Spanish" className="text-xs">Spanish (Español)</SelectItem>
-                    <SelectItem value="French" className="text-xs">French (Français)</SelectItem>
-                    <SelectItem value="German" className="text-xs">German (Deutsch)</SelectItem>
-                    <SelectItem value="Hindi" className="text-xs">Hindi (हिंदी)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </Card>
-        )}
-
         {/* APPEARANCE TAB */}
         {activeTab === 'appearance' && (
           <Card className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-card p-6 shadow-sm animate-fade-in space-y-6">

@@ -15,11 +15,63 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Mail, Phone, Building, BookOpen, Calendar, Edit2, Award, ClipboardList, CheckCircle2, Loader2, Upload, Plus, X, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { notificationService } from '@/services/notification-service';
 import { checkProfileCompletion } from '@/hooks/use-profile-completion';
+
+const DEPARTMENTS = [
+  'Computer Engineering (CE)',
+  'Information Technology (IT)',
+  'Artificial Intelligence & Data Science (AI & DS)',
+  'Electronics & Telecommunication (ENTC)',
+  'Electronics Engineering (ECE)',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Other',
+];
+
+const YEARS = [
+  'First Year',
+  'Second Year',
+  'Third Year',
+  'Final Year',
+  'Other',
+];
+
+const COLLEGES = [
+  'Pune Institute of Computer Technology (PICT)',
+  'Other',
+];
+
+function initDepartment(dept?: string | null) {
+  if (!dept) return { selected: '', custom: '' };
+  if (DEPARTMENTS.includes(dept)) return { selected: dept, custom: '' };
+  const lower = dept.toLowerCase();
+  const matched = DEPARTMENTS.find(d => d.toLowerCase() === lower);
+  if (matched && matched !== 'Other') return { selected: matched, custom: '' };
+  return { selected: 'Other', custom: dept };
+}
+
+function initYear(yr?: string | null) {
+  if (!yr) return { selected: '', custom: '' };
+  if (YEARS.includes(yr)) return { selected: yr, custom: '' };
+  const lower = yr.toLowerCase();
+  const matched = YEARS.find(y => y.toLowerCase() === lower);
+  if (matched && matched !== 'Other') return { selected: matched, custom: '' };
+  return { selected: 'Other', custom: yr };
+}
+
+function initCollege(col?: string | null) {
+  if (!col) return { selected: '', custom: '' };
+  if (COLLEGES.includes(col)) return { selected: col, custom: '' };
+  if (col.toLowerCase().includes('pict') || col.toLowerCase().includes('pune institute of computer technology')) {
+    return { selected: 'Pune Institute of Computer Technology (PICT)', custom: '' };
+  }
+  return { selected: 'Other', custom: col };
+}
 
 export default function VolunteerProfilePage() {
   const { profile, loading: authLoading, refreshProfile } = useAuth();
@@ -31,9 +83,12 @@ export default function VolunteerProfilePage() {
   // Edit form state
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [department, setDepartment] = useState('');
-  const [year, setYear] = useState('');
-  const [college, setCollege] = useState('');
+  const [selectedDept, setSelectedDept] = useState('');
+  const [customDept, setCustomDept] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [customYear, setCustomYear] = useState('');
+  const [selectedCollege, setSelectedCollege] = useState('');
+  const [customCollege, setCustomCollege] = useState('');
   const [uploading, setUploading] = useState(false);
 
   // Skills state
@@ -45,16 +100,26 @@ export default function VolunteerProfilePage() {
       const activeProfile = profile;
       setFullName(activeProfile.full_name || '');
       setPhone(activeProfile.phone || '');
-      setDepartment(activeProfile.department || '');
-      setYear(activeProfile.year || '');
-      setCollege(activeProfile.college || '');
+
+      const d = initDepartment(activeProfile.department);
+      setSelectedDept(d.selected);
+      setCustomDept(d.custom);
+
+      const y = initYear(activeProfile.year);
+      setSelectedYear(y.selected);
+      setCustomYear(y.custom);
+
+      const c = initCollege(activeProfile.college);
+      setSelectedCollege(c.selected);
+      setCustomCollege(c.custom);
 
       (async () => {
         try {
           setStatsLoading(true);
-          const [vStats, certs] = await Promise.all([
+          const [vStats, certs, fetchedSkills] = await Promise.all([
             volunteerService.getVolunteerStats(activeProfile.id),
             certificateService.getCertificates({ user_id: activeProfile.id }),
+            volunteerService.getVolunteerSkills(activeProfile.id),
           ]);
           setStats({
             totalTasks: vStats.totalTasks || 0,
@@ -63,6 +128,10 @@ export default function VolunteerProfilePage() {
             assignedEventsCount: vStats.assignedEventsCount || 0,
             totalHours: vStats.totalHours || 0,
           });
+          if (fetchedSkills && fetchedSkills.length > 0) {
+            setSelectedSkills(fetchedSkills);
+            (activeProfile as any).skills = fetchedSkills;
+          }
         } catch (error) {
           console.error('Error fetching volunteer stats:', error);
         } finally {
@@ -112,43 +181,86 @@ export default function VolunteerProfilePage() {
     setCustomSkill('');
   };
 
-  const openEditWithSkills = () => {
-    const currentSkills = parseSkills((profile as any).skills);
-    setSelectedSkills(currentSkills.length > 0 ? currentSkills : []);
+  const openEditWithSkills = async () => {
+    let saved = await volunteerService.getVolunteerSkills(profile?.id || '');
+    if (saved.length === 0) {
+      saved = parseSkills((profile as any)?.skills);
+    }
+    const merged = Array.from(new Set([...selectedSkills, ...saved])).filter(Boolean);
+    setSelectedSkills(merged);
+    if (profile) {
+      setFullName(profile.full_name || '');
+      setPhone(profile.phone || '');
+
+      const d = initDepartment(profile.department);
+      setSelectedDept(d.selected);
+      setCustomDept(d.custom);
+
+      const y = initYear(profile.year);
+      setSelectedYear(y.selected);
+      setCustomYear(y.custom);
+
+      const c = initCollege(profile.college);
+      setSelectedCollege(c.selected);
+      setCustomCollege(c.custom);
+    }
     setIsEditOpen(true);
   };
 
   const handleSaveProfile = async () => {
+    const finalDept = selectedDept === 'Other' ? customDept.trim() : selectedDept;
+    const finalYear = selectedYear === 'Other' ? customYear.trim() : selectedYear;
+    const finalCollege = selectedCollege === 'Other' ? customCollege.trim() : selectedCollege;
+
+    if (!fullName.trim()) {
+      toast.error('Please enter your full name');
+      return;
+    }
+
+    if (!selectedDept) {
+      toast.error('Please select a department');
+      return;
+    }
+    if (selectedDept === 'Other' && !customDept.trim()) {
+      toast.error('Please enter your department name');
+      return;
+    }
+
+    if (!selectedYear) {
+      toast.error('Please select year of study');
+      return;
+    }
+    if (selectedYear === 'Other' && !customYear.trim()) {
+      toast.error('Please specify your year of study');
+      return;
+    }
+
+    if (!selectedCollege) {
+      toast.error('Please select college / organization');
+      return;
+    }
+    if (selectedCollege === 'Other' && !customCollege.trim()) {
+      toast.error('Please enter college / organization name');
+      return;
+    }
+
     try {
       setSaving(true);
       await profileService.updateProfile(profile.id, {
         full_name: fullName.trim(),
         phone: phone.trim() || undefined,
-        department: department.trim() || undefined,
-        year: year.trim() || undefined,
-        college: college.trim() || undefined,
+        department: finalDept || undefined,
+        year: finalYear || undefined,
+        college: finalCollege || undefined,
       });
 
-      if (selectedSkills.length > 0) {
-        try {
-          const { data: existingVols } = await volunteerService.getVolunteers({
-            user_id: profile.id,
-            limit: 1,
-          });
-          if (existingVols && existingVols.length > 0) {
-            const volId = existingVols[0].id;
-            const skillsJson = JSON.stringify(selectedSkills);
-            const sb = createClient();
-            await sb.from('volunteers').update({ skills: skillsJson }).eq('id', volId);
-          }
-        } catch (skillsErr) {
-          console.warn('Could not update volunteer skills:', skillsErr);
-        }
-        (profile as any).skills = selectedSkills;
-      }
+      const updatedSkills = await volunteerService.updateVolunteerSkills(profile.id, selectedSkills);
+      setSelectedSkills(updatedSkills);
+      (profile as any).skills = updatedSkills;
 
       await refreshProfile();
       const reloaded = await profileService.getProfile(profile.id);
+      (reloaded as any).skills = updatedSkills;
       const after = checkProfileCompletion(reloaded);
       try {
         await notificationService.syncProfileReminder(reloaded);
@@ -158,7 +270,7 @@ export default function VolunteerProfilePage() {
       if (after.isComplete) {
         toast.success('Profile complete! Reminder removed.');
       } else {
-        toast.success('Profile updated. Add ' + after.missingFields.join(', ') + ' to complete your profile.');
+        toast.success('Profile updated.');
       }
       setIsEditOpen(false);
     } catch (error) {
@@ -191,7 +303,7 @@ export default function VolunteerProfilePage() {
   };
 
   const completion = checkProfileCompletion(profile);
-  const profileSkills = parseSkills((profile as any).skills);
+  const profileSkills = selectedSkills.length > 0 ? selectedSkills : parseSkills((profile as any).skills);
 
   return (
     <div className="space-y-6 fade-in max-w-5xl mx-auto">
@@ -213,7 +325,7 @@ export default function VolunteerProfilePage() {
             </DialogHeader>
             <div className="space-y-5 py-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName">Full Name *</Label>
                 <Input
                   id="fullName"
                   value={fullName}
@@ -230,34 +342,85 @@ export default function VolunteerProfilePage() {
                   placeholder="Enter phone number"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="department">Department</Label>
-                  <Input
-                    id="department"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    placeholder="e.g. Computer Science"
-                  />
+                  <Label htmlFor="department">Department *</Label>
+                  <Select value={selectedDept} onValueChange={(val) => setSelectedDept(val || '')}>
+                    <SelectTrigger id="department" className="w-full">
+                      <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DEPARTMENTS.map((dept) => (
+                        <SelectItem key={dept} value={dept}>
+                          {dept}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedDept === 'Other' && (
+                    <div className="pt-2 space-y-1.5 animate-in fade-in-50 duration-200">
+                      <Label htmlFor="customDept" className="text-xs font-medium text-muted-foreground">Department Name *</Label>
+                      <Input
+                        id="customDept"
+                        value={customDept}
+                        onChange={(e) => setCustomDept(e.target.value)}
+                        placeholder="Enter department name"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="year">Year of Study</Label>
-                  <Input
-                    id="year"
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    placeholder="e.g. 3rd Year"
-                  />
+                  <Label htmlFor="year">Year of Study *</Label>
+                  <Select value={selectedYear} onValueChange={(val) => setSelectedYear(val || '')}>
+                    <SelectTrigger id="year" className="w-full">
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {YEARS.map((yr) => (
+                        <SelectItem key={yr} value={yr}>
+                          {yr}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedYear === 'Other' && (
+                    <div className="pt-2 space-y-1.5 animate-in fade-in-50 duration-200">
+                      <Label htmlFor="customYear" className="text-xs font-medium text-muted-foreground">Specify Year *</Label>
+                      <Input
+                        id="customYear"
+                        value={customYear}
+                        onChange={(e) => setCustomYear(e.target.value)}
+                        placeholder="Specify year of study"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="college">College / Organization</Label>
-                <Input
-                  id="college"
-                  value={college}
-                  onChange={(e) => setCollege(e.target.value)}
-                  placeholder="Enter college name"
-                />
+                <Label htmlFor="college">College / Organization *</Label>
+                <Select value={selectedCollege} onValueChange={(val) => setSelectedCollege(val || '')}>
+                  <SelectTrigger id="college" className="w-full">
+                    <SelectValue placeholder="Select College / Organization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COLLEGES.map((col) => (
+                      <SelectItem key={col} value={col}>
+                        {col}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedCollege === 'Other' && (
+                  <div className="pt-2 space-y-1.5 animate-in fade-in-50 duration-200">
+                    <Label htmlFor="customCollege" className="text-xs font-medium text-muted-foreground">College / Organization Name *</Label>
+                    <Input
+                      id="customCollege"
+                      value={customCollege}
+                      onChange={(e) => setCustomCollege(e.target.value)}
+                      placeholder="Enter college or organization name"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3 pt-2 border-t">
