@@ -328,8 +328,15 @@ export default function OrganizerDashboard() {
               {upcomingEvents.map((evt) => (
                 <div key={evt.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 gap-4 hover:border-[#7CEAAB] transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#01424E] text-[#7CEAAB] flex items-center justify-center font-bold text-sm shrink-0">
-                      {evt.category?.slice(0, 3).toUpperCase()}
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200 dark:border-slate-800">
+                      <img
+                        src={evt.banner_url || evt.poster_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=300'}
+                        alt={evt.title}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=300';
+                        }}
+                        className="w-full h-full object-cover object-center block"
+                      />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">

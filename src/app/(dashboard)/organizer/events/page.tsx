@@ -20,6 +20,7 @@ import { eventService } from '@/services/event-service';
 import { Event } from '@/types/database.types';
 import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
+import { BannerUpload } from '@/components/shared/banner-upload';
 
 export default function OrganizerEventsPage() {
   const { profile } = useAuth();
@@ -78,8 +79,13 @@ export default function OrganizerEventsPage() {
       venue: evt.venue,
       building: evt.building,
       room: evt.room,
-      registration_fee: evt.registration_fee,
-      max_participants: evt.max_participants,
+      banner_url: evt.banner_url || evt.poster_url || '',
+      poster_url: evt.poster_url || evt.banner_url || '',
+      registration_mode: evt.registration_mode || 'individual',
+      registration_fee: evt.registration_fee ?? 0,
+      max_participants: evt.max_participants ?? 100,
+      max_teams: evt.max_teams ?? 25,
+      max_team_size: evt.max_team_size ?? 4,
       start_date: evt.start_date ? new Date(evt.start_date).toISOString().slice(0, 16) : '',
       end_date: evt.end_date ? new Date(evt.end_date).toISOString().slice(0, 16) : '',
       need_volunteers: evt.need_volunteers ?? false,
@@ -233,39 +239,55 @@ export default function OrganizerEventsPage() {
           {filteredEvents.map(evt => (
             <Card
               key={evt.id}
-              className="border-slate-200 dark:border-slate-800/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-out flex flex-col justify-between h-full rounded-2xl bg-card overflow-hidden group"
+              className="pt-0 p-0 gap-0 border-slate-200 dark:border-slate-800/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-out flex flex-col justify-between h-full rounded-2xl bg-card overflow-hidden group"
             >
               <div>
-                <CardHeader className="p-5 pb-3">
-                  <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        className={`capitalize font-bold text-[11px] px-2.5 py-0.5 rounded-lg shrink-0 ${
-                          evt.status === 'published'
-                            ? 'bg-[#007C46] text-white shadow-xs'
-                            : evt.status === 'draft'
-                            ? 'bg-amber-500 text-white shadow-xs'
-                            : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
-                        }`}
-                      >
-                        {evt.status}
-                      </Badge>
-                      <span className="text-xs font-extrabold text-[#007C46] dark:text-[#7CEAAB] px-2.5 py-0.5 rounded-md bg-[#edfcf6] dark:bg-teal-950/60 shrink-0">
-                        {evt.registration_fee > 0 ? `₹${evt.registration_fee}` : 'FREE'}
-                      </span>
-                    </div>
+                {/* Event Banner Image Header */}
+                <div className="relative w-full h-36 overflow-hidden rounded-t-2xl bg-slate-900 shrink-0">
+                  <img
+                    src={evt.banner_url || evt.poster_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200'}
+                    alt={evt.title}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200';
+                    }}
+                    className="w-full h-full object-cover object-center block transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 pointer-events-none" />
 
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+                    <Badge
+                      className={`capitalize font-bold text-[10px] px-2.5 py-0.5 rounded-lg shrink-0 ${
+                        evt.status === 'published'
+                          ? 'bg-[#007C46] text-white shadow-xs'
+                          : evt.status === 'draft'
+                          ? 'bg-amber-500 text-white shadow-xs'
+                          : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      {evt.status}
+                    </Badge>
+                    <Badge className="bg-white/90 text-[#01424E] border-0 backdrop-blur text-[10px] uppercase tracking-wider font-bold">
+                      {evt.category || 'General'}
+                    </Badge>
+                  </div>
+
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                    <span className="text-[10px] font-extrabold text-white px-2.5 py-0.5 rounded-md bg-black/60 backdrop-blur border border-white/20 shrink-0">
+                      {evt.registration_fee > 0 ? `₹${evt.registration_fee}` : 'FREE'}
+                    </span>
                     <Button
                       onClick={() => { setDeletingEvent(evt); setIsDeleteOpen(true); }}
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg shrink-0 transition-colors cursor-pointer"
+                      className="h-7 w-7 text-white/80 hover:text-red-400 hover:bg-black/50 backdrop-blur rounded-lg shrink-0 transition-colors cursor-pointer"
                       title="Delete event"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
+                </div>
 
+                <CardHeader className="p-5 pb-3">
                   <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-100 line-clamp-1 tracking-tight">
                     {evt.title}
                   </CardTitle>
@@ -352,19 +374,122 @@ export default function OrganizerEventsPage() {
               />
             </div>
             <div className="space-y-1.5">
+              <Label className="font-semibold">Event Banner Image</Label>
+              <BannerUpload
+                value={editFormData.banner_url || ''}
+                onChange={(url) => setEditFormData(prev => ({ ...prev, banner_url: url, poster_url: url || prev.poster_url }))}
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <Label className="font-semibold">Venue / Building</Label>
               <Input
                 value={editFormData.venue || ''}
                 onChange={(e) => setEditFormData(prev => ({ ...prev, venue: e.target.value }))}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="font-semibold">Registration Fee (₹)</Label>
-              <Input
-                type="number"
-                value={editFormData.registration_fee ?? 0}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, registration_fee: parseFloat(e.target.value) || 0 }))}
-              />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="font-semibold">Registration Mode</Label>
+                <Select
+                  value={editFormData.registration_mode || 'individual'}
+                  onValueChange={(val) => setEditFormData(prev => ({ ...prev, registration_mode: val as any }))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual Registration</SelectItem>
+                    <SelectItem value="team">Team Registration</SelectItem>
+                    <SelectItem value="both">Both Allowed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="font-semibold">Registration Fee (₹)</Label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0 for Free"
+                  value={editFormData.registration_fee ?? 0}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                      const parsed = parseFloat(val);
+                      setEditFormData(prev => ({ ...prev, registration_fee: isNaN(parsed) ? 0 : Math.max(0, parsed) }));
+                    } else {
+                      toast.error('Registration fee must be a positive number.');
+                    }
+                  }}
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+            </div>
+
+            {/* Dynamic Registration Fields - 2-Column Symmetrical UI */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {editFormData.registration_mode !== 'individual' && (
+                <>
+                  <div className="space-y-1.5">
+                    <Label className="font-semibold">Max Teams Capacity</Label>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      value={editFormData.max_teams ?? 25}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '' || /^\d+$/.test(val)) {
+                          const parsed = parseInt(val, 10);
+                          setEditFormData(prev => ({ ...prev, max_teams: isNaN(parsed) ? 1 : Math.max(1, parsed) }));
+                        } else {
+                          toast.error('Max teams capacity must be a positive integer.');
+                        }
+                      }}
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="font-semibold">Max Team Size</Label>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      value={editFormData.max_team_size ?? 4}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '' || /^\d+$/.test(val)) {
+                          const parsed = parseInt(val, 10);
+                          setEditFormData(prev => ({ ...prev, max_team_size: isNaN(parsed) ? 1 : Math.max(1, parsed) }));
+                        } else {
+                          toast.error('Max team members must be a positive integer.');
+                        }
+                      }}
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editFormData.registration_mode !== 'team' && (
+                <div className={`space-y-1.5 ${editFormData.registration_mode === 'both' ? 'sm:col-span-2' : ''}`}>
+                  <Label className="font-semibold">Max Participants</Label>
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    value={editFormData.max_participants ?? 100}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d+$/.test(val)) {
+                        const parsed = parseInt(val, 10);
+                        setEditFormData(prev => ({ ...prev, max_participants: isNaN(parsed) ? 1 : Math.max(1, parsed) }));
+                      } else {
+                        toast.error('Max participants must be a positive integer.');
+                      }
+                    }}
+                    className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label className="font-semibold">Short Description</Label>

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sparkles, Calendar, MapPin, Users, IndianRupee, ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2, Wand2, Plus, Trash2, X } from 'lucide-react';
 import { eventService } from '@/services/event-service';
 import { toast } from 'sonner';
+import { BannerUpload } from '@/components/shared/banner-upload';
 
 import { checkProfileCompletion } from '@/hooks/use-profile-completion';
 import { ProfileGuardDialog } from '@/components/shared/profile-guard-dialog';
@@ -72,6 +73,53 @@ export default function CreateEventPage() {
 
   const [customRoleInput, setCustomRoleInput] = useState('');
 
+  // Controlled String Inputs for Non-Spinner Numeric Fields
+  const [feeInput, setFeeInput] = useState('0');
+  const [maxParticipantsInput, setMaxParticipantsInput] = useState('100');
+  const [maxTeamsInput, setMaxTeamsInput] = useState('25');
+  const [maxTeamSizeInput, setMaxTeamSizeInput] = useState('4');
+
+  // Numeric Inputs Validation without Spinner Controls
+  const handleFeeChange = (val: string) => {
+    if (val === '' || /^\d*\.?\d*$/.test(val)) {
+      setFeeInput(val);
+      const parsed = parseFloat(val);
+      handleChange('registration_fee', isNaN(parsed) ? 0 : Math.max(0, parsed));
+    } else {
+      toast.error('Registration fee must be a positive number (0 for free entry).');
+    }
+  };
+
+  const handleMaxTeamsChange = (val: string) => {
+    if (val === '' || /^\d+$/.test(val)) {
+      setMaxTeamsInput(val);
+      const parsed = parseInt(val, 10);
+      handleChange('max_teams', isNaN(parsed) ? 1 : Math.max(1, parsed));
+    } else {
+      toast.error('Max teams capacity must be a positive whole number.');
+    }
+  };
+
+  const handleMaxTeamSizeChange = (val: string) => {
+    if (val === '' || /^\d+$/.test(val)) {
+      setMaxTeamSizeInput(val);
+      const parsed = parseInt(val, 10);
+      handleChange('max_team_size', isNaN(parsed) ? 1 : Math.max(1, parsed));
+    } else {
+      toast.error('Max members per team must be a positive whole number.');
+    }
+  };
+
+  const handleMaxParticipantsChange = (val: string) => {
+    if (val === '' || /^\d+$/.test(val)) {
+      setMaxParticipantsInput(val);
+      const parsed = parseInt(val, 10);
+      handleChange('max_participants', isNaN(parsed) ? 1 : Math.max(1, parsed));
+    } else {
+      toast.error('Max participants must be a positive whole number.');
+    }
+  };
+
   // Check profile completion immediately when organizer opens Create Event page
   useEffect(() => {
     if (!profile) return;
@@ -113,14 +161,28 @@ export default function CreateEventPage() {
           short_description: d.short_description || prev.short_description,
           description: d.description || prev.description,
           category: d.category || prev.category,
+          event_type: d.event_type || prev.event_type,
           venue: d.venue || prev.venue,
+          building: d.building || prev.building,
+          room: d.room || prev.room,
+          start_date: d.start_date || prev.start_date,
+          end_date: d.end_date || prev.end_date,
+          registration_mode: d.registration_mode || prev.registration_mode,
           registration_fee: d.registration_fee ?? prev.registration_fee,
+          max_participants: d.max_participants || prev.max_participants,
+          max_teams: d.max_teams || prev.max_teams,
           max_team_size: d.max_team_size || prev.max_team_size,
           rules: d.rules && d.rules.length ? d.rules : prev.rules,
           faqs: d.faqs && d.faqs.length ? d.faqs : prev.faqs,
           tags: d.tags || prev.tags
         }));
-        toast.success('AI Event details generated! Review & edit below.');
+
+        if (d.registration_fee !== undefined) setFeeInput(d.registration_fee.toString());
+        if (d.max_participants !== undefined) setMaxParticipantsInput(d.max_participants.toString());
+        if (d.max_teams !== undefined) setMaxTeamsInput(d.max_teams.toString());
+        if (d.max_team_size !== undefined) setMaxTeamSizeInput(d.max_team_size.toString());
+
+        toast.success(`Structured event details populated for "${d.title}"! ✨`);
       }
     } catch {
       toast.error('AI generation failed, using standard template');
@@ -300,11 +362,17 @@ export default function CreateEventPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="font-semibold">Poster Image URL</Label>
-              <Input
-                placeholder="https://images.unsplash.com/..."
-                value={formData.poster_url}
-                onChange={(e) => handleChange('poster_url', e.target.value)}
+              <Label className="font-semibold">Event Banner Image *</Label>
+              <p className="text-xs text-muted-foreground">Upload a high-resolution banner image for your event card and header page.</p>
+              <BannerUpload
+                value={formData.banner_url}
+                onChange={(url) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    banner_url: url,
+                    poster_url: url || prev.poster_url
+                  }));
+                }}
               />
             </div>
           </CardContent>
@@ -389,7 +457,7 @@ export default function CreateEventPage() {
         <Card className="border-slate-200 dark:border-slate-800 shadow-md">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-[#01424E] dark:text-teal-200">Step 3: Registration Rules & Fee</CardTitle>
-            <CardDescription>Configure individual/team mode, max caps, fee amount, and payment guide</CardDescription>
+            <CardDescription>Configure individual/team mode, maximum capacity, fee amount, and payment guide</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -408,42 +476,58 @@ export default function CreateEventPage() {
               <div className="space-y-2">
                 <Label className="font-semibold">Registration Fee (₹)</Label>
                 <Input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   placeholder="0 for Free event"
-                  value={formData.registration_fee}
-                  onChange={(e) => handleChange('registration_fee', parseFloat(e.target.value) || 0)}
+                  value={feeInput}
+                  onChange={(e) => handleFeeChange(e.target.value)}
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
+                <p className="text-[11px] text-muted-foreground">Type 0 for free entry or positive fee amount in ₹.</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="font-semibold">Max Total Participants</Label>
-                <Input
-                  type="number"
-                  value={formData.max_participants}
-                  onChange={(e) => handleChange('max_participants', parseInt(e.target.value) || 100)}
-                />
-              </div>
+            {/* Dynamic Grid based on Registration Mode - 2-Column Balanced UI */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {formData.registration_mode !== 'individual' && (
                 <>
                   <div className="space-y-2">
-                    <Label className="font-semibold">Max Teams Cap</Label>
+                    <Label className="font-semibold">Max Teams Capacity</Label>
                     <Input
-                      type="number"
-                      value={formData.max_teams}
-                      onChange={(e) => handleChange('max_teams', parseInt(e.target.value) || 25)}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="25"
+                      value={maxTeamsInput}
+                      onChange={(e) => handleMaxTeamsChange(e.target.value)}
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="font-semibold">Max Members Per Team</Label>
                     <Input
-                      type="number"
-                      value={formData.max_team_size}
-                      onChange={(e) => handleChange('max_team_size', parseInt(e.target.value) || 4)}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="4"
+                      value={maxTeamSizeInput}
+                      onChange={(e) => handleMaxTeamSizeChange(e.target.value)}
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 </>
+              )}
+
+              {formData.registration_mode !== 'team' && (
+                <div className={`space-y-2 ${formData.registration_mode === 'both' ? 'sm:col-span-2' : ''}`}>
+                  <Label className="font-semibold">Max Total Participants</Label>
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="100"
+                    value={maxParticipantsInput}
+                    onChange={(e) => handleMaxParticipantsChange(e.target.value)}
+                    className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
               )}
             </div>
 
