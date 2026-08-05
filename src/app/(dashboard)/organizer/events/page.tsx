@@ -18,6 +18,7 @@ import {
 import Link from 'next/link';
 import { eventService } from '@/services/event-service';
 import { Event } from '@/types/database.types';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
 export default function OrganizerEventsPage() {
@@ -147,9 +148,10 @@ export default function OrganizerEventsPage() {
           <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-100">Organizer Event Management</h1>
           <p className="text-muted-foreground text-sm">Create, publish, edit, and manage your campus events in real-time</p>
         </div>
-        <Button asChild className="bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold shadow-md">
-          <Link href="/organizer/events/create">
-            <Plus className="mr-2 h-4 w-4" /> Create New Event
+        <Button asChild className="h-10 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-sm shrink-0">
+          <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
+            <Plus className="h-4 w-4 shrink-0" />
+            <span>Create New Event</span>
           </Link>
         </Button>
       </div>
@@ -207,8 +209,11 @@ export default function OrganizerEventsPage() {
                 {search || statusFilter !== 'all' ? 'Try adjusting your search filters' : 'You haven\'t created any events yet. Click below to draft your first event.'}
               </p>
             </div>
-            <Button asChild className="bg-[#007C46] text-white">
-              <Link href="/organizer/events/create"><Plus className="mr-2 h-4 w-4" /> Create Event Now</Link>
+            <Button asChild className="h-10 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-sm">
+              <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
+                <Plus className="h-4 w-4 shrink-0" />
+                <span>Create Event Now</span>
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -257,23 +262,26 @@ export default function OrganizerEventsPage() {
                 </CardContent>
               </div>
 
-              <CardFooter className="pt-4 border-t flex flex-col gap-2 bg-slate-50/50 dark:bg-slate-900/40 rounded-b-xl">
-                <div className="flex items-center justify-between gap-2 w-full">
+              <CardFooter className="pt-4 border-t flex flex-col gap-2.5 bg-slate-50/50 dark:bg-slate-900/40 rounded-b-xl">
+                <div className="flex items-center gap-2 w-full">
                   {evt.status === 'draft' && (
-                    <Button onClick={() => handlePublish(evt)} size="sm" className="bg-[#007C46] text-white hover:bg-[#007C46]/90 flex-1 font-bold text-xs">
-                      <Rocket className="mr-1.5 h-3.5 w-3.5" /> Publish Live
+                    <Button onClick={() => handlePublish(evt)} size="sm" className="h-9 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-1.5 bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-xs cursor-pointer">
+                      <Rocket className="h-3.5 w-3.5 shrink-0" />
+                      <span>Publish Live</span>
                     </Button>
                   )}
-                  <Button onClick={() => handleOpenEdit(evt)} variant="outline" size="sm" className="flex-1 text-xs">
-                    <Edit2 className="mr-1.5 h-3.5 w-3.5 text-[#01424E]" /> Edit
+                  <Button onClick={() => handleOpenEdit(evt)} variant="outline" size="sm" className="h-9 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-1.5 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <Edit2 className="h-3.5 w-3.5 text-[#01424E] shrink-0" />
+                    <span>Edit</span>
                   </Button>
-                  <Button onClick={() => { setDeletingEvent(evt); setIsDeleteOpen(true); }} variant="outline" size="sm" className="text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40">
+                  <Button onClick={() => { setDeletingEvent(evt); setIsDeleteOpen(true); }} variant="outline" size="sm" className="h-9 w-9 p-0 rounded-xl inline-flex items-center justify-center shrink-0 text-red-600 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/40 transition-colors cursor-pointer" title="Delete event">
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-                <Button asChild variant="secondary" size="sm" className="w-full text-xs">
-                  <Link href={`/organizer/events/${evt.id}`}>
-                    <Eye className="mr-1.5 h-3.5 w-3.5" /> Event Dashboard
+                <Button asChild variant="outline" size="sm" className="h-9 w-full text-xs font-bold rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[#01424E] dark:text-teal-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#007C46] transition-all cursor-pointer shadow-xs">
+                  <Link href={`/organizer/events/${evt.id}`} className="inline-flex items-center justify-center gap-1.5 h-full w-full">
+                    <Eye className="h-3.5 w-3.5 shrink-0" />
+                    <span>Event Dashboard</span>
                   </Link>
                 </Button>
               </CardFooter>

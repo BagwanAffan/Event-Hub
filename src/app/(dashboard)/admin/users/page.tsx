@@ -25,9 +25,12 @@ import {
 } from 'lucide-react';
 import { adminService } from '@/services/admin-service';
 import { Profile } from '@/types/database.types';
+import { useAuth } from '@/hooks/use-auth';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
 export default function AdminUsersPage() {
+  const { profile: currentAdmin } = useAuth();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -69,9 +72,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [roleFilter, statusFilter]);
+  useDataSync(['admin', 'profile'], fetchUsers, [roleFilter, statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

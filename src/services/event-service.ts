@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
+import { adminService } from "./admin-service";
 import type {
   Event,
   EventStatus,
@@ -61,13 +63,18 @@ export const eventService = {
       upcoming,
       need_volunteers,
       page = 1,
-      limit = 10,
+      limit = 50,
     } = filters;
 
     try {
       let query = supabase
         .from("events")
-        .select("*, profiles!events_created_by_fkey(full_name, email, profile_picture)", { count: "exact" });
+        .select("*, profiles!events_created_by_fkey(full_name, email, profile_picture, college)", { count: "exact" })
+        .eq("is_soft_deleted", false);
+
+      if (!created_by) {
+        query = query.eq("is_disabled", false).neq("status", "disabled").neq("status", "cancelled");
+      }
 
       if (status) query = query.eq("status", status);
       if (category && category !== 'all' && category !== 'All') {
@@ -95,33 +102,36 @@ export const eventService = {
       if (error || !data || data.length === 0) {
         return { data: [], count: 0, page, limit };
       }
-      return { data: data as (Event & { profiles: { full_name: string; email: string; profile_picture: string | null } })[], count: count || 0, page, limit };
+      return { data: data as (Event & { profiles: { full_name: string; email: string; profile_picture: string | null; college: string | null } })[], count: count || 0, page, limit };
     } catch {
       return { data: [], count: 0, page, limit };
     }
   },
 
   async getPublicEvents(filters: EventFilters = {}) {
-    const { category, search, page = 1, limit = 12 } = filters;
+    const { category, search, page = 1, limit = 50 } = filters;
 
     try {
       let query = supabase
         .from("events")
-        .select("*, profiles!events_created_by_fkey(full_name, profile_picture)", { count: "exact" })
+        .select("*, profiles!events_created_by_fkey(full_name, email, profile_picture, college)", { count: "exact" })
+        .eq("is_soft_deleted", false)
+        .eq("is_disabled", false)
+        .neq("status", "disabled")
         .neq("status", "draft")
         .neq("status", "cancelled")
         .neq("status", "archived");
 
-      if (category && category !== 'all' && category !== 'All') {
+      if (category && category !== "all" && category !== "All") {
         query = query.ilike("category", `%${category}%`);
       }
+
       if (search && search.trim()) {
         const s = search.trim();
         query = query.or(
           `title.ilike.%${s}%,short_description.ilike.%${s}%,description.ilike.%${s}%,category.ilike.%${s}%,venue.ilike.%${s}%`
         );
       }
-
       const from = (page - 1) * limit;
       const to = from + limit - 1;
 
@@ -133,7 +143,7 @@ export const eventService = {
         return { data: [], count: 0, page, limit };
       }
 
-      // Deduplicate events by ID to prevent duplicate card rendering
+      // Deduplicate events by ID
       const uniqueData = Array.from(
         new Map((data || []).map((item: any) => [item.id, item])).values()
       );
@@ -155,9 +165,10 @@ export const eventService = {
           event_gallery(*)`
         )
         .eq("id", id)
-        .single();
+        .eq("is_soft_deleted", false)
+        .maybeSingle();
 
-      if (error || !data) {
+      if (error || !data || data.is_disabled || data.status === 'disabled') {
         return null;
       }
       return data;
@@ -177,7 +188,7 @@ export const eventService = {
       .from("events")
       .insert(cleanData)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Database error creating event:", error);
@@ -199,6 +210,7 @@ export const eventService = {
       await supabase.from("event_faqs").insert(faqsToInsert);
     }
 
+    dataSync.notify("events");
     return data as Event;
   },
 
@@ -209,27 +221,22 @@ export const eventService = {
       .from("events")
       .update(cleanUpdates)
       .eq("id", id)
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error("Database error updating event:", error);
       throw new Error(error.message || "Failed to update event in database");
     }
 
-    if (!data) {
-      throw new Error("Event not found or failed to update");
-    }
-
-    return data as Event;
+    const updated = data?.[0] || ({ id, ...cleanUpdates } as Event);
+    dataSync.notify("events");
+    return updated;
   },
 
   async deleteEvent(id: string) {
-    const { error } = await supabase.from("events").delete().eq("id", id);
-    if (error) {
-      console.error("Database error deleting event:", error);
-      throw new Error(error.message || "Failed to delete event from database");
-    }
+    const res = await adminService.deleteEventPermanently(id);
+    dataSync.notify("events", "registrations", "volunteers", "certificates", "admin");
+    return res;
   },
 
   async getEventRegistrationCount(eventId: string) {

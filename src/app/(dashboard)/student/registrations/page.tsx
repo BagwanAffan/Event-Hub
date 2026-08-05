@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { registrationService } from '@/services/registration-service';
@@ -14,6 +14,7 @@ import { TableSkeleton } from '@/components/ui/page-skeleton';
 import { Search, Eye, QrCode, ListFilter, LayoutGrid, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function RegistrationsPage() {
   const { profile } = useAuth();
@@ -22,22 +23,21 @@ export default function RegistrationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
-  useEffect(() => {
-    async function loadData() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const data = await registrationService.getUserRegistrations(profile.id);
-        setRegistrations(data || []);
-      } catch (error) {
-        console.error('Error fetching registrations:', error);
-        toast.error('Failed to load registrations');
-      } finally {
-        setLoading(false);
-      }
+  const loadData = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      setLoading(true);
+      const data = await registrationService.getUserRegistrations(profile.id);
+      setRegistrations(data || []);
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+      toast.error('Failed to load registrations');
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, [profile]);
+  }, [profile?.id]);
+
+  useDataSync(['registrations', 'events', 'payments'], loadData, [profile?.id]);
 
   const filteredRegistrations = registrations.filter(reg => 
     reg.events?.title?.toLowerCase().includes(searchQuery.toLowerCase())

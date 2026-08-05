@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import { storageService } from "./storage-service";
 import type { OrganizerVerification } from "@/types/database.types";
 
@@ -91,6 +92,7 @@ export const organizerVerificationService = {
       })
       .eq("id", payload.user_id);
 
+    dataSync.notify("admin", "profile");
     return result as OrganizerVerification;
   },
 };

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Volunteer, VolunteerTask, ChecklistItem, TaskPriority, VolunteerAttendanceStatus } from "@/types/database.types";
 
 const supabase = createClient();
@@ -194,6 +195,7 @@ export const volunteerService = {
         if (error) console.error("Error applying as volunteer:", error);
         return null;
       }
+      dataSync.notify("volunteers", "events");
       return { ...data, skills: parseSkills(data.skills as any) } as Volunteer;
     } catch (err) {
       console.error("Exception in applyAsVolunteer:", err);
@@ -222,6 +224,7 @@ export const volunteerService = {
       throw new Error("Volunteer record not found");
     }
 
+    dataSync.notify("volunteers", "events");
     return { ...data, skills: parseSkills(data.skills as any) } as Volunteer;
   },
 
@@ -242,6 +245,7 @@ export const volunteerService = {
       throw new Error("Volunteer record not found");
     }
 
+    dataSync.notify("volunteers", "events");
     return { ...data, skills: parseSkills(data.skills as any) } as Volunteer;
   },
 
@@ -363,6 +367,7 @@ export const volunteerService = {
       throw new Error("Volunteer task not found");
     }
 
+    dataSync.notify("volunteers", "events");
     return {
       ...data,
       checklist: Array.isArray(data.checklist) ? data.checklist : [],
@@ -391,6 +396,7 @@ export const volunteerService = {
       throw new Error("Volunteer task not found");
     }
 
+    dataSync.notify("volunteers", "events");
     return {
       ...data,
       checklist: Array.isArray(data.checklist) ? data.checklist : [],
@@ -414,6 +420,7 @@ export const volunteerService = {
       throw new Error("Volunteer task not found");
     }
 
+    dataSync.notify("volunteers", "events");
     return {
       ...data,
       checklist: Array.isArray(data.checklist) ? data.checklist : [],
@@ -449,6 +456,7 @@ export const volunteerService = {
       throw new Error("No data returned after task creation");
     }
 
+    dataSync.notify("volunteers", "events");
     return {
       ...data,
       checklist: Array.isArray(data.checklist) ? data.checklist : [],
@@ -467,6 +475,8 @@ export const volunteerService = {
       console.error("Error updating task checklist in Supabase:", error);
       throw new Error(error.message || "Failed to update task checklist");
     }
+
+    dataSync.notify("volunteers", "events");
 
     return {
       ...data,

@@ -40,6 +40,12 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import {
+  ROLE_NOTIFICATION_OPTIONS,
+  loadNotificationPreferences,
+  saveNotificationPreferences,
+  type UserRole,
+} from '@/services/notification-preferences-service';
 
 type TabKey = 'appearance' | 'notifications' | 'security' | 'account' | 'about';
 
@@ -64,14 +70,8 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
   // General & Language State
   const [language, setLanguage] = useState('English');
 
-  // Notifications State
-  const [emailNotifs, setEmailNotifs] = useState(true);
-  const [certNotifs, setCertNotifs] = useState(true);
-  const [eventReminders, setEventReminders] = useState(true);
-  const [regUpdates, setRegUpdates] = useState(true);
-  const [volUpdates, setVolUpdates] = useState(true);
-  const [announcements, setAnnouncements] = useState(true);
-  const [paymentUpdates, setPaymentUpdates] = useState(true);
+  // Role-Specific Notifications State
+  const [notifPrefs, setNotifPrefs] = useState<Record<string, boolean>>({});
 
   // Modal State
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -79,6 +79,17 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (profile?.id || role) {
+      const loaded = loadNotificationPreferences(profile?.id, role as UserRole);
+      setNotifPrefs(loaded);
+    }
+  }, [profile?.id, role]);
+
+  const handleTogglePref = (key: string, val: boolean) => {
+    setNotifPrefs((prev) => ({ ...prev, [key]: val }));
+  };
 
   const handlePasswordSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +125,7 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
   };
 
   const handleSaveNotifications = () => {
+    saveNotificationPreferences(profile?.id, role as UserRole, notifPrefs);
     toast.success('Notification preferences saved');
   };
 
@@ -146,9 +158,9 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
 
   const initials = profile?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || role.charAt(0).toUpperCase();
 
-  const tabs: { id: TabKey; label: string; icon: any; count?: number }[] = [
-    { id: 'appearance', label: 'Appearance', icon: Sun, count: 3 },
-    { id: 'notifications', label: 'Notifications', icon: Bell, count: 7 },
+  const tabs: { id: TabKey; label: string; icon: any }[] = [
+    { id: 'appearance', label: 'Appearance', icon: Sun },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'account', label: 'Account', icon: User },
     { id: 'about', label: 'About', icon: Info },
@@ -184,18 +196,6 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
             >
               <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-[#7CEAAB]" : "text-slate-500")} />
               <span>{tab.label}</span>
-              {tab.count !== undefined && (
-                <span
-                  className={cn(
-                    "text-[10px] font-extrabold px-2 py-0.5 rounded-full transition-colors ml-0.5",
-                    isActive
-                      ? "bg-[#7CEAAB] text-[#01424E]"
-                      : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                  )}
-                >
-                  {tab.count}
-                </span>
-              )}
             </button>
           );
         })}
@@ -305,55 +305,16 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
             </div>
 
             <div className="space-y-4">
-              <NotificationRow
-                icon={<Mail className="h-4 w-4" />}
-                title="Email Notifications"
-                description="Receive email updates for event registrations, approvals, and passes"
-                checked={emailNotifs}
-                onChange={setEmailNotifs}
-              />
-              <NotificationRow
-                icon={<Sparkles className="h-4 w-4" />}
-                title="Certificate Notifications"
-                description="Get notified when verifiable certificates are issued to your profile"
-                checked={certNotifs}
-                onChange={setCertNotifs}
-              />
-              <NotificationRow
-                icon={<Calendar className="h-4 w-4" />}
-                title="Event Reminders"
-                description="Receive automated reminders 24 hours before registered events start"
-                checked={eventReminders}
-                onChange={setEventReminders}
-              />
-              <NotificationRow
-                icon={<Bell className="h-4 w-4" />}
-                title="Registration Updates"
-                description="Get instant alerts for status changes on event applications"
-                checked={regUpdates}
-                onChange={setRegUpdates}
-              />
-              <NotificationRow
-                icon={<User className="h-4 w-4" />}
-                title="Volunteer Updates"
-                description="Receive shift schedules and volunteer task assignments"
-                checked={volUpdates}
-                onChange={setVolUpdates}
-              />
-              <NotificationRow
-                icon={<Info className="h-4 w-4" />}
-                title="Announcement Alerts"
-                description="Receive campus-wide broadcasts and urgent event notices"
-                checked={announcements}
-                onChange={setAnnouncements}
-              />
-              <NotificationRow
-                icon={<ShieldCheck className="h-4 w-4" />}
-                title="Payment Updates"
-                description="Receive payment receipts and transaction confirmations"
-                checked={paymentUpdates}
-                onChange={setPaymentUpdates}
-              />
+              {(ROLE_NOTIFICATION_OPTIONS[role as UserRole] || ROLE_NOTIFICATION_OPTIONS.student).map((opt) => (
+                <NotificationRow
+                  key={opt.key}
+                  icon={getNotificationIcon(opt.iconName)}
+                  title={opt.title}
+                  description={opt.description}
+                  checked={notifPrefs[opt.key] ?? true}
+                  onChange={(val) => handleTogglePref(opt.key, val)}
+                />
+              ))}
             </div>
 
             <div className="flex justify-end pt-5 border-t border-slate-100 dark:border-slate-800 mt-5">
@@ -508,8 +469,9 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
 
               {/* Edit Profile Action Button (Properly Centered & Formatted) */}
               <Button asChild className="bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-xl h-10 px-5 inline-flex items-center justify-center gap-2 cursor-pointer shadow-md shrink-0">
-                <Link href={`/${role}/profile`}>
-                  <Edit2 className="h-4 w-4" /> Edit Full Profile
+                <Link href={`/${role}/profile`} className="inline-flex items-center justify-center gap-2 h-full w-full">
+                  <Edit2 className="h-4 w-4 shrink-0" />
+                  <span>Edit Full Profile</span>
                 </Link>
               </Button>
             </div>
@@ -615,6 +577,31 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
       </Dialog>
     </div>
   );
+}
+
+function getNotificationIcon(iconName: string) {
+  switch (iconName) {
+    case 'Mail':
+      return <Mail className="h-4 w-4" />;
+    case 'Sparkles':
+      return <Sparkles className="h-4 w-4" />;
+    case 'Calendar':
+      return <Calendar className="h-4 w-4" />;
+    case 'Bell':
+      return <Bell className="h-4 w-4" />;
+    case 'User':
+      return <User className="h-4 w-4" />;
+    case 'Info':
+      return <Info className="h-4 w-4" />;
+    case 'ShieldCheck':
+      return <ShieldCheck className="h-4 w-4" />;
+    case 'Check':
+      return <Check className="h-4 w-4" />;
+    case 'Lock':
+      return <Lock className="h-4 w-4" />;
+    default:
+      return <Bell className="h-4 w-4" />;
+  }
 }
 
 function NotificationRow({

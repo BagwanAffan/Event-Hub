@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Payment, PaymentStatus } from "@/types/database.types";
 
 const supabase = createClient();
@@ -69,6 +70,7 @@ export const paymentService = {
       if (error || !data) {
         throw error || new Error('Failed to create payment');
       }
+      dataSync.notify("payments", "registrations");
       return data as Payment;
     } catch (error) {
       throw error;
@@ -91,6 +93,7 @@ export const paymentService = {
       if (error || !data) {
         throw error || new Error('Failed to approve payment');
       }
+      dataSync.notify("payments", "registrations");
       return data as Payment;
     } catch (error) {
       throw error;
@@ -112,6 +115,7 @@ export const paymentService = {
       if (error || !data) {
         throw error || new Error('Failed to reject payment');
       }
+      dataSync.notify("payments", "registrations");
       return data as Payment;
     } catch (error) {
       throw error;

@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { certificateService } from '@/services/certificate-service';
 import { exportService } from '@/services/export-service';
 import { CertificateTemplate, buildCertificateData, FormattedCertificateData } from '@/components/certificates/certificate-template';
+import { useDataSync } from '@/lib/data-sync';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,21 +21,20 @@ export default function StudentCertificatesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCertData, setSelectedCertData] = useState<FormattedCertificateData | null>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const data = await certificateService.getCertificates({ user_id: profile.id });
-        setCertificates(data || []);
-      } catch (error) {
-        console.error('Error fetching certificates:', error);
-      } finally {
-        setLoading(false);
-      }
+  const loadData = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      setLoading(true);
+      const data = await certificateService.getCertificates({ user_id: profile.id });
+      setCertificates(data || []);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+    } finally {
+      setLoading(false);
     }
-    loadData();
   }, [profile?.id]);
+
+  useDataSync(['certificates'], loadData, [profile?.id]);
 
   const handleDownload = (cert: any) => {
     const formatted = buildCertificateData(cert);

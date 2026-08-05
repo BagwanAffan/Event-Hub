@@ -30,6 +30,15 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+export function getAdaptiveItemStyles() {
+  return {
+    navGap: 'gap-1.5',
+    itemPadding: 'py-2.5 px-3.5',
+    minHeight: 'min-h-[40px]',
+    iconGap: 'gap-3',
+  };
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const { profile, loading, signOut } = useAuth();
@@ -65,7 +74,7 @@ export function Sidebar() {
     ],
     volunteer: [
       { name: 'Dashboard', icon: LayoutDashboard, href: '/volunteer/dashboard' },
-      { name: 'Assigned Events', icon: Calendar, href: '/volunteer/events' },
+      { name: 'Events', icon: Calendar, href: '/volunteer/events' },
       { name: 'My Tasks', icon: CheckSquare, href: '/volunteer/tasks' },
       { name: 'QR Scanner', icon: ScanLine, href: '/volunteer/scanner' },
       { name: 'Attendance', icon: UserCheck, href: '/volunteer/attendance' },
@@ -134,8 +143,8 @@ export function Sidebar() {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
-        <nav className="flex flex-col gap-1.5 px-3">
+      <div className="flex-1 overflow-y-auto py-3 custom-scrollbar">
+        <nav className="flex flex-col gap-1.5 px-3.5">
           {items.map((item) => {
             const isActive = pathname === item.href || (item.href !== `/${role}/dashboard` && pathname.startsWith(item.href));
             return (
@@ -143,9 +152,9 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150 cursor-pointer",
+                  "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold min-h-[40px] transition-all duration-150 cursor-pointer",
                   isActive
-                    ? "bg-[#7CEAAB]/20 text-[#7CEAAB] font-bold shadow-sm"
+                    ? "bg-[#7CEAAB]/20 text-[#7CEAAB] font-bold shadow-xs"
                     : "text-slate-300 hover:bg-white/10 hover:text-white",
                   !showExpanded ? "justify-center px-0" : ""
                 )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { analyticsService } from '@/services/analytics-service';
 import { eventService } from '@/services/event-service';
 import { registrationService } from '@/services/registration-service';
 import { exportService } from '@/services/export-service';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
 export default function OrganizerDashboard() {
@@ -38,27 +39,26 @@ export default function OrganizerDashboard() {
   const [deptData, setDeptData] = useState<any[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
 
-  useEffect(() => {
-    async function loadDashboard() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const s = await analyticsService.getOrganizerDashboardStats(profile.id);
-        setStats(s);
-        const t = await analyticsService.getRegistrationTrend(profile.id);
-        setTrendData(t);
-        const d = await analyticsService.getDepartmentDistribution(profile.id);
-        setDeptData(d);
-        const evts = await eventService.getEvents({ created_by: profile.id, limit: 3 });
-        setUpcomingEvents(evts.data);
-      } catch (err) {
-        console.error("Dashboard data error:", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadDashboard = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      setLoading(true);
+      const s = await analyticsService.getOrganizerDashboardStats(profile.id);
+      setStats(s);
+      const t = await analyticsService.getRegistrationTrend(profile.id);
+      setTrendData(t);
+      const d = await analyticsService.getDepartmentDistribution(profile.id);
+      setDeptData(d);
+      const evts = await eventService.getEvents({ created_by: profile.id, limit: 3 });
+      setUpcomingEvents(evts.data);
+    } catch (err) {
+      console.error("Dashboard data error:", err);
+    } finally {
+      setLoading(false);
     }
-    loadDashboard();
   }, [profile?.id]);
+
+  useDataSync(['events', 'registrations', 'volunteers', 'attendance', 'certificates', 'payments'], loadDashboard, [profile?.id]);
 
   const handleExportFullReport = async () => {
     toast.promise(exportService.exportAnalyticsSummary(stats, trendData), {
@@ -71,32 +71,35 @@ export default function OrganizerDashboard() {
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl">
-        <div>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl">
+        <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2 mb-1">
             <Badge className="bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 font-semibold px-2.5 py-0.5">
               Organizer Command Center
             </Badge>
             <span className="text-xs text-white/80">College Admin Hub</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, {profile?.full_name || 'Organizer'} 👋</h1>
-          <p className="text-[#d1f8e8] text-sm mt-1 max-w-xl">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Welcome back, {profile?.full_name || 'Organizer'} 👋</h1>
+          <p className="text-[#d1f8e8] text-xs sm:text-sm leading-relaxed">
             Manage events, verify payments, track QR attendance live, allocate volunteers, and generate digital certificates.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2.5 w-full md:w-auto">
-          <Button asChild className="bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 font-semibold shadow-md">
-            <Link href="/organizer/events/create">
-              <Plus className="mr-2 h-4 w-4" /> Create Event
+        <div className="flex flex-wrap items-center gap-3.5 w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
+          <Button asChild className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 shadow-md cursor-pointer shrink-0">
+            <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
+              <Plus className="h-4 w-4 shrink-0" />
+              <span>Create Event</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-            <Link href="/organizer/ai">
-              <Sparkles className="mr-2 h-4 w-4 text-[#7CEAAB]" /> AI Copilot
+          <Button asChild variant="outline" className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 text-white border-white/20 hover:bg-white/20 shadow-md cursor-pointer shrink-0">
+            <Link href="/organizer/ai" className="inline-flex items-center justify-center gap-2 h-full w-full">
+              <Sparkles className="h-4 w-4 text-[#7CEAAB] shrink-0" />
+              <span>AI Copilot</span>
             </Link>
           </Button>
-          <Button onClick={handleExportFullReport} variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-            <Download className="mr-2 h-4 w-4" /> Export Report
+          <Button onClick={handleExportFullReport} variant="outline" className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 text-white border-white/20 hover:bg-white/20 shadow-md cursor-pointer shrink-0 inline-flex items-center justify-center gap-2">
+            <Download className="h-4 w-4 shrink-0" />
+            <span>Export Report</span>
           </Button>
         </div>
       </div>
@@ -179,50 +182,68 @@ export default function OrganizerDashboard() {
       </div>
 
       {/* Quick Action Bar */}
-      <div>
-        <h2 className="text-lg font-bold tracking-tight text-[#01424E] dark:text-teal-200 mb-3">Organizer Quick Actions</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <Button asChild variant="outline" className="h-20 flex-col gap-1.5 justify-center border-slate-200 hover:border-[#7CEAAB] hover:bg-[#edfcf6] dark:hover:bg-teal-950/40">
-            <Link href="/organizer/events">
-              <Calendar className="h-5 w-5 text-[#01424E] dark:text-[#7CEAAB]" />
-              <span className="text-xs font-semibold">Manage Events</span>
-            </Link>
-          </Button>
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold tracking-tight text-[#01424E] dark:text-teal-200">Organizer Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 w-full items-stretch">
+          <Link
+            href="/organizer/events"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] dark:text-[#7CEAAB] shrink-0">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Manage Events</span>
+          </Link>
 
-          <Button asChild variant="outline" className="h-20 flex-col gap-1.5 justify-center border-slate-200 hover:border-[#7CEAAB] hover:bg-[#edfcf6] dark:hover:bg-teal-950/40">
-            <Link href="/organizer/registrations">
-              <Users className="h-5 w-5 text-[#007C46] dark:text-[#7CEAAB]" />
-              <span className="text-xs font-semibold">Registrations</span>
-            </Link>
-          </Button>
+          <Link
+            href="/organizer/registrations"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#007C46] dark:text-[#7CEAAB] shrink-0">
+              <Users className="h-5 w-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Registrations</span>
+          </Link>
 
-          <Button asChild variant="outline" className="h-20 flex-col gap-1.5 justify-center border-slate-200 hover:border-[#7CEAAB] hover:bg-[#edfcf6] dark:hover:bg-teal-950/40">
-            <Link href="/organizer/payments">
-              <ShieldCheck className="h-5 w-5 text-amber-600" />
-              <span className="text-xs font-semibold">Verify Payments</span>
-            </Link>
-          </Button>
+          <Link
+            href="/organizer/payments"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-amber-600 dark:text-amber-400 shrink-0">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Verify Payments</span>
+          </Link>
 
-          <Button asChild variant="outline" className="h-20 flex-col gap-1.5 justify-center border-slate-200 hover:border-[#7CEAAB] hover:bg-[#edfcf6] dark:hover:bg-teal-950/40">
-            <Link href="/organizer/volunteers">
-              <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-xs font-semibold">Volunteers ({stats.totalVolunteers})</span>
-            </Link>
-          </Button>
+          <Link
+            href="/organizer/volunteers"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-indigo-600 dark:text-indigo-400 shrink-0">
+              <Activity className="h-5 w-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Volunteers ({stats.totalVolunteers})</span>
+          </Link>
 
-          <Button asChild variant="outline" className="h-20 flex-col gap-1.5 justify-center border-slate-200 hover:border-[#7CEAAB] hover:bg-[#edfcf6] dark:hover:bg-teal-950/40">
-            <Link href="/organizer/certificates">
-              <Award className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-semibold">Certificates</span>
-            </Link>
-          </Button>
+          <Link
+            href="/organizer/certificates"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-emerald-600 dark:text-emerald-400 shrink-0">
+              <Award className="h-5 w-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Certificates</span>
+          </Link>
 
-          <Button asChild variant="outline" className="h-20 flex-col gap-1.5 justify-center border-slate-200 hover:border-[#7CEAAB] hover:bg-[#edfcf6] dark:hover:bg-teal-950/40">
-            <Link href="/organizer/analytics">
-              <BarChart3 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-              <span className="text-xs font-semibold">Analytics</span>
-            </Link>
-          </Button>
+          <Link
+            href="/organizer/analytics"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-cyan-50 dark:bg-cyan-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-cyan-600 dark:text-cyan-400 shrink-0">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Analytics</span>
+          </Link>
         </div>
       </div>
 

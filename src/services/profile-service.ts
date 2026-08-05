@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 
 const supabase = createClient();
 
@@ -18,15 +19,29 @@ export const profileService = {
     userId: string,
     updates: Partial<Record<string, any>>
   ) {
+    // Clean undefined keys
+    const cleanUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, v]) => v !== undefined)
+    );
+
     const { data, error } = await supabase
       .from("profiles")
-      .update(updates)
+      .update(cleanUpdates)
       .eq("id", userId)
-      .select()
-      .single();
+      .select();
 
-    if (error) throw error;
-    return data;
+    if (error) {
+      console.warn("[profileService] update with select failed, trying fallback:", error);
+      const { error: fallbackError } = await supabase
+        .from("profiles")
+        .update(cleanUpdates)
+        .eq("id", userId);
+
+      if (fallbackError) throw fallbackError;
+    }
+
+    dataSync.notify("profile");
+    return data?.[0] || null;
   },
 
   async changePassword(newPassword: string) {
@@ -57,6 +72,7 @@ export const profileService = {
 
     if (updateError) throw updateError;
 
+    dataSync.notify("profile");
     return urlData.publicUrl;
   },
 };

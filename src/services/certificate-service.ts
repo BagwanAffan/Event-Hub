@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Certificate } from "@/types/database.types";
 
 const supabase = createClient();
@@ -156,6 +157,7 @@ export const certificateService = {
     if (error || !data) {
       throw new Error(error?.message || "Failed to generate certificate");
     }
+    dataSync.notify("certificates");
     return data as Certificate;
   },
 
@@ -210,6 +212,7 @@ export const certificateService = {
         return { count: 0, data: [] };
       }
 
+      dataSync.notify("certificates");
       return { count: data.length, data: data as Certificate[] };
     } catch (e) {
       console.error("Bulk certificate exception:", e);
@@ -245,6 +248,7 @@ export const certificateService = {
       .single();
 
     if (error) throw error;
+    dataSync.notify("certificates");
     return data;
   },
 
@@ -257,6 +261,7 @@ export const certificateService = {
       .in('certificate_type', ['winner', 'runner_up', 'second_runner_up']);
 
     if (error) throw error;
+    dataSync.notify("certificates");
   },
 
   async getEventWinners(eventId: string) {

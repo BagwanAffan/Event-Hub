@@ -1,10 +1,16 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Notification } from "@/types/database.types";
 import type { Profile } from "@/types/database.types";
 import {
   checkProfileCompletion,
   PROFILE_REMINDER_TITLE,
 } from "@/hooks/use-profile-completion";
+import {
+  isNotificationCategoryEnabled,
+  inferNotificationCategory,
+  type UserRole,
+} from "./notification-preferences-service";
 
 const supabase = createClient();
 
@@ -87,6 +93,7 @@ export const notificationService = {
           .select()
           .single();
         if (error) throw error;
+        dataSync.notify("notifications");
         return { action: "unreaded", notification: data as Notification };
       }
       return { action: "reused", notification: existing };
@@ -109,6 +116,7 @@ export const notificationService = {
       .delete()
       .eq("id", existing.id);
     if (error) throw error;
+    dataSync.notify("notifications");
     return { deleted: 1, id: existing.id };
   },
 
@@ -129,6 +137,7 @@ export const notificationService = {
       .update({ read: true })
       .eq("id", id);
     if (error) throw error;
+    dataSync.notify("notifications");
   },
 
   async markAllAsRead(userId: string) {
@@ -138,6 +147,7 @@ export const notificationService = {
       .eq("user_id", userId)
       .eq("read", false);
     if (error) throw error;
+    dataSync.notify("notifications");
   },
 
   async deleteNotification(id: string) {
@@ -146,6 +156,7 @@ export const notificationService = {
       .delete()
       .eq("id", id);
     if (error) throw error;
+    dataSync.notify("notifications");
   },
 
   async createNotification(
@@ -153,8 +164,17 @@ export const notificationService = {
     title: string,
     message: string,
     type: "success" | "warning" | "error" | "info" | "announcement" = "info",
-    actionUrl?: string
+    actionUrl?: string,
+    categoryKey?: string,
+    role?: UserRole
   ) {
+    const targetCategory = categoryKey || inferNotificationCategory(title, role);
+    if (targetCategory && !isNotificationCategoryEnabled(userId, role, targetCategory)) {
+      console.log(`Notification '${title}' skipped for user ${userId} because preference '${targetCategory}' is disabled.`);
+      return null;
+    }
+
+    let createdNotif: Notification | null = null;
     try {
       const res = await fetch("/api/notifications/send", {
         method: "POST",
@@ -163,19 +183,24 @@ export const notificationService = {
       });
       const result = await res.json();
       if (result.success && result.data) {
-        return result.data as Notification;
+        createdNotif = result.data as Notification;
       }
     } catch (apiErr) {
       console.warn("API notification dispatch fallback:", apiErr);
     }
 
-    const { data, error } = await supabase
-      .from("notifications")
-      .insert({ user_id: userId, title, message, type, action_url: actionUrl })
-      .select()
-      .single();
+    if (!createdNotif) {
+      const { data, error } = await supabase
+        .from("notifications")
+        .insert({ user_id: userId, title, message, type, action_url: actionUrl })
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data as Notification;
+      if (error) throw error;
+      createdNotif = data as Notification;
+    }
+
+    dataSync.notify("notifications");
+    return createdNotif;
   },
 };

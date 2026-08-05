@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Clock, Users, Handshake, Send, X, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { volunteerService, parseSkills, PREDEFINED_SKILLS } from '@/services/volunteer-service';
 import { eventService } from '@/services/event-service';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 
 import { checkProfileCompletion, getRequiredMissingFields } from '@/hooks/use-profile-completion';
 import { ProfileGuardDialog } from '@/components/shared/profile-guard-dialog';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function VolunteerEventsPage() {
   const { profile } = useAuth();
@@ -36,23 +37,23 @@ export default function VolunteerEventsPage() {
 
   const [approvedCounts, setApprovedCounts] = useState<Record<string, number>>({});
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!profile?.id) return;
     try {
       setLoading(true);
 
       const [eventsRes, volsRes, approvedVolsRes] = await Promise.all([
-        eventService.getEvents({ upcoming: true, need_volunteers: true, limit: 100 }),
+        eventService.getPublicEvents({ limit: 100 }),
         volunteerService.getVolunteers({ user_id: profile.id, limit: 100 }),
         volunteerService.getVolunteers({ application_status: 'approved', limit: 1000 }),
       ]);
 
-      const upcoming = (eventsRes.data || []).filter(e => {
+      const activeEvents = (eventsRes.data || []).filter((e: any) => {
         const st = (e.status || 'draft') as string;
-        return e.need_volunteers === true && st !== 'draft' && st !== 'cancelled' && st !== 'archived';
+        return !e.is_soft_deleted && !e.is_disabled && st !== 'draft' && st !== 'cancelled' && st !== 'disabled' && st !== 'archived';
       });
 
-      setEvents(upcoming);
+      setEvents(activeEvents);
 
       const map: Record<string, any> = {};
       (volsRes.data || []).forEach((v: any) => {
@@ -70,11 +71,9 @@ export default function VolunteerEventsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadData();
   }, [profile?.id]);
+
+  useDataSync(['volunteers', 'events'], loadData, [profile?.id]);
 
   const openApply = (evt: any) => {
     if (!profile) return;
@@ -149,7 +148,7 @@ export default function VolunteerEventsPage() {
               <Card key={evt.id} className="pt-0 p-0 gap-0 overflow-hidden hover:shadow-lg transition-all border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col h-full bg-card">
                 <div className="relative w-full h-36 overflow-hidden rounded-t-2xl bg-slate-900 shrink-0">
                   <img
-                    src={evt.banner_url || evt.poster_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200'}
+                    src={evt.poster_url || evt.banner_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200'}
                     alt={evt.title}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200';

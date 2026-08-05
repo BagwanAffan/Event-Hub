@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Registration, RegistrationStatus, PaymentStatus } from "@/types/database.types";
 
 const supabase = createClient();
@@ -180,6 +181,7 @@ export const registrationService = {
     }
 
     console.log("[TRACE] INSERT registrations succeeded. Returned data object:", JSON.stringify(data));
+    dataSync.notify("registrations", "events");
     return data as Registration;
   },
 
@@ -217,6 +219,7 @@ export const registrationService = {
       throw new Error("Registration not found or failed to update");
     }
 
+    dataSync.notify("registrations", "events");
     return data as Registration;
   },
 

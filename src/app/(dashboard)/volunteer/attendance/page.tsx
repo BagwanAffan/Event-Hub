@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { CheckCircle2, Search, RefreshCw, Clock, Check } from 'lucide-react';
 import { attendanceService, calculateDuration } from '@/services/attendance-service';
 import { useAuth } from '@/hooks/use-auth';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function AttendanceRecordsPage() {
   const { profile } = useAuth();
@@ -16,7 +17,8 @@ export default function AttendanceRecordsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const loadLogs = async () => {
+  const loadLogs = useCallback(async () => {
+    if (!profile?.id) return;
     setLoading(true);
     const volunteerId = profile?.id || '';
 
@@ -28,13 +30,15 @@ export default function AttendanceRecordsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile?.id]);
+
+  useDataSync(['attendance', 'volunteers'], loadLogs, [profile?.id]);
 
   useEffect(() => {
     if (profile?.id) {
       loadLogs();
     }
-  }, [profile?.id]);
+  }, [profile?.id, loadLogs]);
 
   const filtered = attendance.filter(a => {
     if (!search) return true;

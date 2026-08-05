@@ -14,6 +14,7 @@ import { notificationService } from '@/services/notification-service';
 import { exportService } from '@/services/export-service';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function RegistrationsPage() {
   const { profile } = useAuth();
@@ -37,9 +38,7 @@ export default function RegistrationsPage() {
     }
   };
 
-  useEffect(() => {
-    loadRegistrations();
-  }, [statusFilter]);
+  useDataSync(['registrations', 'events', 'payments'], loadRegistrations, [statusFilter, search]);
 
   const handleApprove = async (id: string, regUserId?: string, eventTitle?: string) => {
     toast.promise(

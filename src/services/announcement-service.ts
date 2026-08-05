@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 
 const supabase = createClient();
 
@@ -40,6 +41,7 @@ export const announcementService = {
       .single();
 
     if (error) throw error;
+    dataSync.notify("events");
     return data;
   },
 
@@ -49,5 +51,6 @@ export const announcementService = {
       .delete()
       .eq("id", id);
     if (error) throw error;
+    dataSync.notify("events");
   },
 };

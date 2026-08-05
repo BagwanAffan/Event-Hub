@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Menu, Sun, Moon, Bell, LogOut, Settings, User, Search, AlertCircle, ChevronRight, PanelLeft } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useProfileCompletion } from '@/hooks/use-profile-completion';
 import { notificationService, profileReminderActionUrl } from '@/services/notification-service';
 import { eventService } from '@/services/event-service';
+import { useDataSync } from '@/lib/data-sync';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,26 +82,21 @@ export function TopNavbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Fetch real unread count
-  useEffect(() => {
+  // Fetch real unread count with useDataSync
+  const fetchUnreadCount = useCallback(async () => {
     if (!profile?.id) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        if (profile.role === 'admin') {
-          // Cleanup any legacy profile reminder for admin
-          notificationService.removeProfileReminder(profile.id).catch(() => {});
-        }
-        const c = await notificationService.getUnreadCount(profile.id);
-        if (!cancelled) setUnreadCount(c);
-      } catch {
-        if (!cancelled) {
-          setUnreadCount(profile.role === 'admin' ? 0 : (isComplete ? 0 : 1));
-        }
+    try {
+      if (profile.role === 'admin') {
+        notificationService.removeProfileReminder(profile.id).catch(() => {});
       }
-    })();
-    return () => { cancelled = true; };
+      const c = await notificationService.getUnreadCount(profile.id);
+      setUnreadCount(c);
+    } catch {
+      setUnreadCount(profile.role === 'admin' ? 0 : (isComplete ? 0 : 1));
+    }
   }, [profile?.id, isComplete, profile?.role]);
+
+  useDataSync(['notifications', 'profile'], fetchUnreadCount, [profile?.id, isComplete, profile?.role]);
 
   // Floating profile reminder notification on login (for all roles EXCEPT admin)
   // Lasts for 5 seconds and then automatically disappears

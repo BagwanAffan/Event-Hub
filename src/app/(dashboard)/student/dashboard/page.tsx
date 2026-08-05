@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { analyticsService } from '@/services/analytics-service';
 import { registrationService } from '@/services/registration-service';
+import { useDataSync } from '@/lib/data-sync';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -18,33 +19,31 @@ export default function StudentDashboardPage() {
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      if (!profile?.id) return;
-      
-      try {
-        setLoading(true);
-        const [statsData, eventsData] = await Promise.all([
-          analyticsService.getStudentDashboardStats(profile.id),
-          registrationService.getUserRegistrations(profile.id)
-        ]);
-        
-        setStats(statsData);
-        const upcoming = (eventsData || [])
-          .filter((reg: any) => new Date(reg.events?.start_date || new Date()) >= new Date() && reg.status === 'approved')
-          .sort((a: any, b: any) => new Date(a.event?.start_date).getTime() - new Date(b.event?.start_date).getTime())
-          .slice(0, 3);
-          
-        setUpcomingEvents(upcoming);
-      } catch (error) {
-        console.error('Error loading dashboard data', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const loadData = useCallback(async () => {
+    if (!profile?.id) return;
     
-    loadData();
-  }, [profile]);
+    try {
+      setLoading(true);
+      const [statsData, eventsData] = await Promise.all([
+        analyticsService.getStudentDashboardStats(profile.id),
+        registrationService.getUserRegistrations(profile.id)
+      ]);
+      
+      setStats(statsData);
+      const upcoming = (eventsData || [])
+        .filter((reg: any) => new Date(reg.events?.start_date || new Date()) >= new Date() && reg.status === 'approved')
+        .sort((a: any, b: any) => new Date(a.event?.start_date).getTime() - new Date(b.event?.start_date).getTime())
+        .slice(0, 3);
+        
+      setUpcomingEvents(upcoming);
+    } catch (error) {
+      console.error('Error loading dashboard data', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [profile?.id]);
+
+  useDataSync(['events', 'registrations', 'certificates', 'notifications'], loadData, [profile?.id]);
 
   const greeting = () => {
     const hour = new Date().getHours();

@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from './sidebar';
+import { Sidebar, getAdaptiveItemStyles } from './sidebar';
 import { TopNavbar } from './top-navbar';
 import { useSidebarStore } from '@/store/sidebar-store';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
@@ -116,6 +116,7 @@ function SidebarMobileContent() {
   };
 
   const items = navItems[role as keyof typeof navItems] || navItems.student;
+  const adaptive = getAdaptiveItemStyles();
 
   return (
     <div className="flex h-full flex-col bg-[#01424E] text-slate-100">
@@ -129,7 +130,7 @@ function SidebarMobileContent() {
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
-        <nav className="flex flex-col gap-1 px-3">
+        <nav className={cn("flex flex-col px-3", adaptive.navGap)}>
           {items.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -138,13 +139,16 @@ function SidebarMobileContent() {
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer",
+                  adaptive.itemPadding,
+                  adaptive.minHeight,
+                  adaptive.iconGap,
                   isActive
-                    ? "bg-[#7CEAAB]/15 text-[#7CEAAB]"
+                    ? "bg-[#7CEAAB]/15 text-[#7CEAAB] font-bold"
                     : "text-slate-300 hover:bg-white/10 hover:text-white"
                 )}
               >
-                <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-[#7CEAAB]" : "text-slate-400")} />
+                <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-[#7CEAAB]" : "text-slate-400")} />
                 <span>{item.name}</span>
               </Link>
             );

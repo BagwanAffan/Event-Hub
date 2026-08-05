@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { checkProfileCompletion } from '@/hooks/use-profile-completion';
 import { ProfileGuardDialog } from '@/components/shared/profile-guard-dialog';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function EventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -30,32 +31,31 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
   const [guardOpen, setGuardOpen] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const eventData = await eventService.getEventById(resolvedParams.id);
-        if (!eventData) {
-          toast.error('Event not found');
-          router.push('/student/events');
-          return;
-        }
-        setEvent(eventData);
-
-        if (profile?.id) {
-          const regs = await registrationService.getUserRegistrations(profile.id);
-          const currentReg = regs.find((r: any) => r.event_id === resolvedParams.id);
-          setRegistration(currentReg || null);
-        }
-      } catch (error) {
-        console.error('Error fetching event details:', error);
-        toast.error('Failed to load event details');
-      } finally {
-        setLoading(false);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const eventData = await eventService.getEventById(resolvedParams.id);
+      if (!eventData) {
+        toast.error('Event not found');
+        router.push('/student/events');
+        return;
       }
+      setEvent(eventData);
+
+      if (profile?.id) {
+        const regs = await registrationService.getUserRegistrations(profile.id);
+        const currentReg = regs.find((r: any) => r.event_id === resolvedParams.id);
+        setRegistration(currentReg || null);
+      }
+    } catch (error) {
+      console.error('Error fetching event details:', error);
+      toast.error('Failed to load event details');
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, [resolvedParams.id, profile, router]);
+  }, [resolvedParams.id, profile?.id, router]);
+
+  useDataSync(['events', 'registrations'], loadData, [resolvedParams.id, profile?.id]);
 
   const handleRegister = async () => {
     console.log("[TRACE] handleRegister clicked");

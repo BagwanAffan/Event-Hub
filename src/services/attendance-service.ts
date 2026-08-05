@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Attendance } from "@/types/database.types";
 
 const supabase = createClient();
@@ -169,6 +170,7 @@ export const attendanceService = {
         }
 
         const duration = calculateDuration(existing.check_in_time, checkOutTime);
+        dataSync.notify("attendance", "registrations");
         return {
           success: true,
           actionType: 'check_out',
@@ -212,6 +214,7 @@ export const attendanceService = {
         // NOTE: We do NOT modify registrations.qr_token! We only set registration status to completed if needed
         await supabase.from("registrations").update({ status: "completed", updated_at: new Date().toISOString() }).eq("id", registrationId);
 
+        dataSync.notify("attendance", "registrations");
         return {
           success: true,
           actionType: 'check_in',
@@ -366,6 +369,7 @@ export const attendanceService = {
 
         await supabase.from("registrations").update({ status: "completed", updated_at: new Date().toISOString() }).eq("id", registrationId);
 
+        dataSync.notify("attendance", "registrations");
         return {
           success: true,
           actionType: 'check_in',
@@ -397,6 +401,7 @@ export const attendanceService = {
         }
 
         const duration = calculateDuration(existing.check_in_time, checkOutTime);
+        dataSync.notify("attendance", "registrations");
         return {
           success: true,
           actionType: 'check_out',

@@ -11,6 +11,7 @@ import { QrCode, Search, Download, CheckCircle2, RefreshCw, Clock, Check, LogOut
 import { eventService } from '@/services/event-service';
 import { attendanceService, calculateDuration } from '@/services/attendance-service';
 import { exportService } from '@/services/export-service';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
 export default function AttendancePage() {
@@ -58,11 +59,7 @@ export default function AttendancePage() {
     }
   };
 
-  useEffect(() => {
-    if (selectedEventId) {
-      loadAttendance();
-    }
-  }, [selectedEventId]);
+  useDataSync(['attendance', 'registrations', 'events'], loadAttendance, [selectedEventId]);
 
   const handleExportExcel = () => {
     toast.promise(exportService.exportAttendanceExcel(attendance), {

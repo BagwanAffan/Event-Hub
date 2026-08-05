@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { dataSync } from "@/lib/data-sync";
 import type { Team, TeamMember } from "@/types/database.types";
 
 const supabase = createClient();
@@ -25,6 +26,7 @@ export const teamService = {
       joined_at: new Date().toISOString(),
     });
 
+    dataSync.notify("registrations", "events");
     return data as Team;
   },
 
@@ -106,6 +108,7 @@ export const teamService = {
       .single();
 
     if (error) throw error;
+    dataSync.notify("registrations", "events");
     return data as TeamMember;
   },
 
@@ -117,6 +120,7 @@ export const teamService = {
       .eq("user_id", userId);
 
     if (error) throw error;
+    dataSync.notify("registrations", "events");
   },
 
   async leaveTeam(teamId: string, userId: string) {
@@ -138,5 +142,6 @@ export const teamService = {
       .eq("user_id", userId);
 
     if (error) throw error;
+    dataSync.notify("registrations", "events");
   },
 };

@@ -27,6 +27,7 @@ import {
 import { adminService } from '@/services/admin-service';
 import { Profile, OrganizerStatus } from '@/types/database.types';
 import { useAuth } from '@/hooks/use-auth';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
 export default function AdminApprovalsPage() {
@@ -63,9 +64,7 @@ export default function AdminApprovalsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchApplications();
-  }, [statusFilter]);
+  useDataSync(['admin', 'profile'], fetchApplications, [statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

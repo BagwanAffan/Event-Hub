@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +8,8 @@ import { Calendar, CheckCircle2, ClipboardList, ScanLine, Award, Clock, MapPin, 
 import Link from 'next/link';
 import { volunteerService } from '@/services/volunteer-service';
 import { analyticsService } from '@/services/analytics-service';
+import { useAuth } from '@/hooks/use-auth';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function VolunteerDashboardPage() {
   const { profile } = useAuth();
@@ -16,25 +17,24 @@ export default function VolunteerDashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const [tasksData, statsData] = await Promise.all([
-          volunteerService.getAssignedTasks(profile.id),
-          analyticsService.getVolunteerDashboardStats(profile.id)
-        ]);
-        setTasks(tasksData);
-        setStats(statsData);
-      } catch (err) {
-        console.error("Error loading data:", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadData = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      setLoading(true);
+      const [tasksData, statsData] = await Promise.all([
+        volunteerService.getAssignedTasks(profile.id),
+        analyticsService.getVolunteerDashboardStats(profile.id)
+      ]);
+      setTasks(tasksData);
+      setStats(statsData);
+    } catch (err) {
+      console.error("Error loading data:", err);
+    } finally {
+      setLoading(false);
     }
-    loadData();
   }, [profile?.id]);
+
+  useDataSync(['volunteers', 'events', 'attendance', 'notifications'], loadData, [profile?.id]);
 
   const assignedEvents = stats?.assignedEvents || 0;
   const totalTasks = stats?.totalTasks || 0;

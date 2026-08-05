@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { notificationService } from "./notification-service";
+import { dataSync } from "@/lib/data-sync";
 import type { Profile, Event, OrganizerStatus } from "@/types/database.types";
 
 const supabase = createClient();
@@ -76,14 +77,14 @@ export const adminService = {
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "organizer").or("approval_status.eq.pending,organizer_status.eq.pending").eq("is_soft_deleted", false),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "organizer").or("approval_status.eq.approved,organizer_status.eq.approved").eq("is_soft_deleted", false),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "volunteer").eq("is_soft_deleted", false),
-        supabase.from("events").select("*", { count: "exact", head: true }).eq("is_soft_deleted", false),
+        supabase.from("events").select("*", { count: "exact", head: true }).neq("status", "cancelled").or("is_soft_deleted.eq.false,is_soft_deleted.is.null"),
         supabase.from("registrations").select("*", { count: "exact", head: true }),
         supabase.from("attendance").select("*", { count: "exact", head: true }).gte("scanned_at", new Date(new Date().setHours(0,0,0,0)).toISOString()),
         supabase.from("certificates").select("*", { count: "exact", head: true }),
         supabase.from("payments").select("amount").eq("status", "approved"),
         supabase.from("profiles").select("*").eq("role", "organizer").eq("is_soft_deleted", false).order("created_at", { ascending: false }).limit(5),
-        supabase.from("events").select("*, profiles!events_created_by_fkey(full_name)").eq("is_soft_deleted", false).order("created_at", { ascending: false }).limit(5),
-        supabase.from("registrations").select("*, profiles!registrations_user_id_fkey(full_name, email), events(title)").order("created_at", { ascending: false }).limit(5),
+        supabase.from("events").select("*, profiles:created_by(full_name)").neq("status", "cancelled").or("is_soft_deleted.eq.false,is_soft_deleted.is.null").order("created_at", { ascending: false }).limit(5),
+        supabase.from("registrations").select("*, profiles:user_id(full_name, email), events(title)").order("created_at", { ascending: false }).limit(5),
       ]);
 
       const totalRevenue = (approvedPayments.data || []).reduce(
@@ -173,7 +174,6 @@ export const adminService = {
       updated_at: new Date().toISOString(),
     };
 
-    // 1. Update organizer_verifications table if present
     await supabase
       .from("organizer_verifications")
       .update({
@@ -185,7 +185,6 @@ export const adminService = {
       })
       .eq("user_id", userId);
 
-    // 2. Update profiles table
     const { data, error } = await supabase
       .from("profiles")
       .update(updates)
@@ -198,7 +197,6 @@ export const adminService = {
     }
 
     if (!data || data.length === 0) {
-      // Direct update fallback if RETURNING array is empty under RLS
       const { error: directErr } = await supabase
         .from("profiles")
         .update(updates)
@@ -211,7 +209,6 @@ export const adminService = {
 
     const updatedProfile = data?.[0] || ({ id: userId, ...updates } as Profile);
 
-    // 3. Dispatch notification safely
     try {
       if (status === 'approved') {
         await notificationService.createNotification(
@@ -280,14 +277,13 @@ export const adminService = {
       .from("profiles")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", userId)
-      .select()
-      .single();
+      .select();
 
-    if (error || !data) {
+    if (error) {
       throw new Error(error?.message || "Failed to update user status");
     }
 
-    return data as Profile;
+    return (data?.[0] as Profile) || null;
   },
 
   async softDeleteUser(userId: string) {
@@ -295,10 +291,9 @@ export const adminService = {
       .from("profiles")
       .update({ is_soft_deleted: true, status: 'suspended', updated_at: new Date().toISOString() })
       .eq("id", userId)
-      .select()
-      .single();
+      .select();
 
-    if (error || !data) {
+    if (error) {
       throw new Error(error?.message || "Failed to soft delete user");
     }
 
@@ -337,7 +332,8 @@ export const adminService = {
           .from("events")
           .select("*")
           .eq("created_by", userId)
-          .eq("is_soft_deleted", false)
+          .neq("status", "cancelled")
+          .or("is_soft_deleted.eq.false,is_soft_deleted.is.null")
           .order("created_at", { ascending: false }),
       ]);
 
@@ -352,18 +348,24 @@ export const adminService = {
   },
 
   async getAllEventsForAdmin(filters: AdminEventFilters = {}) {
-    const { status, category, search, page = 1, limit = 20 } = filters;
+    const { status, category, search, page = 1, limit = 50 } = filters;
     try {
       let query = supabase
         .from("events")
         .select(
-          `*, 
-          profiles!events_created_by_fkey(full_name, email, college)`,
+          `*, profiles:created_by(full_name, email, college)`,
           { count: "exact" }
         )
-        .eq("is_soft_deleted", false);
+        .neq("status", "cancelled")
+        .or("is_soft_deleted.eq.false,is_soft_deleted.is.null");
 
-      if (status && status !== 'all') query = query.eq("status", status);
+      if (status && status !== 'all') {
+        if (status === 'disabled') {
+          query = query.eq("is_disabled", true);
+        } else {
+          query = query.eq("status", status);
+        }
+      }
       if (category && category !== 'all') query = query.eq("category", category);
       if (search) {
         query = query.or(
@@ -379,11 +381,26 @@ export const adminService = {
         .range(from, to);
 
       if (error || !data) {
+        console.error("getAllEventsForAdmin query error:", error);
         return { data: [], count: 0, page, limit };
       }
 
       const enriched: EnrichedAdminEvent[] = await Promise.all(
         data.map(async (evt: Event) => {
+          let creatorProfile = (evt as any).profiles;
+          if (!creatorProfile && evt.created_by) {
+            try {
+              const { data: profData } = await supabase
+                .from("profiles")
+                .select("full_name, email, college")
+                .eq("id", evt.created_by)
+                .maybeSingle();
+              if (profData) creatorProfile = profData;
+            } catch {
+              /* noop */
+            }
+          }
+
           const [regCount, attCount, payments] = await Promise.all([
             supabase.from("registrations").select("*", { count: "exact", head: true }).eq("event_id", evt.id).neq("status", "cancelled"),
             supabase.from("attendance").select("*", { count: "exact", head: true }).eq("event_id", evt.id),
@@ -394,6 +411,7 @@ export const adminService = {
 
           return {
             ...evt,
+            profiles: creatorProfile || null,
             registrationCount: regCount.count || 0,
             attendanceCount: attCount.count || 0,
             revenue,
@@ -402,54 +420,147 @@ export const adminService = {
       );
 
       return { data: enriched, count: count || 0, page, limit };
-    } catch {
+    } catch (err) {
+      console.error("Error in getAllEventsForAdmin:", err);
       return { data: [], count: 0, page, limit };
     }
   },
 
   async toggleEventDisabled(eventId: string, isDisabled: boolean) {
+    if (!eventId) throw new Error("Event ID is required");
+    const nextStatus = isDisabled ? 'disabled' : 'published';
+
     const { data, error } = await supabase
       .from("events")
-      .update({ is_disabled: isDisabled, updated_at: new Date().toISOString() })
+      .update({ is_disabled: isDisabled, status: nextStatus, updated_at: new Date().toISOString() })
       .eq("id", eventId)
-      .select()
-      .single();
+      .select();
 
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to update event status");
+    if (error) {
+      console.error("[toggleEventDisabled] Error:", error);
+      throw new Error(error.message || "Failed to update event disabled status");
     }
 
-    return data as Event;
+    if (!data || data.length === 0) {
+      const { error: directErr } = await supabase
+        .from("events")
+        .update({ is_disabled: isDisabled, status: nextStatus, updated_at: new Date().toISOString() })
+        .eq("id", eventId);
+
+      if (directErr) {
+        throw new Error(directErr.message || "Database permission denied or row not found");
+      }
+    }
+
+    dataSync.notify("events", "admin");
+    return (data?.[0] as Event) || null;
   },
 
   async toggleEventFeatured(eventId: string, isFeatured: boolean) {
+    if (!eventId) throw new Error("Event ID is required");
+
     const { data, error } = await supabase
       .from("events")
       .update({ is_featured: isFeatured, updated_at: new Date().toISOString() })
       .eq("id", eventId)
-      .select()
-      .single();
+      .select();
 
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to feature event");
+    if (error) {
+      console.error("[toggleEventFeatured] Error:", error);
+      throw new Error(error.message || "Failed to update event featured status");
     }
 
-    return data as Event;
+    if (!data || data.length === 0) {
+      const { error: directErr } = await supabase
+        .from("events")
+        .update({ is_featured: isFeatured, updated_at: new Date().toISOString() })
+        .eq("id", eventId);
+
+      if (directErr) {
+        throw new Error(directErr.message || "Database permission denied or row not found");
+      }
+    }
+
+    dataSync.notify("events", "admin");
+    return (data?.[0] as Event) || null;
+  },
+
+  async deleteEventPermanently(eventId: string) {
+    if (!eventId) throw new Error("Event ID is required for deletion");
+
+    try {
+      // 1. Fetch team IDs belonging to this event to delete team_members first
+      const { data: teamRows } = await supabase
+        .from("teams")
+        .select("id")
+        .eq("event_id", eventId);
+
+      if (teamRows && teamRows.length > 0) {
+        const teamIds = teamRows.map((t: any) => t.id);
+        await supabase.from("team_members").delete().in("team_id", teamIds);
+      }
+
+      // 2. Purge child dependency records in exact FK cascade order
+      await Promise.allSettled([
+        supabase.from("payments").delete().eq("event_id", eventId),
+        supabase.from("attendance").delete().eq("event_id", eventId),
+        supabase.from("certificates").delete().eq("event_id", eventId),
+        supabase.from("volunteer_tasks").delete().eq("event_id", eventId),
+        supabase.from("volunteers").delete().eq("event_id", eventId),
+        supabase.from("teams").delete().eq("event_id", eventId),
+        supabase.from("registrations").delete().eq("event_id", eventId),
+        supabase.from("announcements").delete().eq("event_id", eventId),
+        supabase.from("event_faqs").delete().eq("event_id", eventId),
+        supabase.from("event_galleries").delete().eq("event_id", eventId),
+        supabase.from("feedback").delete().eq("event_id", eventId),
+      ]);
+
+      // 3. Delete event row from database
+      const { data: hardData, error: hardErr } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", eventId)
+        .select();
+
+      if (hardErr || !hardData || hardData.length === 0) {
+        // Soft-delete fallback
+        const { data: softData, error: softErr } = await supabase
+          .from("events")
+          .update({
+            is_soft_deleted: true,
+            is_disabled: true,
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", eventId)
+          .select();
+
+        if (softErr || !softData || softData.length === 0) {
+          const { error: directErr } = await supabase
+            .from("events")
+            .update({
+              is_disabled: true,
+              status: 'cancelled',
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", eventId);
+
+          if (directErr) {
+            throw new Error(hardErr?.message || softErr?.message || directErr.message || "Failed to delete event record");
+          }
+        }
+      }
+
+      dataSync.notify("events", "registrations", "volunteers", "certificates", "admin");
+      return true;
+    } catch (err: any) {
+      console.error("[adminService] deleteEventPermanently error:", err);
+      throw new Error(err?.message || "Failed to delete event and related records");
+    }
   },
 
   async softDeleteEvent(eventId: string) {
-    const { data, error } = await supabase
-      .from("events")
-      .update({ is_soft_deleted: true, status: 'cancelled', updated_at: new Date().toISOString() })
-      .eq("id", eventId)
-      .select()
-      .single();
-
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to soft delete event");
-    }
-
-    return true;
+    return this.deleteEventPermanently(eventId);
   },
 
   async getGlobalAnalytics() {
@@ -467,7 +578,7 @@ export const adminService = {
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "student").eq("is_soft_deleted", false),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "organizer").eq("is_soft_deleted", false),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "volunteer").eq("is_soft_deleted", false),
-        supabase.from("events").select("category, created_at").eq("is_soft_deleted", false),
+        supabase.from("events").select("category, created_at").neq("status", "cancelled").or("is_soft_deleted.eq.false,is_soft_deleted.is.null"),
         supabase.from("registrations").select("created_at"),
         supabase.from("attendance").select("*", { count: "exact", head: true }),
         supabase.from("certificates").select("*", { count: "exact", head: true }),
@@ -492,7 +603,6 @@ export const adminService = {
         count,
       }));
 
-      // Monthly registrations trend
       const monthlyMap: Record<string, number> = {};
       (registrations.data || []).forEach((r: RegistrationDateRow) => {
         const month = new Date(r.created_at).toLocaleString('default', { month: 'short' });

@@ -14,29 +14,41 @@ import {
   Eye,
   MapPin,
   Users,
+  User,
   IndianRupee,
-  ScanLine,
   RefreshCw,
   Star,
   Ban,
   Trash2,
-  CheckCircle2,
-  Building,
-  GraduationCap,
+  AlertTriangle,
+  Loader2,
+  Clock,
+  Mail,
+  Phone,
+  FileText,
+  ImageIcon,
 } from 'lucide-react';
 import { adminService, EnrichedAdminEvent } from '@/services/admin-service';
+import { useAuth } from '@/hooks/use-auth';
+import { useDataSync } from '@/lib/data-sync';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 export default function AdminEventsPage() {
+  const { profile: currentAdmin } = useAuth();
   const [events, setEvents] = useState<EnrichedAdminEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
-  // View Event Details Modal State
+  // View Details Modal State
   const [selectedEvent, setSelectedEvent] = useState<EnrichedAdminEvent | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  // Delete Confirmation Modal State
+  const [eventToDelete, setEventToDelete] = useState<EnrichedAdminEvent | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -49,62 +61,125 @@ export default function AdminEventsPage() {
         search,
       });
       setEvents(res.data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load events for admin:', err);
-      toast.error('Failed to load campus events');
+      toast.error(err?.message || 'Failed to load campus events');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchEvents();
-  }, [statusFilter, categoryFilter]);
+  useDataSync(['events', 'admin'], fetchEvents, [statusFilter, categoryFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     fetchEvents();
   };
 
+  // 1. Feature Toggle Action (DB First)
+  const handleToggleFeatured = async (evt: EnrichedAdminEvent) => {
+    const nextState = !evt.is_featured;
+    setProcessingId(evt.id);
+
+    try {
+      await adminService.toggleEventFeatured(evt.id, nextState);
+      setEvents((prev) =>
+        prev.map((e) => (e.id === evt.id ? { ...e, is_featured: nextState } : e))
+      );
+      if (nextState) {
+        toast.success('Event marked as Featured');
+      } else {
+        toast.info('Removed from Featured');
+      }
+      await fetchEvents();
+    } catch (err: any) {
+      console.error('Feature toggle error:', err);
+      toast.error(err?.message || 'Failed to update featured status');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // 2. Disable / Unpublish Toggle Action (DB First)
   const handleToggleDisabled = async (evt: EnrichedAdminEvent) => {
     const nextState = !evt.is_disabled;
     setProcessingId(evt.id);
+
     try {
       await adminService.toggleEventDisabled(evt.id, nextState);
-      toast.info(`Event "${evt.title}" is now ${nextState ? 'Disabled' : 'Enabled'}.`);
-      fetchEvents();
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === evt.id
+            ? {
+                ...e,
+                is_disabled: nextState,
+                status: (nextState ? 'disabled' : 'published') as any,
+              }
+            : e
+        )
+      );
+      if (nextState) {
+        toast.warning('Event disabled successfully');
+      } else {
+        toast.success('Event published successfully');
+      }
+      await fetchEvents();
     } catch (err: any) {
+      console.error('Disable toggle error:', err);
       toast.error(err?.message || 'Failed to update event state');
     } finally {
       setProcessingId(null);
     }
   };
 
-  const handleToggleFeatured = async (evt: EnrichedAdminEvent) => {
-    const nextState = !evt.is_featured;
-    setProcessingId(evt.id);
+  // 3. Delete Confirmation Dialog Opener
+  const openDeleteConfirmation = (evt: EnrichedAdminEvent) => {
+    setEventToDelete(evt);
+    setIsDeleteModalOpen(true);
+  };
+
+  // 4. Permanent Cascade Delete Execution (DB Confirmation FIRST, then UI Update)
+  const handleConfirmDelete = async () => {
+    if (!eventToDelete) return;
+    const targetId = eventToDelete.id;
+
+    setProcessingId(targetId);
+
     try {
-      await adminService.toggleEventFeatured(evt.id, nextState);
-      toast.success(`Event "${evt.title}" ${nextState ? 'Featured on Showcase ⭐' : 'Unfeatured'}.`);
-      fetchEvents();
+      // 1. Delete from database FIRST and wait for response!
+      await adminService.deleteEventPermanently(targetId);
+
+      // 2. Only after database confirmation, update UI state
+      setEvents((prev) => prev.filter((e) => e.id !== targetId));
+      toast.success('Event deleted successfully.');
+      setIsDeleteModalOpen(false);
+      setEventToDelete(null);
+
+      // 3. Re-fetch to ensure complete sync
+      await fetchEvents();
     } catch (err: any) {
-      toast.error(err?.message || 'Failed to feature event');
+      console.error('Delete event error:', err);
+      toast.error(err?.message || 'Failed to delete event from database');
     } finally {
       setProcessingId(null);
     }
   };
 
-  const handleSoftDelete = async (evt: EnrichedAdminEvent) => {
-    if (!confirm(`Are you sure you want to soft delete event "${evt.title}"?`)) return;
-    setProcessingId(evt.id);
+  const formatDateStr = (dateStr?: string | null) => {
+    if (!dateStr) return 'Not Available';
     try {
-      await adminService.softDeleteEvent(evt.id);
-      toast.warning(`Event "${evt.title}" soft deleted.`);
-      fetchEvents();
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to soft delete event');
-    } finally {
-      setProcessingId(null);
+      return format(new Date(dateStr), 'MMM dd, yyyy');
+    } catch {
+      return 'Not Available';
+    }
+  };
+
+  const formatTimeStr = (dateStr?: string | null) => {
+    if (!dateStr) return 'Not Available';
+    try {
+      return format(new Date(dateStr), 'hh:mm a');
+    } catch {
+      return 'Not Available';
     }
   };
 
@@ -114,10 +189,10 @@ export default function AdminEventsPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-100">Campus Events Governance</h1>
-          <p className="text-muted-foreground text-sm">Monitor, feature, disable, soft delete, and inspect all posted campus events</p>
+          <p className="text-muted-foreground text-sm">Monitor, feature, disable, delete, and inspect all posted campus events</p>
         </div>
         <Badge className="bg-[#edfcf6] text-[#007C46] border-[#41B177] px-3 py-1 text-xs font-bold">
-          {events.length} Active Events
+          {events.length} Events Listed
         </Badge>
       </div>
 
@@ -131,7 +206,7 @@ export default function AdminEventsPage() {
                 placeholder="Search title, venue, category..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 text-xs h-9"
               />
             </div>
 
@@ -139,14 +214,14 @@ export default function AdminEventsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-muted-foreground">Category:</span>
                 <Select value={categoryFilter} onValueChange={(val) => val && setCategoryFilter(val)}>
-                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-36 text-xs h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="hackathon">Hackathon</SelectItem>
-                    <SelectItem value="workshop">Workshop</SelectItem>
-                    <SelectItem value="robotics">Robotics</SelectItem>
-                    <SelectItem value="cultural">Cultural</SelectItem>
-                    <SelectItem value="sports">Sports</SelectItem>
+                    <SelectItem value="all" className="text-xs">All Categories</SelectItem>
+                    <SelectItem value="hackathon" className="text-xs">Hackathon</SelectItem>
+                    <SelectItem value="workshop" className="text-xs">Workshop</SelectItem>
+                    <SelectItem value="robotics" className="text-xs">Robotics</SelectItem>
+                    <SelectItem value="cultural" className="text-xs">Cultural</SelectItem>
+                    <SelectItem value="sports" className="text-xs">Sports</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -154,18 +229,19 @@ export default function AdminEventsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-muted-foreground">Status:</span>
                 <Select value={statusFilter} onValueChange={(val) => val && setStatusFilter(val)}>
-                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-36 text-xs h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
+                    <SelectItem value="published" className="text-xs">Published</SelectItem>
+                    <SelectItem value="disabled" className="text-xs">Disabled</SelectItem>
+                    <SelectItem value="draft" className="text-xs">Draft</SelectItem>
+                    <SelectItem value="completed" className="text-xs">Completed</SelectItem>
+                    <SelectItem value="cancelled" className="text-xs">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <Button type="submit" variant="secondary" size="sm" className="shrink-0 font-semibold">
+              <Button type="submit" variant="secondary" size="sm" className="shrink-0 font-bold text-xs h-9 cursor-pointer">
                 <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
               </Button>
             </div>
@@ -185,182 +261,275 @@ export default function AdminEventsPage() {
           {!loading && events.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50 dark:bg-slate-900/80">
-                  <TableHead className="font-bold text-xs uppercase">Title & Category</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Organizer</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Date & Venue</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Registrations</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Attendance</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Revenue</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Status</TableHead>
-                  <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {events.map((evt) => (
-                  <TableRow key={evt.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 text-xs">
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="font-bold text-[#01424E] dark:text-teal-100">{evt.title}</div>
-                        {evt.is_featured && <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500 shrink-0" />}
-                      </div>
-                      <Badge className="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 capitalize text-[10px] mt-0.5">
-                        {evt.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium text-slate-800 dark:text-slate-200">{evt.profiles?.full_name || 'Organizer'}</div>
-                      <div className="text-[11px] text-muted-foreground">{evt.profiles?.college || 'Apex Institute'}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div>{new Date(evt.start_date).toLocaleDateString()}</div>
-                      <div className="text-[11px] text-muted-foreground truncate max-w-[140px]">{evt.venue || 'Main Auditorium'}</div>
-                    </TableCell>
-                    <TableCell className="font-semibold text-slate-800 dark:text-slate-200">
-                      {evt.registrationCount} / {evt.max_participants || '100'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold text-[10px]">
-                        {evt.attendanceCount} Scanned
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-bold text-[#007C46]">
-                      ₹{(evt.revenue || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <Badge className={`capitalize font-bold text-[10px] ${
-                          evt.status === 'published' ? 'bg-[#007C46] text-white' :
-                          evt.status === 'draft' ? 'bg-amber-500 text-white' :
-                          'bg-slate-200 text-slate-800'
-                        }`}>
-                          {evt.status}
-                        </Badge>
-                        {evt.is_disabled && (
-                          <Badge className="bg-red-500 text-white text-[9px] font-bold">DISABLED</Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right space-x-1">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => { setSelectedEvent(evt); setIsDetailsOpen(true); }}
-                        className="h-8 text-xs font-semibold"
-                      >
-                        <Eye className="mr-1 h-3.5 w-3.5 text-[#01424E]" /> View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={processingId === evt.id}
-                        onClick={() => handleToggleFeatured(evt)}
-                        className={`h-8 text-xs ${evt.is_featured ? 'text-amber-600 bg-amber-50' : 'text-slate-600'}`}
-                        title="Toggle Featured"
-                      >
-                        <Star className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={processingId === evt.id}
-                        onClick={() => handleToggleDisabled(evt)}
-                        className={`h-8 text-xs ${evt.is_disabled ? 'text-emerald-600' : 'text-amber-600'}`}
-                        title={evt.is_disabled ? 'Enable Event' : 'Disable Event'}
-                      >
-                        <Ban className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={processingId === evt.id}
-                        onClick={() => handleSoftDelete(evt)}
-                        className="h-8 text-xs text-red-600 hover:bg-red-50"
-                        title="Soft delete event"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </TableCell>
+                <TableHeader>
+                  <TableRow className="bg-slate-50 dark:bg-slate-900/80">
+                    <TableHead className="font-bold text-xs uppercase">Title & Category</TableHead>
+                    <TableHead className="font-bold text-xs uppercase">Organizer</TableHead>
+                    <TableHead className="font-bold text-xs uppercase">Date & Venue</TableHead>
+                    <TableHead className="font-bold text-xs uppercase">Registrations</TableHead>
+                    <TableHead className="font-bold text-xs uppercase">Revenue</TableHead>
+                    <TableHead className="font-bold text-xs uppercase">Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {events.map((evt) => (
+                    <TableRow key={evt.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 text-xs">
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div className="font-bold text-[#01424E] dark:text-teal-100">{evt.title}</div>
+                          {evt.is_featured && <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500 shrink-0" />}
+                        </div>
+                        <Badge className="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 capitalize text-[10px] mt-0.5">
+                          {evt.category || 'General'}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="font-medium text-slate-800 dark:text-slate-200">{evt.profiles?.full_name || 'Organizer'}</div>
+                        <div className="text-[11px] text-muted-foreground">{evt.profiles?.college || 'Not Available'}</div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div>{formatDateStr(evt.start_date)}</div>
+                        <div className="text-[11px] text-muted-foreground truncate max-w-[140px]">{evt.venue || 'Not Available'}</div>
+                      </TableCell>
+
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200">
+                        {evt.registrationCount} / {evt.max_participants || 'Unlimited'}
+                      </TableCell>
+
+                      <TableCell className="font-bold text-[#007C46]">
+                        ₹{(evt.revenue || 0).toLocaleString()}
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Badge className={`capitalize font-bold text-[10px] w-fit ${
+                            evt.is_disabled ? 'bg-red-500 text-white' :
+                            evt.status === 'published' ? 'bg-[#007C46] text-white' :
+                            evt.status === 'draft' ? 'bg-amber-500 text-white' :
+                            'bg-slate-200 text-slate-800'
+                          }`}>
+                            {evt.is_disabled ? 'Disabled' : evt.status}
+                          </Badge>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="text-right space-x-1">
+                        {/* VIEW BUTTON */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => { setSelectedEvent(evt); setIsDetailsOpen(true); }}
+                          className="h-8 text-xs font-semibold cursor-pointer"
+                        >
+                          <Eye className="mr-1 h-3.5 w-3.5 text-[#01424E]" /> View
+                        </Button>
+
+                        {/* FEATURE STAR BUTTON */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={processingId === evt.id}
+                          onClick={() => handleToggleFeatured(evt)}
+                          className={`h-8 text-xs cursor-pointer ${evt.is_featured ? 'text-amber-600 bg-amber-50 border-amber-300' : 'text-slate-500'}`}
+                          title={evt.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
+                        >
+                          {processingId === evt.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Star className={`h-3.5 w-3.5 ${evt.is_featured ? 'fill-amber-400 text-amber-500' : ''}`} />
+                          )}
+                        </Button>
+
+                        {/* DISABLE / PUBLISH BUTTON */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={processingId === evt.id}
+                          onClick={() => handleToggleDisabled(evt)}
+                          className={`h-8 text-xs cursor-pointer ${evt.is_disabled ? 'text-emerald-600 border-emerald-300' : 'text-amber-600 border-amber-300'}`}
+                          title={evt.is_disabled ? 'Publish Event' : 'Disable Event'}
+                        >
+                          {processingId === evt.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Ban className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+
+                        {/* DELETE BUTTON */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={processingId === evt.id}
+                          onClick={() => openDeleteConfirmation(evt)}
+                          className="h-8 text-xs text-red-600 hover:bg-red-50 border-red-200 cursor-pointer"
+                          title="Delete event permanently"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : loading ? (
+            <div className="p-12 text-center text-muted-foreground text-xs flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-[#007C46]" /> Loading campus events...
+            </div>
           ) : (
-            <div className="p-8 text-center text-muted-foreground text-xs">
+            <div className="p-12 text-center text-muted-foreground text-xs">
               No campus events found matching filters.
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* View Event Details Modal */}
+      {/* VIEW EVENT DETAILS MODAL */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-[#01424E] dark:text-teal-100">
-              <Calendar className="h-5 w-5 text-[#007C46]" /> Event Details & Administrative Actions
+            <DialogTitle className="flex items-center gap-2 text-[#01424E] dark:text-teal-100 font-bold text-lg">
+              <Calendar className="h-5 w-5 text-[#007C46]" /> Event Details
             </DialogTitle>
-            <DialogDescription>Telemetry, venue details, and registration statistics</DialogDescription>
+            <DialogDescription className="text-xs">Complete event information, telemetry, and contact details</DialogDescription>
           </DialogHeader>
 
           {selectedEvent && (
-            <div className="space-y-4 py-2 text-xs max-h-[70vh] overflow-y-auto pr-1">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <Badge className="bg-[#01424E] text-[#7CEAAB] capitalize mb-1">{selectedEvent.category}</Badge>
-                    <h3 className="text-lg font-bold text-[#01424E] dark:text-teal-100">{selectedEvent.title}</h3>
-                    <p className="text-muted-foreground text-xs">{selectedEvent.short_description || selectedEvent.description}</p>
+            <div className="space-y-5 py-2 text-xs max-h-[75vh] overflow-y-auto pr-1">
+              {/* Banner / Poster Preview */}
+              {(selectedEvent.banner_url || selectedEvent.poster_url) ? (
+                <div className="relative h-44 w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100">
+                  <img
+                    src={selectedEvent.banner_url || selectedEvent.poster_url || ''}
+                    alt={selectedEvent.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute top-3 right-3">
+                    <Badge className="bg-[#01424E] text-[#7CEAAB] font-bold uppercase text-[10px]">
+                      {selectedEvent.registration_fee > 0 ? `₹${selectedEvent.registration_fee}` : 'FREE ENTRY'}
+                    </Badge>
                   </div>
-                  <Badge className="bg-[#007C46] text-white font-bold text-xs">
-                    {selectedEvent.registration_fee > 0 ? `₹${selectedEvent.registration_fee}` : 'FREE ENTRY'}
+                </div>
+              ) : (
+                <div className="h-24 w-full rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-center gap-2 text-muted-foreground">
+                  <ImageIcon className="h-5 w-5 text-slate-400" />
+                  <span className="text-xs font-semibold">No Banner Image Uploaded</span>
+                </div>
+              )}
+
+              {/* Title & Category Box */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <Badge className="bg-[#01424E] text-[#7CEAAB] capitalize text-[10px] font-extrabold">{selectedEvent.category || 'General'}</Badge>
+                  <Badge className={`capitalize font-bold text-[10px] ${
+                    selectedEvent.is_disabled ? 'bg-red-500 text-white' :
+                    selectedEvent.status === 'published' ? 'bg-[#007C46] text-white' :
+                    'bg-slate-200 text-slate-800'
+                  }`}>
+                    {selectedEvent.is_disabled ? 'Disabled' : selectedEvent.status || 'Not Available'}
                   </Badge>
                 </div>
+                <h3 className="text-xl font-extrabold text-[#01424E] dark:text-teal-100">{selectedEvent.title}</h3>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {selectedEvent.description || selectedEvent.short_description || 'Not Available'}
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 p-3 border rounded-xl bg-white dark:bg-slate-900">
-                <div>
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Organizer Name</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedEvent.profiles?.full_name || 'Organizer'}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Campus Institution</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedEvent.profiles?.college || 'Apex Institute'}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Venue & Location</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedEvent.venue || 'Main Auditorium'}, {selectedEvent.building || 'Block B'}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Registration Mode</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedEvent.registration_mode} (Max {selectedEvent.max_team_size}/team)</span>
-                </div>
+              {/* Event Metadata Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DetailBox icon={<User className="h-4 w-4 text-[#007C46]" />} label="Organizer" value={selectedEvent.profiles?.full_name || 'Not Available'} />
+                <DetailBox icon={<MapPin className="h-4 w-4 text-[#007C46]" />} label="Venue & Location" value={[selectedEvent.venue, selectedEvent.building, selectedEvent.room].filter(Boolean).join(', ') || 'Not Available'} />
+                <DetailBox icon={<Calendar className="h-4 w-4 text-[#007C46]" />} label="Date Range" value={`Start: ${formatDateStr(selectedEvent.start_date)} | End: ${formatDateStr(selectedEvent.end_date)}`} />
+                <DetailBox icon={<Clock className="h-4 w-4 text-[#007C46]" />} label="Event Time" value={`Start: ${formatTimeStr(selectedEvent.start_date)} | End: ${formatTimeStr(selectedEvent.end_date)}`} />
+                <DetailBox icon={<Users className="h-4 w-4 text-[#007C46]" />} label="Registrations" value={`${selectedEvent.registrationCount} Registered`} />
+                <DetailBox icon={<Users className="h-4 w-4 text-[#007C46]" />} label="Maximum Capacity" value={selectedEvent.max_participants ? `${selectedEvent.max_participants} Participants` : 'Unlimited / Not Specified'} />
+                <DetailBox icon={<IndianRupee className="h-4 w-4 text-[#007C46]" />} label="Registration Fee" value={selectedEvent.registration_fee > 0 ? `₹${selectedEvent.registration_fee}` : 'Free Entry'} />
+                <DetailBox icon={<Mail className="h-4 w-4 text-[#007C46]" />} label="Contact Info" value={[selectedEvent.contact_email, selectedEvent.contact_phone].filter(Boolean).join(' • ') || 'Not Available'} />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border text-center">
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Registrations</span>
-                  <span className="text-lg font-extrabold text-blue-700 dark:text-blue-300">{selectedEvent.registrationCount}</span>
+              {/* Event Rules / Instructions */}
+              <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#01424E] dark:text-teal-100">
+                  <FileText className="h-4 w-4 text-[#007C46]" />
+                  <span>Event Rules & Guidelines</span>
                 </div>
-                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border text-center">
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Verified Check-ins</span>
-                  <span className="text-lg font-extrabold text-emerald-700 dark:text-emerald-300">{selectedEvent.attendanceCount}</span>
-                </div>
-                <div className="p-3 rounded-xl bg-green-50 dark:bg-green-950/40 border text-center">
-                  <span className="text-muted-foreground text-[10px] font-bold block uppercase">Total Revenue</span>
-                  <span className="text-lg font-extrabold text-[#007C46]">₹{(selectedEvent.revenue || 0).toLocaleString()}</span>
-                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {selectedEvent.payment_instructions || selectedEvent.volunteer_instructions || 'Not Available'}
+                </p>
               </div>
             </div>
           )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>Close Monitor</Button>
+          <DialogFooter className="pt-3 border-t border-slate-100 dark:border-slate-800">
+            <Button variant="outline" onClick={() => setIsDetailsOpen(false)} className="text-xs font-bold rounded-xl h-9 px-4">
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" /> Delete Event
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-2 leading-relaxed">
+              Are you sure you want to permanently delete this event? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {eventToDelete && (
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs my-2">
+              <p className="font-bold text-red-900 dark:text-red-200">{eventToDelete.title}</p>
+              <p className="text-[11px] text-red-700 dark:text-red-300 mt-0.5">Category: {eventToDelete.category || 'General'}</p>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteModalOpen(false); setEventToDelete(null); }}
+              className="text-xs font-bold rounded-xl h-9 px-4"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!!processingId}
+              onClick={handleConfirmDelete}
+              className="text-xs font-bold rounded-xl h-9 px-5 cursor-pointer"
+            >
+              {processingId ? (
+                <>
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function DetailBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex items-start gap-2.5">
+      <div className="shrink-0 mt-0.5">{icon}</div>
+      <div>
+        <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider block">{label}</span>
+        <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">{value}</span>
+      </div>
     </div>
   );
 }

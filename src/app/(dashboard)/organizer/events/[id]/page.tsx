@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, MapPin, Users, Award, QrCode, ArrowLeft, Edit2, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { eventService } from '@/services/event-service';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
 export default function OrganizerEventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,23 +19,22 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadEventData() {
-      try {
-        setLoading(true);
-        const data = await eventService.getEventById(id);
-        setEvent(data);
-        const s = await eventService.getEventStats(id);
-        setStats(s);
-      } catch (err) {
-        console.error('Error loading event detail:', err);
-        toast.error('Failed to load event details');
-      } finally {
-        setLoading(false);
-      }
+  const loadEventData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await eventService.getEventById(id);
+      setEvent(data);
+      const s = await eventService.getEventStats(id);
+      setStats(s);
+    } catch (err) {
+      console.error('Error loading event detail:', err);
+      toast.error('Failed to load event details');
+    } finally {
+      setLoading(false);
     }
-    loadEventData();
   }, [id]);
+
+  useDataSync(['events', 'registrations', 'volunteers', 'attendance', 'certificates'], loadEventData, [id]);
 
   if (loading) {
     return (

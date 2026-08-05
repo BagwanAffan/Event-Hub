@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { eventService } from '@/services/event-service';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Search, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { EventCard } from '@/components/shared/event-card';
+import { useDataSync } from '@/lib/data-sync';
 
 const DEFAULT_CATEGORIES = ['All', 'Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Hackathon'];
 
@@ -34,25 +35,27 @@ function StudentEventsContent() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    async function fetchEvents() {
-      try {
-        setLoading(true);
-        const data = await eventService.getPublicEvents();
-        // Strict deduplication by ID
-        const uniqueEvents = Array.from(
-          new Map((data.data || []).map((e: any) => [e.id, e])).values()
-        );
-        setEvents(uniqueEvents);
-      } catch (error) {
-        console.error('Failed to fetch events:', error);
-        toast.error('Failed to load events');
-      } finally {
-        setLoading(false);
-      }
+  const fetchEvents = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await eventService.getPublicEvents();
+      // Strict deduplication by ID and filtering out deleted/disabled events
+      const activeEvents = (data.data || []).filter((e: any) => 
+        !e.is_soft_deleted && !e.is_disabled && e.status !== 'disabled' && e.status !== 'draft' && e.status !== 'cancelled'
+      );
+      const uniqueEvents = Array.from(
+        new Map(activeEvents.map((e: any) => [e.id, e])).values()
+      );
+      setEvents(uniqueEvents);
+    } catch (error) {
+      console.error('Failed to fetch events:', error);
+      toast.error('Failed to load events');
+    } finally {
+      setLoading(false);
     }
-    fetchEvents();
   }, []);
+
+  useDataSync(['events'], fetchEvents);
 
   const categoryMap = new Map<string, string>();
   [...DEFAULT_CATEGORIES, ...events.map((e) => e.category)]
@@ -68,6 +71,9 @@ function StudentEventsContent() {
 
   const filteredEvents = events.filter((event) => {
     const s = searchQuery.toLowerCase().trim();
+    if (event.is_soft_deleted || event.is_disabled || event.status === 'disabled' || event.status === 'draft' || event.status === 'cancelled') {
+      return false;
+    }
     const matchesSearch =
       !s ||
       event.title?.toLowerCase().includes(s) ||

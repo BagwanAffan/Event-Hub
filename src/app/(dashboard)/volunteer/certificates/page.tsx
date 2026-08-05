@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { certificateService } from '@/services/certificate-service';
 import { exportService } from '@/services/export-service';
@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Award, Download, Eye, ShieldCheck, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
+import { useDataSync } from '@/lib/data-sync';
 
 export default function VolunteerCertificatesPage() {
   const { profile } = useAuth();
@@ -21,23 +22,22 @@ export default function VolunteerCertificatesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCertData, setSelectedCertData] = useState<FormattedCertificateData | null>(null);
 
-  useEffect(() => {
-    async function loadCertificates() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const data = await certificateService.getCertificates({ user_id: profile.id });
-        const volunteerCerts = (data || []).filter((c: any) => c.certificate_type === 'volunteer');
-        setCertificates(volunteerCerts);
-      } catch (error) {
-        console.error('Error fetching certificates:', error);
-        toast.error('Failed to load certificates');
-      } finally {
-        setLoading(false);
-      }
+  const loadCertificates = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      setLoading(true);
+      const data = await certificateService.getCertificates({ user_id: profile.id });
+      const volunteerCerts = (data || []).filter((c: any) => c.certificate_type === 'volunteer');
+      setCertificates(volunteerCerts);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      toast.error('Failed to load certificates');
+    } finally {
+      setLoading(false);
     }
-    loadCertificates();
   }, [profile?.id]);
+
+  useDataSync(['certificates', 'volunteers'], loadCertificates, [profile?.id]);
 
   const handleDownload = (cert: any) => {
     const formatted = buildCertificateData(cert);
