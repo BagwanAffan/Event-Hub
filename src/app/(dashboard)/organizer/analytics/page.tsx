@@ -12,6 +12,7 @@ import {
 import { BarChart3, Download, TrendingUp, Users, QrCode, Award, IndianRupee, Calendar } from 'lucide-react';
 import { analyticsService } from '@/services/analytics-service';
 import { exportService } from '@/services/export-service';
+import { DepartmentParticipationChart } from '@/components/shared/department-participation-chart';
 import { toast } from 'sonner';
 
 const COLOR_PALETTE = ['#01424E', '#007C46', '#41B177', '#7CEAAB', '#0284C7', '#6366F1'];
@@ -232,24 +233,7 @@ export default function AnalyticsPage() {
           <CardDescription>Total participant count broken down by engineering & science branch</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[280px] w-full flex items-center justify-center">
-            {deptData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={deptData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="department" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                  <Bar dataKey="count" fill="#007C46" radius={[8, 8, 0, 0]} name="Students Count" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-center text-muted-foreground py-10 space-y-2">
-                <Users className="h-10 w-10 mx-auto opacity-40 text-[#007C46]" />
-                <p className="text-sm font-medium">No department participation data recorded yet</p>
-              </div>
-            )}
-          </div>
+          <DepartmentParticipationChart data={deptData} height={310} />
         </CardContent>
       </Card>
     </div>

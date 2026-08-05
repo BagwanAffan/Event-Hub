@@ -172,7 +172,15 @@ export default function OrganizerEventsPage() {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Status:</span>
             <Select value={statusFilter} onValueChange={(val) => val && setStatusFilter(val)}>
-              <SelectTrigger className="w-full md:w-44"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full md:w-44">
+                <SelectValue>
+                  {statusFilter === 'all' ? 'All Statuses' :
+                   statusFilter === 'draft' ? 'Drafts Only' :
+                   statusFilter === 'published' ? 'Published' :
+                   statusFilter === 'completed' ? 'Completed' :
+                   statusFilter === 'cancelled' ? 'Cancelled' : 'All Statuses'}
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="draft">Drafts Only</SelectItem>
@@ -223,64 +231,102 @@ export default function OrganizerEventsPage() {
       {!loading && filteredEvents.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map(evt => (
-            <Card key={evt.id} className="border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-all flex flex-col justify-between">
+            <Card
+              key={evt.id}
+              className="border-slate-200 dark:border-slate-800/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-out flex flex-col justify-between h-full rounded-2xl bg-card overflow-hidden group"
+            >
               <div>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <Badge className={`capitalize font-bold ${
-                      evt.status === 'published' ? 'bg-[#007C46] text-white' :
-                      evt.status === 'draft' ? 'bg-amber-500 text-white' :
-                      'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
-                    }`}>
-                      {evt.status}
-                    </Badge>
-                    <span className="text-xs font-bold text-[#007C46]">
-                      {evt.registration_fee > 0 ? `₹${evt.registration_fee}` : 'FREE'}
-                    </span>
+                <CardHeader className="p-5 pb-3">
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        className={`capitalize font-bold text-[11px] px-2.5 py-0.5 rounded-lg shrink-0 ${
+                          evt.status === 'published'
+                            ? 'bg-[#007C46] text-white shadow-xs'
+                            : evt.status === 'draft'
+                            ? 'bg-amber-500 text-white shadow-xs'
+                            : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
+                        }`}
+                      >
+                        {evt.status}
+                      </Badge>
+                      <span className="text-xs font-extrabold text-[#007C46] dark:text-[#7CEAAB] px-2.5 py-0.5 rounded-md bg-[#edfcf6] dark:bg-teal-950/60 shrink-0">
+                        {evt.registration_fee > 0 ? `₹${evt.registration_fee}` : 'FREE'}
+                      </span>
+                    </div>
+
+                    <Button
+                      onClick={() => { setDeletingEvent(evt); setIsDeleteOpen(true); }}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg shrink-0 transition-colors cursor-pointer"
+                      title="Delete event"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <CardTitle className="text-xl font-bold text-[#01424E] dark:text-teal-100 mt-2 line-clamp-1">
+
+                  <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-100 line-clamp-1 tracking-tight">
                     {evt.title}
                   </CardTitle>
-                  <CardDescription className="line-clamp-2 text-xs">
+                  <CardDescription className="line-clamp-2 text-xs text-muted-foreground leading-relaxed mt-1">
                     {evt.short_description || evt.description}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
-                  <div className="flex items-center gap-2">
+                <CardContent className="px-5 pb-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center gap-2.5">
                     <MapPin className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB] shrink-0" />
                     <span className="truncate">{evt.venue || 'Main Campus Auditorium'}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <Calendar className="h-4 w-4 text-[#007C46] shrink-0" />
-                    <span>{new Date(evt.start_date).toLocaleDateString()} at {new Date(evt.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="truncate">{new Date(evt.start_date).toLocaleDateString()} at {new Date(evt.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-amber-600 shrink-0" />
-                    <span>Max {evt.max_participants || 100} Participants ({evt.registration_mode})</span>
+                  <div className="flex items-center gap-2.5">
+                    <Users className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="truncate">Max {evt.max_participants || 100} Participants ({evt.registration_mode})</span>
                   </div>
                 </CardContent>
               </div>
 
-              <CardFooter className="pt-4 border-t flex flex-col gap-2.5 bg-slate-50/50 dark:bg-slate-900/40 rounded-b-xl">
-                <div className="flex items-center gap-2 w-full">
-                  {evt.status === 'draft' && (
-                    <Button onClick={() => handlePublish(evt)} size="sm" className="h-9 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-1.5 bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-xs cursor-pointer">
-                      <Rocket className="h-3.5 w-3.5 shrink-0" />
-                      <span>Publish Live</span>
+              <CardFooter className="p-4 sm:p-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col gap-2.5 bg-slate-50/50 dark:bg-slate-900/40 rounded-b-2xl">
+                {evt.status === 'draft' ? (
+                  <div className="flex items-center gap-2.5 w-full">
+                    <Button
+                      onClick={() => handlePublish(evt)}
+                      className="h-10 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-xs cursor-pointer"
+                    >
+                      <Rocket className="h-4 w-4 shrink-0" />
+                      <span>Publish</span>
                     </Button>
-                  )}
-                  <Button onClick={() => handleOpenEdit(evt)} variant="outline" size="sm" className="h-9 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-1.5 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                    <Edit2 className="h-3.5 w-3.5 text-[#01424E] shrink-0" />
-                    <span>Edit</span>
+                    <Button
+                      onClick={() => handleOpenEdit(evt)}
+                      variant="outline"
+                      className="h-10 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-xs"
+                    >
+                      <Edit2 className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB] shrink-0" />
+                      <span>Edit</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => handleOpenEdit(evt)}
+                    variant="outline"
+                    className="h-10 w-full text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Edit2 className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB] shrink-0" />
+                    <span>Edit Event</span>
                   </Button>
-                  <Button onClick={() => { setDeletingEvent(evt); setIsDeleteOpen(true); }} variant="outline" size="sm" className="h-9 w-9 p-0 rounded-xl inline-flex items-center justify-center shrink-0 text-red-600 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/40 transition-colors cursor-pointer" title="Delete event">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-                <Button asChild variant="outline" size="sm" className="h-9 w-full text-xs font-bold rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[#01424E] dark:text-teal-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#007C46] transition-all cursor-pointer shadow-xs">
-                  <Link href={`/organizer/events/${evt.id}`} className="inline-flex items-center justify-center gap-1.5 h-full w-full">
-                    <Eye className="h-3.5 w-3.5 shrink-0" />
+                )}
+
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 w-full text-xs font-bold rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[#01424E] dark:text-teal-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#007C46] transition-all cursor-pointer shadow-xs"
+                >
+                  <Link href={`/organizer/events/${evt.id}`} className="inline-flex items-center justify-center gap-2 h-full w-full">
+                    <Eye className="h-4 w-4 shrink-0" />
                     <span>Event Dashboard</span>
                   </Link>
                 </Button>

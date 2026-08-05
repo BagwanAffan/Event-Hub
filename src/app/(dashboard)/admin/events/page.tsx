@@ -214,7 +214,12 @@ export default function AdminEventsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-muted-foreground">Category:</span>
                 <Select value={categoryFilter} onValueChange={(val) => val && setCategoryFilter(val)}>
-                  <SelectTrigger className="w-36 text-xs h-9"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-36 text-xs h-9">
+                    <SelectValue>
+                      {categoryFilter === 'all' ? 'All Categories' :
+                       categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)}
+                    </SelectValue>
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all" className="text-xs">All Categories</SelectItem>
                     <SelectItem value="hackathon" className="text-xs">Hackathon</SelectItem>
@@ -229,7 +234,16 @@ export default function AdminEventsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-muted-foreground">Status:</span>
                 <Select value={statusFilter} onValueChange={(val) => val && setStatusFilter(val)}>
-                  <SelectTrigger className="w-36 text-xs h-9"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-36 text-xs h-9">
+                    <SelectValue>
+                      {statusFilter === 'all' ? 'All Statuses' :
+                       statusFilter === 'published' ? 'Published' :
+                       statusFilter === 'disabled' ? 'Disabled' :
+                       statusFilter === 'draft' ? 'Draft' :
+                       statusFilter === 'completed' ? 'Completed' :
+                       statusFilter === 'cancelled' ? 'Cancelled' : 'All Statuses'}
+                    </SelectValue>
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
                     <SelectItem value="published" className="text-xs">Published</SelectItem>

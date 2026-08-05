@@ -421,7 +421,7 @@ export default function VolunteersPage() {
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl border bg-slate-50/50 dark:bg-slate-900/50">
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-              <div className="relative w-full sm:w-72">
+              <div className="relative w-full sm:w-80 md:w-[350px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search candidate, email, skill, dept..."
@@ -432,8 +432,12 @@ export default function VolunteersPage() {
               </div>
 
               <Select value={selectedEventId} onValueChange={(val) => setSelectedEventId(val || 'all')}>
-                <SelectTrigger className="w-full sm:w-60 text-xs bg-white dark:bg-slate-900">
-                  <SelectValue placeholder="All Events" />
+                <SelectTrigger className="w-full sm:w-72 md:w-[360px] text-xs bg-white dark:bg-slate-900">
+                  <SelectValue>
+                    {selectedEventId === 'all'
+                      ? 'All Organized Events'
+                      : events.find((e) => e.id === selectedEventId)?.title || 'All Organized Events'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Organized Events</SelectItem>

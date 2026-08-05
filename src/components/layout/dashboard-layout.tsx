@@ -75,7 +75,6 @@ function SidebarMobileContent() {
       { name: 'My Teams', icon: Users, href: '/student/teams' },
       { name: 'Certificates', icon: Award, href: '/student/certificates' },
       { name: 'Notifications', icon: Bell, href: '/student/notifications' },
-      { name: 'Profile', icon: User, href: '/student/profile' },
       { name: 'Settings', icon: Settings, href: '/student/settings' },
     ],
     organizer: [
@@ -89,7 +88,6 @@ function SidebarMobileContent() {
       { name: 'Analytics', icon: BarChart3, href: '/organizer/analytics' },
       { name: 'AI Copilot', icon: Sparkles, href: '/organizer/ai' },
       { name: 'Notifications', icon: Bell, href: '/organizer/notifications' },
-      { name: 'Profile', icon: User, href: '/organizer/profile' },
       { name: 'Settings', icon: Settings, href: '/organizer/settings' },
     ],
     volunteer: [
@@ -100,7 +98,6 @@ function SidebarMobileContent() {
       { name: 'Attendance', icon: UserCheck, href: '/volunteer/attendance' },
       { name: 'Certificates', icon: Award, href: '/volunteer/certificates' },
       { name: 'Notifications', icon: Bell, href: '/volunteer/notifications' },
-      { name: 'Profile', icon: User, href: '/volunteer/profile' },
       { name: 'Settings', icon: Settings, href: '/volunteer/settings' },
     ],
     admin: [
@@ -111,7 +108,6 @@ function SidebarMobileContent() {
       { name: 'Users', icon: Users, href: '/admin/users' },
       { name: 'Reports', icon: FileText, href: '/admin/reports' },
       { name: 'Settings', icon: Settings, href: '/admin/settings' },
-      { name: 'Profile', icon: User, href: '/admin/profile' },
     ],
   };
 

@@ -30,13 +30,44 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function getAdaptiveItemStyles() {
-  return {
-    navGap: 'gap-1.5',
-    itemPadding: 'py-2.5 px-3.5',
-    minHeight: 'min-h-[40px]',
-    iconGap: 'gap-3',
-  };
+// Centralized reversible styling configuration following 8px system
+export const SIDEBAR_CONFIG = {
+  getAdaptiveStyles: (itemCount: number) => {
+    if (itemCount <= 7) {
+      // Admin (7), Student (7): Taller items with spacious 12px gaps
+      return {
+        navGap: 'gap-3',
+        itemPadding: 'py-3.5 px-3.5',
+        minHeight: 'min-h-[48px]',
+        iconGap: 'gap-3.5',
+      };
+    } else if (itemCount <= 8) {
+      // Volunteer (8): Spacious medium items
+      return {
+        navGap: 'gap-2.5',
+        itemPadding: 'py-3 px-3.5',
+        minHeight: 'min-h-[46px]',
+        iconGap: 'gap-3.5',
+      };
+    } else {
+      // Organizer (10): Medium height items with clean 8px spacing
+      return {
+        navGap: 'gap-2',
+        itemPadding: 'py-2.5 px-3.5',
+        minHeight: 'min-h-[42px]',
+        iconGap: 'gap-3.5',
+      };
+    }
+  },
+  itemRadius: 'rounded-xl',
+  iconTextGap: 'gap-3.5',
+  activeClasses: 'bg-[#7CEAAB]/20 text-[#7CEAAB] font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.14)] border border-[#7CEAAB]/25',
+  inactiveClasses: 'text-slate-300 font-medium hover:bg-white/[0.08] hover:text-white hover:translate-x-1',
+  transition: 'transition-all duration-200 ease-out',
+};
+
+export function getAdaptiveItemStyles(itemCount = 7) {
+  return SIDEBAR_CONFIG.getAdaptiveStyles(itemCount);
 }
 
 export function Sidebar() {
@@ -55,7 +86,6 @@ export function Sidebar() {
       { name: 'My Teams', icon: Users, href: '/student/teams' },
       { name: 'Certificates', icon: Award, href: '/student/certificates' },
       { name: 'Notifications', icon: Bell, href: '/student/notifications' },
-      { name: 'Profile', icon: User, href: '/student/profile' },
       { name: 'Settings', icon: Settings, href: '/student/settings' },
     ],
     organizer: [
@@ -69,7 +99,6 @@ export function Sidebar() {
       { name: 'Analytics', icon: BarChart3, href: '/organizer/analytics' },
       { name: 'AI Copilot', icon: Sparkles, href: '/organizer/ai' },
       { name: 'Notifications', icon: Bell, href: '/organizer/notifications' },
-      { name: 'Profile', icon: User, href: '/organizer/profile' },
       { name: 'Settings', icon: Settings, href: '/organizer/settings' },
     ],
     volunteer: [
@@ -80,7 +109,6 @@ export function Sidebar() {
       { name: 'Attendance', icon: UserCheck, href: '/volunteer/attendance' },
       { name: 'Certificates', icon: Award, href: '/volunteer/certificates' },
       { name: 'Notifications', icon: Bell, href: '/volunteer/notifications' },
-      { name: 'Profile', icon: User, href: '/volunteer/profile' },
       { name: 'Settings', icon: Settings, href: '/volunteer/settings' },
     ],
     admin: [
@@ -91,12 +119,12 @@ export function Sidebar() {
       { name: 'Users', icon: Users, href: '/admin/users' },
       { name: 'Reports', icon: FileText, href: '/admin/reports' },
       { name: 'Settings', icon: Settings, href: '/admin/settings' },
-      { name: 'Profile', icon: User, href: '/admin/profile' },
     ],
   };
 
   const items = navItems[role as keyof typeof navItems] || navItems.student;
-  
+  const adaptive = SIDEBAR_CONFIG.getAdaptiveStyles(items.length);
+
   // Hover auto-expand effect:
   // When collapsed, sidebar shows icons only at 80px.
   // Hovering over sidebar expands it to 270px for ALL roles.
@@ -107,7 +135,7 @@ export function Sidebar() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "relative flex flex-col bg-[#01424E] text-slate-100 transition-all duration-300 ease-in-out hidden md:flex z-30 shadow-xl select-none",
+        "relative flex flex-col bg-gradient-to-b from-[#014856] via-[#01424E] to-[#01353E] text-slate-100 transition-all duration-300 ease-in-out hidden md:flex z-30 shadow-xl select-none",
         isCollapsed && !isHovered ? "w-[80px]" : "w-[270px]"
       )}
     >
@@ -125,7 +153,7 @@ export function Sidebar() {
               variant="ghost"
               size="icon"
               onClick={toggle}
-              className="h-8 w-8 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer shrink-0"
+              className="h-8 w-8 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer shrink-0 transition-colors"
               title={isCollapsed ? "Lock Expanded Sidebar" : "Collapse Sidebar (Auto-expand on hover)"}
             >
               {isCollapsed ? <PanelLeftOpen className="h-4 w-4 text-[#7CEAAB]" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -143,8 +171,8 @@ export function Sidebar() {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto py-3 custom-scrollbar">
-        <nav className="flex flex-col gap-1.5 px-3.5">
+      <div className="flex-1 overflow-y-auto py-4 px-3.5 custom-scrollbar">
+        <nav className={cn("flex flex-col", adaptive.navGap)}>
           {items.map((item) => {
             const isActive = pathname === item.href || (item.href !== `/${role}/dashboard` && pathname.startsWith(item.href));
             return (
@@ -152,16 +180,28 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold min-h-[40px] transition-all duration-150 cursor-pointer",
+                  "flex items-center text-xs cursor-pointer group",
+                  SIDEBAR_CONFIG.itemRadius,
+                  SIDEBAR_CONFIG.iconTextGap,
+                  SIDEBAR_CONFIG.transition,
+                  adaptive.itemPadding,
+                  adaptive.minHeight,
                   isActive
-                    ? "bg-[#7CEAAB]/20 text-[#7CEAAB] font-bold shadow-xs"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white",
-                  !showExpanded ? "justify-center px-0" : ""
+                    ? SIDEBAR_CONFIG.activeClasses
+                    : SIDEBAR_CONFIG.inactiveClasses,
+                  !showExpanded ? "justify-center px-0 hover:translate-x-0" : ""
                 )}
                 title={!showExpanded ? item.name : undefined}
               >
-                <item.icon className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-[#7CEAAB]" : "text-slate-400 group-hover:text-white")} />
-                {showExpanded && <span className="truncate">{item.name}</span>}
+                <item.icon
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-all duration-200 group-hover:scale-105",
+                    isActive ? "text-[#7CEAAB]" : "text-slate-400 group-hover:text-white"
+                  )}
+                />
+                {showExpanded && (
+                  <span className="truncate tracking-tight">{item.name}</span>
+                )}
               </Link>
             );
           })}
@@ -169,14 +209,14 @@ export function Sidebar() {
       </div>
 
       {/* Footer Profile & Logout */}
-      <div className="border-t border-white/10 p-3.5 shrink-0 bg-[#01353e]/40">
+      <div className="border-t border-white/10 p-3.5 shrink-0 bg-black/10">
         {loading ? (
           <div className="flex justify-center py-2">
             <Loader2 className="h-4 w-4 animate-spin text-white/50" />
           </div>
         ) : profile ? (
           <div className={cn("flex items-center", !showExpanded ? "justify-center" : "gap-3")}>
-            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/20 border border-[#7CEAAB]/40 flex items-center justify-center font-bold text-[#7CEAAB] text-xs shadow-inner">
+            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/20 border border-[#7CEAAB]/40 flex items-center justify-center font-bold text-[#7CEAAB] text-xs shadow-inner ring-2 ring-[#7CEAAB]/20">
               {profile.profile_picture ? (
                 <img src={profile.profile_picture} alt="Avatar" className="h-full w-full object-cover" />
               ) : (
@@ -185,7 +225,7 @@ export function Sidebar() {
             </div>
             {showExpanded && (
               <div className="flex flex-col overflow-hidden flex-1 min-w-0">
-                <span className="truncate text-xs font-bold text-white">{profile.full_name}</span>
+                <span className="truncate text-xs font-bold text-white tracking-tight">{profile.full_name}</span>
                 <span className="truncate text-[10px] text-[#7CEAAB] uppercase font-bold tracking-wider">{profile.role}</span>
               </div>
             )}
@@ -193,7 +233,7 @@ export function Sidebar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-white/10 rounded-lg shrink-0 cursor-pointer"
+                className="h-8 w-8 text-slate-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg shrink-0 cursor-pointer transition-colors duration-200"
                 onClick={signOut}
                 title="Sign Out"
               >
@@ -203,7 +243,7 @@ export function Sidebar() {
           </div>
         ) : (
           showExpanded && (
-            <Button variant="outline" className="w-full text-xs font-bold text-white border-white/20 hover:bg-white/10" onClick={signOut}>
+            <Button variant="outline" className="w-full text-xs font-bold text-white border-white/20 hover:bg-white/10 transition-colors" onClick={signOut}>
               Logout
             </Button>
           )
@@ -212,7 +252,7 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="mt-2 w-full text-slate-400 hover:text-red-400 hover:bg-white/10 flex justify-center cursor-pointer"
+            className="mt-2 w-full text-slate-400 hover:text-red-300 hover:bg-red-500/15 flex justify-center cursor-pointer transition-colors duration-200"
             onClick={signOut}
             title="Sign Out"
           >

@@ -166,7 +166,13 @@ export default function RegistrationsPage() {
                 <Filter className="h-3.5 w-3.5" /> Status:
               </span>
               <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || 'all')}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-52"><SelectValue>{
+                  statusFilter === 'all' ? 'All Registrations' :
+                  statusFilter === 'approved' ? 'Approved' :
+                  statusFilter === 'pending_payment' ? 'Pending Verification' :
+                  statusFilter === 'completed' ? 'Completed' :
+                  statusFilter === 'rejected' ? 'Rejected' : 'All Registrations'
+                }</SelectValue></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Registrations</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>

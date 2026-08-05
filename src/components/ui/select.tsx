@@ -70,6 +70,98 @@ function SelectContent({
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
   >) {
+  const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const wheelLockRef = React.useRef<boolean>(false);
+  const wheelTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    const triggerClose = () => {
+      const escapeEvent = new KeyboardEvent("keydown", {
+        key: "Escape",
+        code: "Escape",
+        keyCode: 27,
+        which: 27,
+        bubbles: true,
+        cancelable: true,
+      });
+      document.dispatchEvent(escapeEvent);
+    };
+
+    const isInsideDropdown = (target: HTMLElement | null): boolean => {
+      if (!target) return false;
+      if (popupRef.current && popupRef.current.contains(target)) return true;
+      if (target.closest('[data-slot="select-content"]')) return true;
+      if (target.closest('[data-slot="dropdown-menu-content"]')) return true;
+      if (target.closest('[data-slot="popover-content"]')) return true;
+      if (target.closest('[role="listbox"]')) return true;
+      if (target.closest('[role="menu"]')) return true;
+      return false;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (isInsideDropdown(target)) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (wheelLockRef.current) return;
+        wheelLockRef.current = true;
+
+        if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+        wheelTimerRef.current = setTimeout(() => {
+          wheelLockRef.current = false;
+        }, 140);
+
+        const key = e.deltaY > 0 ? "ArrowDown" : "ArrowUp";
+        const arrowEvent = new KeyboardEvent("keydown", {
+          key,
+          code: key,
+          keyCode: key === "ArrowDown" ? 40 : 38,
+          which: key === "ArrowDown" ? 40 : 38,
+          bubbles: true,
+          cancelable: true,
+        });
+
+        const activeEl = document.activeElement || popupRef.current;
+        if (activeEl) {
+          activeEl.dispatchEvent(arrowEvent);
+        } else {
+          document.dispatchEvent(arrowEvent);
+        }
+
+        requestAnimationFrame(() => {
+          const popup = popupRef.current;
+          if (!popup) return;
+          const highlighted = popup.querySelector('[data-highlighted], [aria-selected="true"], [data-state="checked"], :focus') as HTMLElement | null;
+          if (highlighted) {
+            highlighted.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+        return;
+      }
+      triggerClose();
+    };
+
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (isInsideDropdown(target)) {
+        return;
+      }
+      triggerClose();
+    };
+
+    window.addEventListener("wheel", handleWheel, { capture: true, passive: false });
+    window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
+    window.addEventListener("touchmove", handleScroll, { capture: true, passive: true });
+
+    return () => {
+      if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+      window.removeEventListener("wheel", handleWheel, { capture: true });
+      window.removeEventListener("scroll", handleScroll, { capture: true });
+      window.removeEventListener("touchmove", handleScroll, { capture: true });
+    };
+  }, []);
+
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Positioner
@@ -81,9 +173,10 @@ function SelectContent({
         className="isolate z-50"
       >
         <SelectPrimitive.Popup
+          ref={popupRef}
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
-          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn("relative isolate z-50 max-h-(--available-height) min-w-[max(var(--anchor-width),13rem)] origin-(--transform-origin) overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
           {...props}
         >
           <SelectScrollUpButton />

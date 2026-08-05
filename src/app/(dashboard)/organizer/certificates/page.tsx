@@ -67,14 +67,15 @@ export default function CertificatesPage() {
   }, [selectedEventId, certTypeFilter]);
 
   const handleGenerateBatch = async (type: "participation" | "winner" | "volunteer") => {
-    if (!selectedEventId) return toast.error("Please select an event");
+    if (!selectedEventId) return toast.error("Please select an event first");
+    if (!profile?.id) return toast.error("Organizer session not ready. Please try again.");
     setGenerating(true);
     
     try {
       const result = await certificateService.generateBulkCertificates(
         selectedEventId, 
         type, 
-        profile?.id || 'unknown'
+        profile.id
       );
       toast.success(`Issued ${result.count} ${type} certificates! 🏆`);
       await loadData();
@@ -85,15 +86,58 @@ export default function CertificatesPage() {
     }
   };
 
-  const handleSetWinner = async (userId: string, type: 'winner' | 'runner_up' | 'second_runner_up') => {
-    if (!selectedEventId) return;
+  const [reassignModal, setReassignModal] = useState<{
+    open: boolean;
+    userId: string;
+    userName: string;
+    type: 'winner' | 'runner_up' | 'second_runner_up';
+    existingName: string;
+  }>({
+    open: false,
+    userId: '',
+    userName: '',
+    type: 'winner',
+    existingName: '',
+  });
+
+  const executeSetWinner = async (userId: string, type: 'winner' | 'runner_up' | 'second_runner_up') => {
     try {
-      await certificateService.setEventWinner(selectedEventId, userId, type);
-      toast.success(`Marked as ${type.replace(/_/g, ' ').toUpperCase()}!`);
+      await certificateService.setEventWinner(selectedEventId, userId, type, profile?.id);
+      const label = type === 'winner' ? '1st Place' : type === 'runner_up' ? 'Runner-Up' : 'Second Runner-Up';
+      toast.success(`Marked as ${label}! 🏆`);
       await loadData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to set winner');
     }
+  };
+
+  const handleSetWinner = (userId: string, type: 'winner' | 'runner_up' | 'second_runner_up') => {
+    if (!selectedEventId) {
+      toast.error("Please select an event first");
+      return;
+    }
+    if (!userId) {
+      toast.error("Invalid participant selected");
+      return;
+    }
+
+    const currentAwardHolder = winners.find(w => w.certificate_type === type);
+    const targetParticipant = participants.find(p => p.user_id === userId);
+    const userName = targetParticipant?.profiles?.full_name || 'Participant';
+
+    if (currentAwardHolder && currentAwardHolder.user_id !== userId) {
+      const existingName = currentAwardHolder.profiles?.full_name || 'Another participant';
+      setReassignModal({
+        open: true,
+        userId,
+        userName,
+        type,
+        existingName,
+      });
+      return;
+    }
+
+    executeSetWinner(userId, type);
   };
 
   const handleRemoveWinner = async (userId: string) => {
@@ -151,7 +195,7 @@ export default function CertificatesPage() {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Event:</span>
             <Select value={selectedEventId} onValueChange={(val) => val && setSelectedEventId(val)}>
-              <SelectTrigger className="w-full md:w-72 font-semibold">
+              <SelectTrigger className="w-full md:w-[420px] lg:w-[460px] font-semibold">
                 <SelectValue placeholder="Select Event">
                   {selectedEventObj ? selectedEventObj.title : 'Select Event'}
                 </SelectValue>
@@ -159,14 +203,7 @@ export default function CertificatesPage() {
               <SelectContent>
                 {events.map(ev => (
                   <SelectItem key={ev.id} value={ev.id}>
-                    <div className="flex flex-col py-0.5">
-                      <span className="font-semibold text-xs text-slate-800 dark:text-slate-200">{ev.title}</span>
-                      {ev.start_date && (
-                        <span className="text-[10px] text-muted-foreground">
-                          {new Date(ev.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </span>
-                      )}
-                    </div>
+                    {ev.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -176,7 +213,14 @@ export default function CertificatesPage() {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Certificate Type:</span>
             <Select value={certTypeFilter} onValueChange={(val) => setCertTypeFilter(val || 'all')}>
-              <SelectTrigger className="w-full md:w-44"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full md:w-52 font-medium">
+                <SelectValue>
+                  {certTypeFilter === 'all' ? 'All Certificates' :
+                   certTypeFilter === 'participation' ? 'Participation' :
+                   certTypeFilter === 'winner' ? 'Winner & Runner-Up' :
+                   certTypeFilter === 'volunteer' ? 'Volunteer Service' : 'All Certificates'}
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Certificates</SelectItem>
                 <SelectItem value="participation">Participation</SelectItem>
@@ -348,6 +392,34 @@ export default function CertificatesPage() {
           {selectedCertData && (
             <CertificateTemplate data={selectedCertData} />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Award Reassignment Confirmation Dialog */}
+      <Dialog open={reassignModal.open} onOpenChange={(open) => setReassignModal(prev => ({ ...prev, open }))}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reassign {reassignModal.type === 'winner' ? '1st Place' : reassignModal.type === 'runner_up' ? 'Runner-Up' : '2nd Runner-Up'} Award?</DialogTitle>
+            <DialogDescription>
+              <strong>{reassignModal.existingName}</strong> currently holds this award for this event. 
+              Reassigning it to <strong>{reassignModal.userName}</strong> will replace the existing recipient.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setReassignModal(prev => ({ ...prev, open: false }))}>
+              Cancel
+            </Button>
+            <Button 
+              className="bg-[#01424E] text-white hover:bg-[#007C46]"
+              onClick={async () => {
+                const { userId, type } = reassignModal;
+                setReassignModal(prev => ({ ...prev, open: false }));
+                await executeSetWinner(userId, type);
+              }}
+            >
+              Replace & Assign
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

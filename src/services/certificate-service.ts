@@ -140,6 +140,16 @@ export const certificateService = {
     certificateType: "participation" | "winner" | "runner_up" | "second_runner_up" | "volunteer",
     generatedBy: string
   ) {
+    let validOrganizerId = generatedBy;
+    if (!validOrganizerId || validOrganizerId === 'organizer' || validOrganizerId === 'unknown') {
+      const { data: authData } = await supabase.auth.getUser();
+      validOrganizerId = authData?.user?.id || '';
+    }
+
+    if (!validOrganizerId) {
+      throw new Error("Valid organizer UUID is required to generate certificate");
+    }
+
     const { data, error } = await supabase
       .from("certificates")
       .insert({
@@ -147,7 +157,7 @@ export const certificateService = {
         user_id: userId,
         registration_id: registrationId,
         certificate_type: certificateType,
-        generated_by: generatedBy,
+        generated_by: validOrganizerId,
         generated_at: new Date().toISOString(),
         verification_id: `EH-CERT-${Math.floor(100000 + Math.random() * 900000)}`,
       })
@@ -167,6 +177,17 @@ export const certificateService = {
     generatedBy: string
   ) {
     try {
+      let validOrganizerId = generatedBy;
+      if (!validOrganizerId || validOrganizerId === 'organizer' || validOrganizerId === 'unknown') {
+        const { data: authData } = await supabase.auth.getUser();
+        validOrganizerId = authData?.user?.id || '';
+      }
+
+      if (!validOrganizerId) {
+        console.error("Bulk certificate error: Missing valid organizer UUID");
+        return { count: 0, data: [] };
+      }
+
       let eligibleUsers: any[] = [];
 
       if (certificateType === "participation") {
@@ -197,7 +218,7 @@ export const certificateService = {
         user_id: user.user_id,
         registration_id: user.registration_id || null,
         certificate_type: certificateType,
-        generated_by: generatedBy,
+        generated_by: validOrganizerId,
         generated_at: new Date().toISOString(),
         verification_id: `EH-CERT-${Math.floor(100000 + Math.random() * 900000)}`,
       }));
@@ -220,47 +241,97 @@ export const certificateService = {
     }
   },
 
-  async setEventWinner(eventId: string, userId: string, type: 'winner' | 'runner_up' | 'second_runner_up') {
+  async setEventWinner(
+    eventId: string,
+    userId: string,
+    type: 'winner' | 'runner_up' | 'second_runner_up',
+    organizerId?: string
+  ) {
+    if (!eventId || !userId) {
+      throw new Error("Event ID and User ID are required.");
+    }
+    if (!['winner', 'runner_up', 'second_runner_up'].includes(type)) {
+      throw new Error("Invalid award type specified.");
+    }
+
     const eligibleList = await this.getEligibleParticipants(eventId);
     const isEligible = eligibleList.some((p: any) => p.user_id === userId);
     if (!isEligible) {
       throw new Error("Student is not eligible for winner designation. Attendance checkout must be completed.");
     }
 
+    let validOrganizerId = organizerId;
+    if (!validOrganizerId || validOrganizerId === 'organizer' || validOrganizerId === 'unknown') {
+      const { data: authData } = await supabase.auth.getUser();
+      validOrganizerId = authData?.user?.id;
+    }
+
+    if (!validOrganizerId) {
+      throw new Error("Valid organizer profile UUID is required to assign winners.");
+    }
+
+    const dbCertType = (type === 'second_runner_up') ? 'runner_up' : type;
+    const prefix = (type === 'winner') ? 'EH-CERT-WINNER' : (type === 'second_runner_up') ? 'EH-CERT-RUNNER2' : 'EH-CERT-RUNNER1';
+
+    // 1. Remove any existing award certificate for this specific user in this event
     await supabase
       .from("certificates")
       .delete()
       .eq('event_id', eventId)
       .eq('user_id', userId)
-      .in('certificate_type', ['winner', 'runner_up', 'second_runner_up']);
+      .in('certificate_type', ['winner', 'runner_up']);
 
+    // 2. Enforce single recipient per award: Remove any existing holder of this exact award type in this event
+    const existingWinners = await this.getEventWinners(eventId);
+    const existingAwardHolder = existingWinners.find((w: any) => w.certificate_type === type);
+    if (existingAwardHolder) {
+      await supabase
+        .from("certificates")
+        .delete()
+        .eq('id', existingAwardHolder.id);
+    }
+
+    // 3. Insert new winner certificate with DB-allowed certificate_type ('winner' or 'runner_up')
     const { data, error } = await supabase
       .from("certificates")
       .insert({
         event_id: eventId,
         user_id: userId,
-        certificate_type: type,
-        generated_by: 'organizer',
+        certificate_type: dbCertType,
+        generated_by: validOrganizerId,
         generated_at: new Date().toISOString(),
-        verification_id: `EH-CERT-${Math.floor(100000 + Math.random() * 900000)}`,
+        verification_id: `${prefix}-${Math.floor(100000 + Math.random() * 900000)}`,
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Set winner error:", error);
+      throw new Error(error.message || "Failed to set winner designation");
+    }
+
     dataSync.notify("certificates");
+
+    if (data && type === 'second_runner_up') {
+      return { ...data, certificate_type: 'second_runner_up' };
+    }
     return data;
   },
 
   async removeEventWinner(eventId: string, userId: string) {
+    if (!eventId || !userId) return;
     const { error } = await supabase
       .from("certificates")
       .delete()
       .eq('event_id', eventId)
       .eq('user_id', userId)
-      .in('certificate_type', ['winner', 'runner_up', 'second_runner_up']);
+      .in('certificate_type', ['winner', 'runner_up']);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Remove winner error:", error);
+      throw new Error(error.message || "Failed to remove winner designation");
+    }
+
     dataSync.notify("certificates");
   },
 
@@ -272,10 +343,16 @@ export const certificateService = {
         profiles!certificates_user_id_fkey(full_name, email, department, year)
       `)
       .eq('event_id', eventId)
-      .in('certificate_type', ['winner', 'runner_up', 'second_runner_up']);
+      .in('certificate_type', ['winner', 'runner_up']);
 
     if (error || !data) return [];
-    return data;
+
+    return data.map((c: any) => {
+      if (c.certificate_type === 'runner_up' && c.verification_id && c.verification_id.includes('RUNNER2')) {
+        return { ...c, certificate_type: 'second_runner_up' };
+      }
+      return c;
+    });
   },
 
   async verifyCertificate(verificationId: string) {

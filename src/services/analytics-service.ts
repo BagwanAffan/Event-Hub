@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { normalizeDepartmentName } from "@/lib/utils";
 
 const supabase = createClient();
 
@@ -157,19 +158,26 @@ export const analyticsService = {
     try {
       const { data, error } = await supabase
         .from('registrations')
-        .select('department, events!inner(created_by)')
+        .select('department, profiles!registrations_user_id_fkey(department), events!inner(created_by)')
         .eq('events.created_by', organizerId);
 
       if (error || !data) return [];
 
       const countMap: Record<string, number> = {};
+      let total = 0;
       data.forEach((r: any) => {
-        const dept = r.department || 'Unknown';
+        const rawDept = r.department || r.profiles?.department;
+        const dept = normalizeDepartmentName(rawDept);
         countMap[dept] = (countMap[dept] || 0) + 1;
+        total++;
       });
 
       return Object.entries(countMap)
-        .map(([department, count]) => ({ department, count }))
+        .map(([department, count]) => ({
+          department,
+          count,
+          percentage: total > 0 ? Math.round((count / total) * 100) : 0
+        }))
         .sort((a, b) => b.count - a.count);
     } catch {
       return [];

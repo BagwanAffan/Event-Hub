@@ -18,6 +18,7 @@ import { analyticsService } from '@/services/analytics-service';
 import { eventService } from '@/services/event-service';
 import { registrationService } from '@/services/registration-service';
 import { exportService } from '@/services/export-service';
+import { DepartmentParticipationChart } from '@/components/shared/department-participation-chart';
 import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 
@@ -305,25 +306,7 @@ export default function OrganizerDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px] w-full flex items-center justify-center">
-              {deptData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={deptData}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey="department" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }} />
-                    <Bar dataKey="count" fill="#007C46" radius={[6, 6, 0, 0]} name="Students" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center text-muted-foreground py-10 space-y-2">
-                  <Users className="h-10 w-10 mx-auto opacity-40 text-[#007C46]" />
-                  <p className="text-sm font-medium">No department participation data recorded yet</p>
-                  <p className="text-xs">Data will appear once registered students complete their profiles</p>
-                </div>
-              )}
-            </div>
+            <DepartmentParticipationChart data={deptData} height={280} />
           </CardContent>
         </Card>
       </div>

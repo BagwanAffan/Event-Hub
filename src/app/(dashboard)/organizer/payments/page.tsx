@@ -93,7 +93,7 @@ export default function PaymentsPage() {
       {/* Filter and Search */}
       <Card className="border-slate-200 dark:border-slate-800">
         <CardContent className="p-4">
-          <div className="relative w-full sm:w-96">
+          <div className="relative w-full sm:w-[420px] md:w-[450px]">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by student name or UPI reference number..."

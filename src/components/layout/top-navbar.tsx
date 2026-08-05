@@ -156,38 +156,39 @@ export function TopNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-[64px] items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md sm:px-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setMobileOpen(true)}
-        >
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle sidebar</span>
-        </Button>
+      <header className="sticky top-0 z-10 flex h-[68px] items-center justify-between border-b bg-background/80 px-6 sm:px-8 lg:px-9 backdrop-blur-md">
+        {/* Left Zone (~25%): Sidebar Toggle + Breadcrumb */}
+        <div className="flex items-center gap-3.5 min-w-0 w-auto lg:w-1/4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden shrink-0 h-10 w-10 rounded-xl"
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden md:flex text-slate-500 hover:text-[#007C46] dark:text-slate-400 dark:hover:text-teal-200 cursor-pointer"
-          onClick={toggle}
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar (Auto-expand on hover)"}
-        >
-          <PanelLeft className="h-5 w-5" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:flex text-slate-500 hover:text-[#007C46] dark:text-slate-400 dark:hover:text-teal-200 cursor-pointer shrink-0 h-10 w-10 rounded-xl"
+            onClick={toggle}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar (Auto-expand on hover)"}
+          >
+            <PanelLeft className="h-5 w-5" />
+          </Button>
 
-        <div className="flex-1 flex items-center gap-4 min-w-0">
           {/* Dynamic Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground overflow-hidden">
-            <Link href={`/${role}/dashboard`} className="hover:text-[#007C46] font-medium transition-colors">
+          <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-2.5 text-xs text-muted-foreground overflow-hidden">
+            <Link href={`/${role}/dashboard`} className="hover:text-[#007C46] font-medium transition-colors shrink-0">
               Dashboard
             </Link>
             {breadcrumbItems.length > 1 && (
               <>
                 <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 {breadcrumbItems.slice(1).map((item, idx) => (
-                  <span key={item.href} className="flex items-center gap-1.5 truncate">
+                  <span key={item.href} className="flex items-center gap-2.5 truncate">
                     {idx > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />}
                     {item.isLast ? (
                       <span className="font-bold text-[#01424E] dark:text-teal-200 truncate">{item.label}</span>
@@ -201,40 +202,45 @@ export function TopNavbar() {
               </>
             )}
           </nav>
+        </div>
 
-          {/* Global Search Button */}
+        {/* Center Zone (~45%): Visual Center Search Bar */}
+        <div className="flex-1 flex justify-center px-4 max-w-[540px]">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-muted-foreground text-xs hover:border-[#7CEAAB] transition-colors w-48 sm:w-64 cursor-pointer ml-auto sm:ml-0"
+            className="flex items-center gap-2.5 px-4 py-2 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-muted-foreground text-xs hover:border-[#7CEAAB] transition-colors w-full max-w-[480px] cursor-pointer shadow-2xs"
           >
-            <Search className="h-3.5 w-3.5 text-[#007C46]" />
+            <Search className="h-4 w-4 text-[#007C46] shrink-0" />
             <span className="truncate">Search events, passes...</span>
-            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 shrink-0">
               <span className="text-xs">⌘</span>K
             </kbd>
           </button>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <Badge className="bg-[#edfcf6] text-[#007C46] border-[#41B177] capitalize hidden lg:inline-flex text-xs font-bold">
+        {/* Right Zone (~30%): Balanced Controls */}
+        <div className="flex items-center gap-4 sm:gap-5 lg:gap-5 shrink-0 justify-end lg:w-1/4">
+          <Badge className="bg-[#edfcf6] text-[#007C46] border-[#41B177] capitalize hidden sm:inline-flex text-xs font-bold px-3.5 py-1 rounded-full border dark:bg-[#007C46]/20 dark:text-[#7CEAAB] dark:border-[#007C46]/40 shadow-2xs">
             {role}
           </Badge>
 
           <Button
             variant="ghost"
             size="icon"
+            className="h-10 w-10 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            title="Toggle theme"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-teal-400" />
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <Button variant="ghost" size="icon" className="relative" asChild>
-            <Link href={`/${role}/notifications`}>
+          <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 relative" asChild>
+            <Link href={`/${role}/notifications`} title="Notifications">
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#007C46] text-[10px] font-bold text-white px-1">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#007C46] text-[10px] font-bold text-white px-1 shadow-sm">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -242,7 +248,7 @@ export function TopNavbar() {
           </Button>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center justify-center relative h-9 w-9 rounded-full ml-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none cursor-pointer">
+            <DropdownMenuTrigger className="inline-flex items-center justify-center relative h-9 w-9 rounded-full transition-all hover:ring-2 hover:ring-[#007C46]/30 focus-visible:outline-none cursor-pointer shrink-0">
               <div className="flex h-full w-full items-center justify-center rounded-full bg-[#01424E] text-[#7CEAAB] font-bold text-sm shadow-sm border border-[#7CEAAB]/30">
                 {profile?.profile_picture ? (
                   <img src={profile.profile_picture} alt="Avatar" className="h-full w-full rounded-full object-cover" />
