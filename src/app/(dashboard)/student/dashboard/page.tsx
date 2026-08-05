@@ -243,7 +243,7 @@ function QuickActionLink({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer"
+      className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer"
     >
       <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] dark:text-teal-200">
         {icon}

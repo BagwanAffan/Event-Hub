@@ -323,7 +323,7 @@ export default function AdminEventsPage() {
                             evt.is_disabled ? 'bg-red-500 text-white' :
                             evt.status === 'published' ? 'bg-[#007C46] text-white' :
                             evt.status === 'draft' ? 'bg-amber-500 text-white' :
-                            'bg-slate-200 text-slate-800'
+                            'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
                           }`}>
                             {evt.is_disabled ? 'Disabled' : evt.status}
                           </Badge>
@@ -347,7 +347,7 @@ export default function AdminEventsPage() {
                           variant="outline"
                           disabled={processingId === evt.id}
                           onClick={() => handleToggleFeatured(evt)}
-                          className={`h-8 text-xs cursor-pointer ${evt.is_featured ? 'text-amber-600 bg-amber-50 border-amber-300' : 'text-slate-500'}`}
+                          className={`h-8 text-xs cursor-pointer ${evt.is_featured ? 'text-amber-600 bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800' : 'text-slate-500'}`}
                           title={evt.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
                         >
                           {processingId === evt.id ? (
@@ -379,7 +379,7 @@ export default function AdminEventsPage() {
                           variant="outline"
                           disabled={processingId === evt.id}
                           onClick={() => openDeleteConfirmation(evt)}
-                          className="h-8 text-xs text-red-600 hover:bg-red-50 border-red-200 cursor-pointer"
+                          className="h-8 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 cursor-pointer"
                           title="Delete event permanently"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -442,7 +442,7 @@ export default function AdminEventsPage() {
                   <Badge className={`capitalize font-bold text-[10px] ${
                     selectedEvent.is_disabled ? 'bg-red-500 text-white' :
                     selectedEvent.status === 'published' ? 'bg-[#007C46] text-white' :
-                    'bg-slate-200 text-slate-800'
+                    'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
                   }`}>
                     {selectedEvent.is_disabled ? 'Disabled' : selectedEvent.status || 'Not Available'}
                   </Badge>

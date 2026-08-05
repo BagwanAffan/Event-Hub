@@ -7,7 +7,7 @@ export default function QrShowcaseSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center flex-row-reverse">
           
           <div className="order-2 lg:order-1">
-            <div className="relative mx-auto w-64 h-64 bg-white p-4 rounded-2xl shadow-xl border border-slate-200 flex items-center justify-center">
+            <div className="relative mx-auto w-64 h-64 bg-white p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center">
               <QrCode className="w-full h-full text-slate-800" />
               
               {/* Scanning line animation */}

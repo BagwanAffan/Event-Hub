@@ -180,13 +180,13 @@ export default function OrganizerProfilePage() {
         <div className="bg-gradient-to-r from-[#01424E] to-[#007C46] p-6 text-white relative rounded-t-xl w-full">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
             <div className="relative">
-              <Avatar className="h-24 w-24 border-4 border-white/20 shadow-xl bg-white text-[#01424E]">
+              <Avatar className="h-24 w-24 border-4 border-white/20 shadow-xl bg-white dark:bg-slate-800 text-[#01424E] dark:text-teal-200">
                 <AvatarImage src={profile.profile_picture || ''} className="object-cover" />
-                <AvatarFallback className="text-2xl bg-white text-[#01424E] font-bold">{initials}</AvatarFallback>
+                <AvatarFallback className="text-2xl bg-white dark:bg-slate-800 text-[#01424E] dark:text-teal-200 font-bold">{initials}</AvatarFallback>
               </Avatar>
               <Label
                 htmlFor="organizer-logo-upload"
-                className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-[#01424E] shadow-md hover:bg-slate-100"
+                className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white dark:bg-slate-800 text-[#01424E] dark:text-teal-200 shadow-md hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <Upload className="h-3.5 w-3.5" />
                 <span className="sr-only">Upload Organization Logo</span>

@@ -458,7 +458,7 @@ export default function VolunteersPage() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all whitespace-nowrap ${
                     statusFilter === st
                       ? 'bg-[#007C46] text-white shadow-sm'
-                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border hover:bg-slate-100'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   {st}
@@ -645,7 +645,7 @@ export default function VolunteersPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleOpenTaskModalForVolunteer(vol.id, vol.event_id)}
-                            className="text-xs bg-white text-[#007C46] border-[#007C46]/30 font-bold"
+                            className="text-xs bg-white dark:bg-slate-800 text-[#007C46] dark:text-[#7CEAAB] border-[#007C46]/30 font-bold"
                           >
                             <Plus className="mr-1 h-3.5 w-3.5" /> Assign Task
                           </Button>
@@ -905,7 +905,7 @@ export default function VolunteersPage() {
             <div className="flex items-center gap-2">
               {selectedVolunteer?.application_status === 'pending' && (
                 <>
-                  <Button variant="outline" onClick={handleReject} className="text-red-600 border-red-300 hover:bg-red-50">
+                  <Button variant="outline" onClick={handleReject} className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/30">
                     <XCircle className="mr-1.5 h-4 w-4" /> Reject Application
                   </Button>
                   <Button onClick={handleApprove} className="bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold">
@@ -1062,7 +1062,7 @@ export default function VolunteersPage() {
                       onChange={(e) => updateChecklistItemText(item.id, e.target.value)}
                       className="text-xs flex-1 h-9 bg-slate-50/50 dark:bg-slate-900/50"
                     />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChecklistItem(item.id)} className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 shrink-0">
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChecklistItem(item.id)} className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 shrink-0">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>

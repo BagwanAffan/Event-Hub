@@ -49,7 +49,7 @@ export default function VolunteerDashboardPage() {
   return (
     <div className="space-y-8 animate-fade-in pb-12 max-w-6xl mx-auto">
       {/* Header Banner */}
-      <div className="p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] dark:from-[#071410] dark:via-[#0a1a14] dark:to-[#0d1f16] text-white shadow-xl dark:shadow-2xl dark:shadow-emerald-950/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-3 max-w-xl">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Welcome, {profile?.full_name || 'Volunteer'} 👋</h1>
           <p className="text-[#d1f8e8] text-sm sm:text-base leading-relaxed opacity-95">
@@ -68,7 +68,7 @@ export default function VolunteerDashboardPage() {
 
       {/* Metrics (Stat Cards with lowered titles & balanced padding) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card shadow-xs flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Assigned Events</span>
             <Calendar className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB]" />
@@ -79,7 +79,7 @@ export default function VolunteerDashboardPage() {
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card shadow-xs flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Today's Tasks</span>
             <ClipboardList className="h-4 w-4 text-[#007C46]" />
@@ -90,18 +90,18 @@ export default function VolunteerDashboardPage() {
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card shadow-xs flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Check-ins Handled</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-[#007C46] leading-none">{checkinsHandled}</div>
+            <div className="text-3xl font-extrabold text-[#007C46] dark:text-emerald-400 leading-none">{checkinsHandled}</div>
             <p className="text-xs text-muted-foreground mt-1.5 font-medium">Estimated Valid Scans</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col justify-between gap-3">
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card shadow-xs flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Hours Contributed</span>
             <Clock className="h-4 w-4 text-amber-500" />
@@ -128,7 +128,7 @@ export default function VolunteerDashboardPage() {
                   <div className="space-y-1 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h4 className="font-bold text-sm text-[#01424E] dark:text-teal-100">{task.title}</h4>
-                      <Badge className="bg-[#edfcf6] text-[#007C46] uppercase text-[10px]">{task.priority}</Badge>
+                      <Badge className="bg-[#edfcf6] dark:bg-emerald-900/30 text-[#007C46] dark:text-emerald-300 uppercase text-[10px]">{task.priority}</Badge>
                       {isAccepted ? (
                         <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[10px]">
                           Accepted

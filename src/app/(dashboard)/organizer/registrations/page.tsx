@@ -253,7 +253,7 @@ export default function RegistrationsPage() {
                           </Button>
                         )}
                         {reg.status !== 'rejected' && (
-                          <Button onClick={() => handleReject(reg.id, reg.user_id, reg.events?.title)} variant="ghost" size="sm" className="h-8 px-2 text-red-600 hover:bg-red-50">
+                          <Button onClick={() => handleReject(reg.id, reg.user_id, reg.events?.title)} variant="ghost" size="sm" className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
                             <XCircle className="h-4 w-4" />
                           </Button>
                         )}

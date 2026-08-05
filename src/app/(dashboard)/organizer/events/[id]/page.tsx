@@ -48,7 +48,7 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
   if (!event) {
     return (
       <div className="text-center py-16 space-y-4 max-w-md mx-auto">
-        <h2 className="text-2xl font-bold text-[#01424E]">Event Not Found</h2>
+        <h2 className="text-2xl font-bold text-[#01424E] dark:text-teal-100">Event Not Found</h2>
         <p className="text-sm text-muted-foreground">The event you are looking for does not exist or was removed.</p>
         <Button asChild><Link href="/organizer/events"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Events</Link></Button>
       </div>
@@ -133,7 +133,7 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
       {/* Description & Rules */}
       <Card className="border-slate-200 dark:border-slate-800">
         <CardHeader>
-          <CardTitle className="text-lg font-bold text-[#01424E]">Event Description & Agenda</CardTitle>
+          <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-100">Event Description & Agenda</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
           <p className="whitespace-pre-line">{event.description}</p>

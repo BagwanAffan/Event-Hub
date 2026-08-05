@@ -146,22 +146,22 @@
    Dark Theme
    ============================================ */
 .dark {
-  --background: #0c1220;
-  --foreground: #f1f5f9;
+  --background: #090e17;
+  --foreground: #f8fafc;
 
-  --card: #151d2e;
-  --card-foreground: #f1f5f9;
+  --card: #111827;
+  --card-foreground: #f8fafc;
 
-  --popover: #151d2e;
-  --popover-foreground: #f1f5f9;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
 
   --primary: #7ceaab;
   --primary-foreground: #01424e;
 
-  --secondary: #1e293b;
-  --secondary-foreground: #f1f5f9;
+  --secondary: #1f2937;
+  --secondary-foreground: #f8fafc;
 
-  --muted: #1e293b;
+  --muted: #1f2937;
   --muted-foreground: #94a3b8;
 
   --accent: #01424e;
@@ -170,8 +170,8 @@
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: #1e293b;
-  --input: #1e293b;
+  --border: #1f2937;
+  --input: #1f2937;
   --ring: #7ceaab;
 
   --chart-1: #7ceaab;
@@ -180,13 +180,13 @@
   --chart-4: #007c46;
   --chart-5: #38bdf8;
 
-  --sidebar: #0a0f1a;
-  --sidebar-foreground: #f1f5f9;
+  --sidebar: #060b13;
+  --sidebar-foreground: #f8fafc;
   --sidebar-primary: #7ceaab;
   --sidebar-primary-foreground: #01424e;
-  --sidebar-accent: rgba(124, 234, 171, 0.08);
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-accent: rgba(124, 234, 171, 0.12);
+  --sidebar-accent-foreground: #7ceaab;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #7ceaab;
 }
 

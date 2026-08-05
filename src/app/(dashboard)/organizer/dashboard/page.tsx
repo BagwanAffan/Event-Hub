@@ -72,8 +72,44 @@ export default function OrganizerDashboard() {
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       {/* Welcome Banner */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl">
-        <div className="space-y-3 max-w-2xl">
+      <div className="relative overflow-hidden flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] dark:from-[#030d08] dark:via-[#012a16] dark:to-[#01391e] text-white shadow-xl dark:shadow-2xl dark:shadow-emerald-950/30 dark:border dark:border-emerald-900/30">
+        {/* Premium SaaS mesh background — Dark mode only */}
+        <div className="absolute inset-0 hidden dark:block pointer-events-none" aria-hidden="true">
+          {/* Radial green glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_65%_55%,rgba(0,124,70,0.12),transparent)]" />
+          {/* Dotted wave mesh + accent line */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Primary wave mesh */}
+            <g stroke="rgba(124,234,171,0.13)" strokeWidth="0.7" strokeDasharray="2 8">
+              <path d="M300,-10 C400,30 520,120 600,185 S740,290 800,330" />
+              <path d="M280,15 C380,55 500,145 580,210 S720,310 800,350" />
+              <path d="M320,-35 C420,5 540,95 620,160 S760,270 800,310" />
+              <path d="M260,40 C360,80 480,170 560,235 S700,330 800,370" />
+              <path d="M340,-60 C440,-20 560,70 640,135 S780,250 800,290" />
+              <path d="M240,65 C340,105 460,195 540,260 S680,350 800,385" />
+              <path d="M360,-85 C460,-45 580,45 660,110 S790,230 800,270" />
+              <path d="M220,90 C320,130 440,220 520,285 S660,370 800,400" />
+              <path d="M380,-110 C480,-70 600,20 680,85 S795,210 800,250" />
+              <path d="M200,115 C300,155 420,245 500,310 S640,385 800,410" />
+            </g>
+            {/* Cross-wave mesh */}
+            <g stroke="rgba(124,234,171,0.08)" strokeWidth="0.5" strokeDasharray="1.5 10">
+              <path d="M350,400 C400,300 500,200 600,145 S730,75 800,35" />
+              <path d="M380,400 C425,310 520,215 615,165 S740,100 800,65" />
+              <path d="M320,400 C370,290 475,185 585,125 S720,50 800,5" />
+              <path d="M410,400 C450,320 540,235 635,185 S750,125 800,95" />
+              <path d="M290,400 C340,275 455,165 565,105 S710,25 800,-25" />
+              <path d="M440,400 C475,335 555,255 650,205 S760,150 800,125" />
+              <path d="M260,400 C310,265 430,145 545,85 S700,0 800,-55" />
+              <path d="M470,400 C500,345 575,275 665,225 S770,175 800,155" />
+            </g>
+            {/* Glowing accent line */}
+            <path d="M180,395 C320,325 460,210 570,150 S720,70 800,40" stroke="rgba(74,222,128,0.15)" strokeWidth="6" strokeLinecap="round" />
+            <path d="M180,395 C320,325 460,210 570,150 S720,70 800,40" stroke="#4ade80" strokeWidth="1.2" opacity="0.6" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        <div className="relative z-10 space-y-3 max-w-2xl">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
             Welcome back, {profile?.full_name || 'Organizer'} 👋
           </h1>
@@ -81,7 +117,7 @@ export default function OrganizerDashboard() {
             Manage events, verify payments, track QR attendance live, allocate volunteers, and generate digital certificates.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3.5 w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
+        <div className="relative z-10 flex flex-wrap items-center gap-3.5 w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
           <Button asChild className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 shadow-md cursor-pointer shrink-0">
             <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
               <Plus className="h-4 w-4 shrink-0" />
@@ -106,7 +142,7 @@ export default function OrganizerDashboard() {
         <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Events</CardTitle>
-            <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-[#01424E] dark:text-[#7CEAAB]">
+            <div className="p-2 rounded-xl bg-teal-100/90 text-[#01424E]">
               <Calendar className="h-5 w-5" />
             </div>
           </CardHeader>
@@ -117,7 +153,7 @@ export default function OrganizerDashboard() {
               <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">{stats.totalEvents}</div>
             )}
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-[#007C46] font-medium inline-flex items-center"><ArrowUpRight className="h-3 w-3" /> {stats.activeEvents} Active</span> right now
+              <span className="text-[#007C46] font-semibold">{stats.activeEvents} Active</span> right now
             </p>
           </CardContent>
         </Card>
@@ -125,7 +161,7 @@ export default function OrganizerDashboard() {
         <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Registrations</CardTitle>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-[#007C46] dark:text-[#7CEAAB]">
+            <div className="p-2 rounded-xl bg-emerald-100/90 text-[#007C46]">
               <Users className="h-5 w-5" />
             </div>
           </CardHeader>
@@ -144,7 +180,7 @@ export default function OrganizerDashboard() {
         <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Live Attendance</CardTitle>
-            <div className="p-2 rounded-xl bg-[#d1f8e8] dark:bg-teal-900/40 text-[#01424E] dark:text-[#7CEAAB]">
+            <div className="p-2 rounded-xl bg-teal-100/90 text-[#01424E]">
               <QrCode className="h-5 w-5" />
             </div>
           </CardHeader>
@@ -163,7 +199,7 @@ export default function OrganizerDashboard() {
         <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Volunteers</CardTitle>
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600">
+            <div className="p-2 rounded-xl bg-purple-100/90 text-purple-700">
               <Activity className="h-5 w-5" />
             </div>
           </CardHeader>
@@ -186,7 +222,7 @@ export default function OrganizerDashboard() {
             href="/organizer/events"
             className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
           >
-            <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] dark:text-[#7CEAAB] shrink-0">
+            <div className="w-12 h-12 rounded-full bg-teal-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] shrink-0">
               <Calendar className="h-5 w-5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Manage Events</span>
@@ -196,7 +232,7 @@ export default function OrganizerDashboard() {
             href="/organizer/registrations"
             className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
           >
-            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#007C46] dark:text-[#7CEAAB] shrink-0">
+            <div className="w-12 h-12 rounded-full bg-emerald-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#007C46] shrink-0">
               <Users className="h-5 w-5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Registrations</span>
@@ -206,7 +242,7 @@ export default function OrganizerDashboard() {
             href="/organizer/payments"
             className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
           >
-            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-amber-600 dark:text-amber-400 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-amber-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-amber-700 shrink-0">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Verify Payments</span>
@@ -216,7 +252,7 @@ export default function OrganizerDashboard() {
             href="/organizer/volunteers"
             className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
           >
-            <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-indigo-600 dark:text-indigo-400 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-purple-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-purple-700 shrink-0">
               <Activity className="h-5 w-5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Volunteers ({stats.totalVolunteers})</span>
@@ -226,7 +262,7 @@ export default function OrganizerDashboard() {
             href="/organizer/certificates"
             className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
           >
-            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-emerald-600 dark:text-emerald-400 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-emerald-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-emerald-700 shrink-0">
               <Award className="h-5 w-5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Certificates</span>
@@ -236,7 +272,7 @@ export default function OrganizerDashboard() {
             href="/organizer/analytics"
             className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
           >
-            <div className="w-12 h-12 rounded-full bg-cyan-50 dark:bg-cyan-950/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-cyan-600 dark:text-cyan-400 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-cyan-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-blue-700 shrink-0">
               <BarChart3 className="h-5 w-5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Analytics</span>
@@ -337,7 +373,7 @@ export default function OrganizerDashboard() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="font-bold text-[#01424E] dark:text-teal-100">{evt.title}</h4>
-                        <Badge className="bg-[#edfcf6] text-[#007C46] border-[#41B177] capitalize">{evt.status?.replace('_', ' ')}</Badge>
+                        <Badge className="bg-[#edfcf6] dark:bg-emerald-900/30 text-[#007C46] dark:text-emerald-300 border-[#41B177] dark:border-emerald-700 capitalize">{evt.status?.replace('_', ' ')}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
                         <span>📍 {evt.venue || 'Main Campus'}</span>

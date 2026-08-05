@@ -381,7 +381,7 @@ export default function RegistrationDetailsPage({ params }: { params: Promise<{ 
                     </p>
                   </div>
 
-                  <div className="bg-white p-4 rounded-xl shadow-md border-2 border-amber-500">
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-md border-2 border-amber-500">
                     <img 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('CHECKOUT:' + (registration.qr_token || registration.id))}&color=007C46`} 
                       alt="Checkout QR Code" 
@@ -396,14 +396,14 @@ export default function RegistrationDetailsPage({ params }: { params: Promise<{ 
                     <p className="text-[11px] text-muted-foreground">Scan at volunteer exit counter</p>
                   </div>
 
-                  <Button onClick={downloadQR} variant="outline" className="w-full border-amber-600 text-amber-700 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400">
+                  <Button onClick={downloadQR} variant="outline" className="w-full border-amber-600 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30 dark:border-amber-500 dark:text-amber-400">
                     <Download className="mr-2 h-4 w-4" /> Download Checkout Pass
                   </Button>
                 </div>
               ) : isApproved ? (
                 /* STATE 1: BEFORE CHECK-IN (NO ATTENDANCE ROW) - DISPLAY ENTRY PASS */
                 <div className="space-y-6 flex flex-col items-center">
-                  <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
                     <img 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(registration.qr_token || registration.id)}&color=01424E`} 
                       alt="Entry QR Code" 

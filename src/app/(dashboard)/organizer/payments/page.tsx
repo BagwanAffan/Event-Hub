@@ -182,7 +182,7 @@ export default function PaymentsPage() {
                             onClick={() => handleReject(pay.id, pay.registration_id)}
                             variant="outline"
                             size="sm"
-                            className="h-8 text-red-600 border-red-200 hover:bg-red-50"
+                            className="h-8 text-red-600 border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/30"
                           >
                             <XCircle className="mr-1 h-3.5 w-3.5" /> Reject
                           </Button>

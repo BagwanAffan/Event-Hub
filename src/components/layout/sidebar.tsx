@@ -135,7 +135,7 @@ export function Sidebar() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "relative flex flex-col bg-gradient-to-b from-[#014856] via-[#01424E] to-[#01353E] text-slate-100 transition-all duration-300 ease-in-out hidden md:flex z-30 shadow-xl select-none",
+        "relative flex flex-col bg-gradient-to-b from-[#014856] via-[#01424E] to-[#01353E] dark:from-[#060b13] dark:via-[#0a1018] dark:to-[#060b13] text-slate-100 transition-all duration-300 ease-in-out hidden md:flex z-30 shadow-xl select-none",
         isCollapsed && !isHovered ? "w-[80px]" : "w-[270px]"
       )}
     >

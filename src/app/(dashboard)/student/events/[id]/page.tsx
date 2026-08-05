@@ -291,7 +291,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-sm">
                     <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-muted-foreground">
-                      <Users className="h-4 w-4 text-[#01424E]" />
+                      <Users className="h-4 w-4 text-[#01424E] dark:text-teal-300" />
                     </div>
                     <div>
                       <p className="font-semibold">{event.profiles?.full_name || 'Event Organizer'}</p>

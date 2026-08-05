@@ -354,7 +354,7 @@ export default function QRScannerPage() {
           className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === 'live'
               ? 'bg-[#01424E] text-[#7CEAAB] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
           <ScanLine className="h-4 w-4" />
@@ -369,7 +369,7 @@ export default function QRScannerPage() {
           className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === 'token'
               ? 'bg-[#01424E] text-[#7CEAAB] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
           <ClipboardList className="h-4 w-4" />
@@ -384,7 +384,7 @@ export default function QRScannerPage() {
           className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === 'search'
               ? 'bg-[#01424E] text-[#7CEAAB] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
           <Search className="h-4 w-4" />

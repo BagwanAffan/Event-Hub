@@ -281,7 +281,7 @@ export default function CreateEventPage() {
               placeholder="e.g. 24-hour hackathon for 2nd year students with ₹200 fee and team of 4"
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
-              className="bg-white dark:bg-slate-900 border-slate-200"
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
             />
             <Button
               onClick={handleAiGenerate}

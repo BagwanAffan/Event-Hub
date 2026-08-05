@@ -14,7 +14,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       
       {/* Mobile Sidebar */}
       <Sheet open={isMobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="p-0 w-[280px] bg-[#01424E] border-none text-white">
+        <SheetContent side="left" className="p-0 w-[280px] bg-[#01424E] dark:bg-[#060b13] border-none text-white">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <div className="h-full w-full">
             {/* The sidebar will detect it's not hidden on md and behave accordingly, but here we can force it, 
@@ -110,7 +110,7 @@ function SidebarMobileContent() {
   const adaptive = getAdaptiveItemStyles(items.length);
 
   return (
-    <div className="flex h-full flex-col bg-[#01424E] text-slate-100">
+    <div className="flex h-full flex-col bg-[#01424E] dark:bg-[#060b13] text-slate-100">
       <div className="flex h-16 items-center px-4 border-b border-white/10">
         <Link href={`/${role}/dashboard`} onClick={() => setMobileOpen(false)} className="flex items-center gap-2 font-bold text-xl text-white tracking-wide">
           <div className="bg-[#7CEAAB] rounded p-1">
