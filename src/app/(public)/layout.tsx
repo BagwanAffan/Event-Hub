@@ -7,9 +7,9 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col font-poppins">
+    <div className="min-h-screen flex flex-col font-poppins min-w-0 overflow-x-hidden">
       <PublicNavbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
       <PublicFooter />
     </div>
   );

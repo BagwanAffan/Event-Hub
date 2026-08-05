@@ -26,8 +26,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopNavbar />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
-          <div className="max-w-[1440px] mx-auto w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6 custom-scrollbar">
+          <div className="max-w-[1440px] mx-auto w-full min-w-0 overflow-x-hidden">
             {children}
           </div>
         </main>
@@ -38,14 +38,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
 // A simplified version of Sidebar just for the mobile Sheet to avoid conflicting states
 function MobileSidebar() {
-  // Can just reuse the Sidebar component logic or render it slightly modified.
-  // We'll dynamically render the exact same Sidebar but overriding the hidden classes.
   return (
-    <div className="[&>div:first-child]:hidden block">
-      {/* To avoid huge duplication, we render the Sidebar but override the display classes in global CSS or here */}
-      <div className="h-full w-full [&>div]:w-full [&>div]:!flex [&>button]:hidden">
-        <SidebarMobileContent />
-      </div>
+    <div className="h-full w-full">
+      <SidebarMobileContent />
     </div>
   );
 }
@@ -112,7 +107,7 @@ function SidebarMobileContent() {
   };
 
   const items = navItems[role as keyof typeof navItems] || navItems.student;
-  const adaptive = getAdaptiveItemStyles();
+  const adaptive = getAdaptiveItemStyles(items.length);
 
   return (
     <div className="flex h-full flex-col bg-[#01424E] text-slate-100">
@@ -125,10 +120,10 @@ function SidebarMobileContent() {
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
         <nav className={cn("flex flex-col px-3", adaptive.navGap)}>
           {items.map((item) => {
-            const isActive = pathname.startsWith(item.href);
+            const isActive = pathname === item.href || (item.href !== `/${role}/dashboard` && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.href}

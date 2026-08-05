@@ -62,7 +62,7 @@ export default function FeaturesSection() {
 
   return (
     <section id="features" className="py-20 lg:py-32 bg-white dark:bg-slate-950">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <div className="container mx-auto px-3 sm:px-5 lg:px-6 max-w-[1400px]">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-[#41B177] font-semibold tracking-wide uppercase text-sm mb-3">
             Everything You Need

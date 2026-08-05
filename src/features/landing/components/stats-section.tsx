@@ -12,7 +12,7 @@ export default function StatsSection() {
 
   return (
     <section className="py-12 bg-[#01424E] text-white">
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-3 sm:px-5 lg:px-6 max-w-[1400px]">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((item, idx) => {
             const Icon = item.icon;

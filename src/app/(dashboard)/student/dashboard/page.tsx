@@ -56,11 +56,11 @@ export default function StudentDashboardPage() {
     <div className="space-y-8 animate-fade-in pb-16">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#7CEAAB]">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#01424E] dark:text-[#7CEAAB]">
             {greeting()}, {profile?.full_name?.split(' ')[0] || 'Student'} 👋
           </h1>
-          <p className="text-muted-foreground text-xs mt-1">
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
             Ready for your next campus hackathon, workshop, or event?
           </p>
         </div>

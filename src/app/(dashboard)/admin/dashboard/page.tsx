@@ -39,9 +39,12 @@ import {
   Legend,
 } from 'recharts';
 
+import { useAuth } from '@/hooks/use-auth';
+
 const COLOR_PALETTE = ['#01424E', '#007C46', '#7CEAAB', '#F59E0B', '#8B5CF6', '#EC4899'];
 
 export default function AdminDashboardPage() {
+  const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<{
     totalUsers: number;
@@ -138,12 +141,9 @@ export default function AdminDashboardPage() {
     <div className="space-y-8 animate-fade-in pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-100">System Admin Control Center</h1>
-            <Badge className="bg-[#01424E] text-[#7CEAAB] font-bold">ADMINISTRATOR</Badge>
-          </div>
-          <p className="text-muted-foreground text-sm">Global platform governance, organizer approvals, user oversight, and telemetry</p>
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#01424E] dark:text-teal-100">Welcome back, {profile?.full_name || 'Admin'} 👋</h1>
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">Global platform governance, organizer approvals, user oversight, and telemetry</p>
         </div>
         <div className="flex items-center gap-2">
           <Button

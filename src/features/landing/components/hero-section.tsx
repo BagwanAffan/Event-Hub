@@ -4,13 +4,13 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+    <section className="relative pt-10 sm:pt-14 lg:pt-20 pb-16 lg:pb-24 overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 -z-10"></div>
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#7CEAAB]/10 blur-[100px] rounded-full -z-10"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#01424E]/10 blur-[100px] rounded-full -z-10"></div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <div className="container mx-auto px-3 sm:px-5 lg:px-6 max-w-[1400px]">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           {/* Left Column */}
           <div className="flex flex-col items-start">
@@ -113,8 +113,8 @@ export default function HeroSection() {
 
             </div>
 
-            {/* Decorative float elements */}
-            <div className="absolute -right-6 top-1/4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 animate-[float_5s_ease-in-out_infinite_reverse]">
+            {/* Decorative float elements (hidden on small mobile screens to prevent overflow & clutter) */}
+            <div className="hidden sm:block absolute -right-6 top-1/4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 animate-[float_5s_ease-in-out_infinite_reverse]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                   <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
@@ -126,7 +126,7 @@ export default function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute -left-8 bottom-1/4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 animate-[float_7s_ease-in-out_infinite]">
+            <div className="hidden sm:block absolute -left-8 bottom-1/4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 animate-[float_7s_ease-in-out_infinite]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded bg-[#01424E] flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-[#7CEAAB]" />

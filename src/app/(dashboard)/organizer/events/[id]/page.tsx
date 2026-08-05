@@ -71,10 +71,10 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
 
       {/* Banner / Header Card */}
       <Card className="border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-[#01424E] to-[#007C46] text-white p-8">
+        <CardHeader className="bg-gradient-to-r from-[#01424E] to-[#007C46] text-white p-5 sm:p-8">
           <Badge className="bg-[#7CEAAB] text-[#01424E] capitalize w-fit mb-2">{event.category}</Badge>
-          <h1 className="text-3xl font-bold tracking-tight">{event.title}</h1>
-          <p className="text-[#d1f8e8] text-sm mt-1 max-w-2xl">{event.short_description}</p>
+          <h1 className="text-xl sm:text-3xl font-bold tracking-tight">{event.title}</h1>
+          <p className="text-[#d1f8e8] text-xs sm:text-sm mt-1 max-w-2xl">{event.short_description}</p>
         </CardHeader>
         <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs bg-slate-50 dark:bg-slate-900 border-t">
           <div>📍 <strong>Venue:</strong> {event.venue || 'Main Campus'}, {event.building}</div>

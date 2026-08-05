@@ -72,16 +72,12 @@ export default function OrganizerDashboard() {
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       {/* Welcome Banner */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl">
-        <div className="space-y-1.5 max-w-2xl">
-          <div className="flex items-center gap-2 mb-1">
-            <Badge className="bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 font-semibold px-2.5 py-0.5">
-              Organizer Command Center
-            </Badge>
-            <span className="text-xs text-white/80">College Admin Hub</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Welcome back, {profile?.full_name || 'Organizer'} 👋</h1>
-          <p className="text-[#d1f8e8] text-xs sm:text-sm leading-relaxed">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] text-white shadow-xl">
+        <div className="space-y-3 max-w-2xl">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
+            Welcome back, {profile?.full_name || 'Organizer'} 👋
+          </h1>
+          <p className="text-[#d1f8e8] text-sm sm:text-base leading-relaxed opacity-95">
             Manage events, verify payments, track QR attendance live, allocate volunteers, and generate digital certificates.
           </p>
         </div>

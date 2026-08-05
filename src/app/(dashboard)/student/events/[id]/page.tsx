@@ -153,16 +153,16 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
       </Button>
 
       {/* Banner */}
-      <div className="w-full h-64 md:h-[400px] rounded-2xl overflow-hidden relative bg-gradient-to-br from-[#01424E] to-[#007C46]">
+      <div className="w-full h-52 sm:h-64 md:h-[400px] rounded-2xl overflow-hidden relative bg-gradient-to-br from-[#01424E] to-[#007C46]">
         {event.poster_url && (
           <img src={event.poster_url} alt={event.title} className="w-full h-full object-cover" />
         )}
-        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6 md:p-10">
-          <Badge className="w-fit mb-4 bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 text-sm font-semibold">
+        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4 sm:p-6 md:p-10">
+          <Badge className="w-fit mb-3 bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 text-xs sm:text-sm font-semibold">
             {event.category}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{event.title}</h1>
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl line-clamp-2">{event.description}</p>
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-bold text-white mb-2">{event.title}</h1>
+          <p className="text-white/80 text-sm sm:text-lg md:text-xl max-w-2xl line-clamp-2">{event.description}</p>
         </div>
       </div>
 

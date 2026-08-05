@@ -11,7 +11,7 @@ import CtaSection from "@/features/landing/components/cta-section";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full min-w-0 overflow-x-hidden">
       <HeroSection />
       <StatsSection />
       <FeaturesSection />
