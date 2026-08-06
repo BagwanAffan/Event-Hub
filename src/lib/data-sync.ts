@@ -13,6 +13,7 @@ export type DataTag =
   | "payments"
   | "admin"
   | "profile"
+  | "feedback"
   | "*";
 
 type SyncCallback = (tags: DataTag[]) => void;
@@ -77,7 +78,9 @@ class DataSyncManager {
         attendance: ["attendance", "registrations"],
         payments: ["payments", "registrations"],
         organizer_verifications: ["admin", "profile"],
+        feedback: ["feedback", "events"],
       };
+
 
       Object.entries(tableToTagsMap).forEach(([table, tags]) => {
         channel.on(

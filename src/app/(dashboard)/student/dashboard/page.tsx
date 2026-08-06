@@ -10,14 +10,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DashboardCardsSkeleton } from '@/components/ui/page-skeleton';
-import { CalendarDays, CheckCircle2, Award, Clock, ArrowRight, Activity, Users, Ticket } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Award, Clock, ArrowRight, Activity, Users, Ticket, Star } from 'lucide-react';
 import { format } from 'date-fns';
+import { useFeedback } from '@/hooks/use-feedback';
 
 export default function StudentDashboardPage() {
   const { profile } = useAuth();
+  const feedbackHook = useFeedback();
   const [stats, setStats] = useState<any>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   const loadData = useCallback(async () => {
     if (!profile?.id) return;
@@ -138,6 +141,29 @@ export default function StudentDashboardPage() {
           </Card>
         </div>
       )}
+
+      {/* Feedback Pending Banner */}
+      {feedbackHook.pendingCount > 0 && (
+        <Card className="border-amber-300 dark:border-amber-900 bg-amber-50/70 dark:bg-amber-950/30 shadow-sm">
+          <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-amber-500 text-white shadow-sm shrink-0">
+                <Star className="h-5 w-5 fill-white" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Feedback Pending</h4>
+                <p className="text-xs text-muted-foreground font-medium">
+                  {feedbackHook.pendingCount} {feedbackHook.pendingCount === 1 ? 'Event Awaiting Review' : 'Events Awaiting Review'}
+                </p>
+              </div>
+            </div>
+            <Button asChild size="sm" className="bg-[#007C46] hover:bg-[#007C46]/90 text-white font-bold text-xs shrink-0">
+              <Link href="/student/registrations">Rate Now</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Quick Actions */}
       <div className="space-y-4">

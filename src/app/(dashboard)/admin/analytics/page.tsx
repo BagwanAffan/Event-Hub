@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,11 @@ import {
 } from 'lucide-react';
 import { adminService } from '@/services/admin-service';
 import { exportService } from '@/services/export-service';
+import { AdminFeedbackAnalytics } from '@/components/feedback/admin-feedback-analytics';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
+
+
 import {
   BarChart,
   Bar,
@@ -61,7 +65,7 @@ export default function AdminAnalyticsPage() {
     categoryDistribution: [],
   });
 
-  const fetchGlobalAnalytics = async () => {
+  const fetchGlobalAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const data = await adminService.getGlobalAnalytics();
@@ -72,11 +76,10 @@ export default function AdminAnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchGlobalAnalytics();
   }, []);
+
+  useDataSync(['admin', 'feedback', 'events'], fetchGlobalAnalytics, []);
+
 
   const handleExportExcel = async () => {
     try {
@@ -232,6 +235,10 @@ export default function AdminAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Admin Feedback & Moderation Section */}
+      <AdminFeedbackAnalytics />
     </div>
   );
 }
+

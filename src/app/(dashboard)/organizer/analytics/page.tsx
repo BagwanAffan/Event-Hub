@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,10 @@ import { BarChart3, Download, TrendingUp, Users, QrCode, Award, IndianRupee, Cal
 import { analyticsService } from '@/services/analytics-service';
 import { exportService } from '@/services/export-service';
 import { DepartmentParticipationChart } from '@/components/shared/department-participation-chart';
+import { OrganizerFeedbackAnalytics } from '@/components/feedback/organizer-feedback-analytics';
+import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
+
 
 const COLOR_PALETTE = ['#01424E', '#007C46', '#41B177', '#7CEAAB', '#0284C7', '#6366F1'];
 
@@ -35,27 +38,26 @@ export default function AnalyticsPage() {
   const [deptData, setDeptData] = useState<any[]>([]);
   const [catData, setCatData] = useState<any[]>([]);
 
-  useEffect(() => {
-    async function loadData() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const s = await analyticsService.getOrganizerDashboardStats(profile.id);
-        setStats(s);
-        const t = await analyticsService.getRegistrationTrend(profile.id);
-        setTrendData(t);
-        const d = await analyticsService.getDepartmentDistribution(profile.id);
-        setDeptData(d);
-        const c = await analyticsService.getCategoryDistribution(profile.id);
-        setCatData(c);
-      } catch (err) {
-        console.error("Analytics error:", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadData = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      if (stats.totalEvents === 0) setLoading(true);
+      const s = await analyticsService.getOrganizerDashboardStats(profile.id);
+      setStats(s);
+      const t = await analyticsService.getRegistrationTrend(profile.id);
+      setTrendData(t);
+      const d = await analyticsService.getDepartmentDistribution(profile.id);
+      setDeptData(d);
+      const c = await analyticsService.getCategoryDistribution(profile.id);
+      setCatData(c);
+    } catch (err) {
+      console.error("Analytics error:", err);
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, [profile?.id]);
+  }, [profile?.id, stats.totalEvents]);
+
+  useDataSync(['events', 'registrations', 'feedback'], loadData, [profile?.id]);
 
   const handleExportSummary = async () => {
     toast.promise(exportService.exportAnalyticsSummary(stats, trendData), {
@@ -236,6 +238,10 @@ export default function AnalyticsPage() {
           <DepartmentParticipationChart data={deptData} height={310} />
         </CardContent>
       </Card>
+
+      {/* Organizer Feedback & Ratings Section */}
+      <OrganizerFeedbackAnalytics />
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,11 +18,16 @@ import {
   ClipboardList,
   BarChart3,
   PieChart as PieIcon,
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import { adminService } from '@/services/admin-service';
+import { feedbackService } from '@/services/feedback-service';
+import { useDataSync } from '@/lib/data-sync';
 import { Profile } from '@/types/database.types';
 import { toast } from 'sonner';
+
+
 import {
   BarChart,
   Bar,
@@ -88,14 +93,18 @@ export default function AdminDashboardPage() {
     monthlyRegistrations: [],
   });
 
-  const fetchDashboardData = async () => {
+  const [adminFeedback, setAdminFeedback] = useState<{ platformRating: number; totalFeedback: number }>({ platformRating: 0, totalFeedback: 0 });
+
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const [dashData, analyticsData] = await Promise.all([
+      const [dashData, analyticsData, fbData] = await Promise.all([
         adminService.getAdminDashboardStats(),
         adminService.getGlobalAnalytics(),
+        feedbackService.getAdminFeedbackAnalytics(),
       ]);
       setStats(dashData);
+      setAdminFeedback({ platformRating: fbData.platformRating, totalFeedback: fbData.totalFeedback });
       setAnalytics({
         roleDistribution: analyticsData.roleDistribution,
         categoryDistribution: analyticsData.categoryDistribution,
@@ -116,19 +125,16 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
   }, []);
 
+  useDataSync(['admin', 'feedback', 'events'], fetchDashboardData, []);
 
 
   const statCards = [
     { title: 'Total Users', value: stats.totalUsers, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-950/40' },
     { title: 'Students', value: stats.students, icon: GraduationCap, color: 'text-[#007C46]', bg: 'bg-[#edfcf6] dark:bg-teal-950/40' },
     { title: 'Organizers', value: stats.organizers, icon: Megaphone, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950/40' },
-    { title: 'Volunteers', value: stats.volunteers, icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50 dark:bg-pink-950/40' },
+    { title: 'Platform Rating', value: adminFeedback.platformRating > 0 ? `${adminFeedback.platformRating.toFixed(1)} ★` : '0.0 ★', icon: Star, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/40' },
     { title: 'Pending Approvals', value: stats.pendingOrganizers, icon: UserCheck, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/40', highlight: stats.pendingOrganizers > 0 },
     { title: 'Approved Organizers', value: stats.approvedOrganizers, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/40' },
     { title: 'Campus Events', value: stats.totalEvents, icon: Calendar, color: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950/40' },
@@ -136,6 +142,7 @@ export default function AdminDashboardPage() {
     { title: 'Attendance Today', value: stats.todayAttendance, icon: ScanLine, color: 'text-[#007C46]', bg: 'bg-[#edfcf6] dark:bg-teal-950/40' },
     { title: 'Certificates Issued', value: stats.certificates, icon: Award, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/40' },
   ];
+
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">

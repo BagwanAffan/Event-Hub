@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Activity, Users, Calendar, IndianRupee, CheckCircle, FileText, 
-  BarChart3, Sparkles, Plus, ArrowUpRight, Clock, QrCode, Award, ShieldCheck, Download
+  BarChart3, Sparkles, Plus, ArrowUpRight, Clock, QrCode, Award, ShieldCheck, Download, Star
 } from 'lucide-react';
 import { 
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
@@ -18,9 +18,12 @@ import { analyticsService } from '@/services/analytics-service';
 import { eventService } from '@/services/event-service';
 import { registrationService } from '@/services/registration-service';
 import { exportService } from '@/services/export-service';
+import { feedbackService } from '@/services/feedback-service';
+import { StarRating } from '@/components/feedback/star-rating';
 import { DepartmentParticipationChart } from '@/components/shared/department-participation-chart';
 import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
+
 
 export default function OrganizerDashboard() {
   const { profile } = useAuth();
@@ -39,6 +42,7 @@ export default function OrganizerDashboard() {
   const [trendData, setTrendData] = useState<any[]>([]);
   const [deptData, setDeptData] = useState<any[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [ratingStats, setRatingStats] = useState<{ averageRating: number; totalReviews: number }>({ averageRating: 0, totalReviews: 0 });
 
   const loadDashboard = useCallback(async () => {
     if (!profile?.id) return;
@@ -52,6 +56,8 @@ export default function OrganizerDashboard() {
       setDeptData(d);
       const evts = await eventService.getEvents({ created_by: profile.id, limit: 3 });
       setUpcomingEvents(evts.data);
+      const fbAnalytics = await feedbackService.getOrganizerFeedbackAnalytics(profile.id);
+      setRatingStats({ averageRating: fbAnalytics.averageRating, totalReviews: fbAnalytics.totalReviews });
     } catch (err) {
       console.error("Dashboard data error:", err);
     } finally {
@@ -59,7 +65,8 @@ export default function OrganizerDashboard() {
     }
   }, [profile?.id]);
 
-  useDataSync(['events', 'registrations', 'volunteers', 'attendance', 'certificates', 'payments'], loadDashboard, [profile?.id]);
+  useDataSync(['events', 'registrations', 'volunteers', 'attendance', 'certificates', 'payments', 'feedback'], loadDashboard, [profile?.id]);
+
 
   const handleExportFullReport = async () => {
     toast.promise(exportService.exportAnalyticsSummary(stats, trendData), {
@@ -198,21 +205,29 @@ export default function OrganizerDashboard() {
 
         <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Volunteers</CardTitle>
-            <div className="p-2 rounded-xl bg-purple-100/90 text-purple-700">
-              <Activity className="h-5 w-5" />
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Average Rating</CardTitle>
+            <div className="p-2 rounded-xl bg-amber-100/90 text-amber-600">
+              <Star className="h-5 w-5 fill-amber-400" />
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="h-8 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md mt-1" />
             ) : (
-              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">{stats.totalVolunteers}</div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">
+                  {ratingStats.averageRating > 0 ? ratingStats.averageRating.toFixed(1) : '0.0'}
+                </span>
+                <StarRating size="sm" value={ratingStats.averageRating} readOnly />
+              </div>
             )}
-            <p className="text-xs text-muted-foreground mt-1">Approved event volunteers</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Based on <span className="font-semibold text-slate-800 dark:text-slate-200">{ratingStats.totalReviews || 0}</span> reviews
+            </p>
           </CardContent>
         </Card>
       </div>
+
 
       {/* Quick Action Bar */}
       <div className="space-y-4">

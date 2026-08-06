@@ -4,6 +4,10 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { registrationService } from '@/services/registration-service';
+import { feedbackService } from '@/services/feedback-service';
+import { useFeedback } from '@/hooks/use-feedback';
+import { FeedbackDialog } from '@/components/feedback/feedback-dialog';
+import { StarRating } from '@/components/feedback/star-rating';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,17 +15,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { TableSkeleton } from '@/components/ui/page-skeleton';
-import { Search, Eye, QrCode, ListFilter, LayoutGrid, CalendarDays } from 'lucide-react';
+import { Search, Eye, QrCode, ListFilter, LayoutGrid, CalendarDays, Star, CheckCircle2, Award } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useDataSync } from '@/lib/data-sync';
+import type { Feedback } from '@/types/database.types';
 
 export default function RegistrationsPage() {
   const { profile } = useAuth();
   const [registrations, setRegistrations] = useState<any[]>([]);
+  const [attendanceSet, setAttendanceSet] = useState<Set<string>>(new Set());
+  const [feedbackMap, setFeedbackMap] = useState<Map<string, Feedback>>(new Map());
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+
+  const feedbackHook = useFeedback();
 
   const loadData = useCallback(async () => {
     if (!profile?.id) return;
@@ -29,6 +38,35 @@ export default function RegistrationsPage() {
       if (registrations.length === 0) setLoading(true);
       const data = await registrationService.getUserRegistrations(profile.id);
       setRegistrations(data || []);
+
+      // Fetch student attendance and existing feedback
+      if (data && data.length > 0) {
+        const eventIds = data.map((r: any) => r.event_id).filter(Boolean);
+        
+        // Fetch attendance
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data: attData } = await supabase
+          .from('attendance')
+          .select('event_id')
+          .eq('user_id', profile.id)
+          .in('event_id', eventIds);
+
+        const attSet = new Set<string>((attData || []).map((a: any) => String(a.event_id)));
+        setAttendanceSet(attSet);
+
+
+        // Fetch user feedback records
+        const { data: fbData } = await supabase
+          .from('feedback')
+          .select('*')
+          .eq('user_id', profile.id)
+          .in('event_id', eventIds);
+
+        const fbMap = new Map<string, Feedback>();
+        (fbData || []).forEach((f: any) => fbMap.set(f.event_id, f as Feedback));
+        setFeedbackMap(fbMap);
+      }
     } catch (error) {
       console.error('Error fetching registrations:', error);
       toast.error('Failed to load registrations');
@@ -37,7 +75,7 @@ export default function RegistrationsPage() {
     }
   }, [profile?.id]);
 
-  useDataSync(['registrations', 'events', 'payments'], loadData, [profile?.id]);
+  useDataSync(['registrations', 'events', 'payments', 'attendance', 'feedback'], loadData, [profile?.id]);
 
   const filteredRegistrations = registrations.filter(reg => 
     reg.events?.title?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -68,6 +106,14 @@ export default function RegistrationsPage() {
     }
   };
 
+  const isEventCompleted = (reg: any) => {
+    return reg.events?.status === 'completed' || (reg.events?.end_date && new Date(reg.events.end_date) < new Date());
+  };
+
+  const hasAttended = (reg: any) => {
+    return attendanceSet.has(reg.event_id);
+  };
+
   return (
     <div className="space-y-6 fade-in pb-16">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -76,7 +122,7 @@ export default function RegistrationsPage() {
             My Registrations
           </h1>
           <p className="text-muted-foreground text-xs mt-1">
-            Track all your event registrations, tickets, and entry passes
+            Track all your event registrations, entry passes, and rate completed experiences
           </p>
         </div>
         
@@ -110,74 +156,137 @@ export default function RegistrationsPage() {
               <Table>
                 <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                   <TableRow>
-                    <TableHead className="w-[300px] font-bold text-xs uppercase">Event Details</TableHead>
+                    <TableHead className="w-[280px] font-bold text-xs uppercase">Event Details</TableHead>
                     <TableHead className="font-bold text-xs uppercase">Type</TableHead>
                     <TableHead className="font-bold text-xs uppercase">Payment</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase">Status & Eligibility</TableHead>
                     <TableHead className="text-right font-bold text-xs uppercase">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRegistrations.map((reg) => (
-                    <TableRow key={reg.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 text-xs">
-                      <TableCell>
-                        <div className="font-bold text-[#01424E] dark:text-white mb-0.5">{reg.events?.title}</div>
-                        <div className="text-[11px] text-muted-foreground flex items-center gap-1">
-                          <CalendarDays className="h-3.5 w-3.5 text-[#007C46]" />
-                          {reg.events?.start_date ? format(new Date(reg.events.start_date), 'MMM dd, yyyy') : 'TBA'}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="capitalize text-[10px]">{reg.registration_type || 'Individual'}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {getPaymentStatusBadge(reg.events?.registration_fee === 0 ? 'FREE' : reg.payment_status || 'PENDING')}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(reg.status)}
-                      </TableCell>
-                      <TableCell className="text-right space-x-1">
-                        <Button asChild variant="ghost" size="icon" title="View Details">
-                          <Link href={`/student/registrations/${reg.id}`}>
-                            <Eye className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB]" />
-                          </Link>
-                        </Button>
-                        {reg.status === 'approved' && (
-                          <Button asChild variant="ghost" size="icon" title="View QR Pass">
+                  {filteredRegistrations.map((reg) => {
+                    const completed = isEventCompleted(reg);
+                    const attended = hasAttended(reg);
+                    const existingFb = feedbackMap.get(reg.event_id);
+                    const isFeedbackEligible = reg.status === 'approved' && completed && attended;
+
+                    return (
+                      <TableRow key={reg.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 text-xs">
+                        <TableCell>
+                          <div className="font-bold text-[#01424E] dark:text-white mb-0.5">{reg.events?.title}</div>
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <CalendarDays className="h-3.5 w-3.5 text-[#007C46]" />
+                            {reg.events?.start_date ? format(new Date(reg.events.start_date), 'MMM dd, yyyy') : 'TBA'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="capitalize text-[10px]">{reg.registration_type || 'Individual'}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {getPaymentStatusBadge(reg.events?.registration_fee === 0 ? 'FREE' : reg.payment_status || 'PENDING')}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {getStatusBadge(reg.status)}
+                            {completed && <Badge variant="outline" className="text-teal-600 border-teal-600 font-semibold text-[10px]">Completed ✓</Badge>}
+                            {attended && <Badge variant="outline" className="text-emerald-600 border-emerald-600 font-semibold text-[10px]">Attendance ✓</Badge>}
+                            
+                            {isFeedbackEligible && (
+                              existingFb ? (
+                                <Badge className="bg-amber-500 text-white font-bold text-[10px] flex items-center gap-1">
+                                  <Star className="h-3 w-3 fill-white" /> Rated {existingFb.overall_rating || existingFb.rating}★
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 font-bold text-[10px]">
+                                  Feedback Pending
+                                </Badge>
+                              )
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right space-x-1">
+                          <Button asChild variant="ghost" size="icon" title="View Details">
                             <Link href={`/student/registrations/${reg.id}`}>
-                              <QrCode className="h-4 w-4 text-[#41B177]" />
+                              <Eye className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB]" />
                             </Link>
                           </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          {reg.status === 'approved' && (
+                            <Button asChild variant="ghost" size="icon" title="View QR Pass">
+                              <Link href={`/student/registrations/${reg.id}`}>
+                                <QrCode className="h-4 w-4 text-[#41B177]" />
+                              </Link>
+                            </Button>
+                          )}
+                          {isFeedbackEligible && (
+                            <Button
+                              size="sm"
+                              onClick={() => feedbackHook.openModal({ ...reg.events, registration_id: reg.id }, existingFb || null)}
+                              className={existingFb ? 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 text-[11px] font-semibold h-7 px-2.5 ml-1' : 'bg-[#007C46] hover:bg-[#007C46]/90 text-white text-[11px] font-bold h-7 px-2.5 ml-1'}
+                            >
+                              <Star className="h-3 w-3 mr-1 fill-amber-400 text-amber-400" />
+                              {existingFb ? 'Edit Review' : 'Rate Event'}
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRegistrations.map((reg) => (
-              <Card key={reg.id} className="hover:shadow-md transition-all border-slate-200 dark:border-slate-800">
-                <CardContent className="p-5">
-                  <div className="flex justify-between items-start mb-3">
-                    <Badge variant="outline" className="capitalize text-[10px]">{reg.registration_type || 'Individual'}</Badge>
-                    {getStatusBadge(reg.status)}
-                  </div>
-                  <h3 className="font-bold text-base mb-1.5 text-[#01424E] dark:text-white line-clamp-1">{reg.events?.title}</h3>
-                  <div className="text-xs text-muted-foreground space-y-1 mb-5">
-                    <p className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-[#007C46]" /> {reg.events?.start_date ? format(new Date(reg.events.start_date), 'MMM dd, yyyy') : 'TBA'}</p>
-                    <p className="flex items-center gap-1.5"><span className="font-semibold text-[10px] text-muted-foreground uppercase mr-1">Fee:</span> {getPaymentStatusBadge(reg.events?.registration_fee === 0 ? 'FREE' : reg.payment_status || 'PENDING')}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button asChild variant="outline" className="w-full text-xs font-semibold">
-                      <Link href={`/student/registrations/${reg.id}`}>View Pass & Details</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {filteredRegistrations.map((reg) => {
+              const completed = isEventCompleted(reg);
+              const attended = hasAttended(reg);
+              const existingFb = feedbackMap.get(reg.event_id);
+              const isFeedbackEligible = reg.status === 'approved' && completed && attended;
+
+              return (
+                <Card key={reg.id} className="hover:shadow-md transition-all border-slate-200 dark:border-slate-800">
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start mb-3">
+                      <Badge variant="outline" className="capitalize text-[10px]">{reg.registration_type || 'Individual'}</Badge>
+                      {getStatusBadge(reg.status)}
+                    </div>
+                    <h3 className="font-bold text-base mb-1.5 text-[#01424E] dark:text-white line-clamp-1">{reg.events?.title}</h3>
+                    <div className="text-xs text-muted-foreground space-y-1 mb-4">
+                      <p className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-[#007C46]" /> {reg.events?.start_date ? format(new Date(reg.events.start_date), 'MMM dd, yyyy') : 'TBA'}</p>
+                      <p className="flex items-center gap-1.5"><span className="font-semibold text-[10px] text-muted-foreground uppercase mr-1">Fee:</span> {getPaymentStatusBadge(reg.events?.registration_fee === 0 ? 'FREE' : reg.payment_status || 'PENDING')}</p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1 mb-4">
+                      {completed && <Badge variant="outline" className="text-teal-600 border-teal-600 text-[10px]">Completed ✓</Badge>}
+                      {attended && <Badge variant="outline" className="text-emerald-600 border-emerald-600 text-[10px]">Attendance ✓</Badge>}
+                      {isFeedbackEligible && (
+                        existingFb ? (
+                          <Badge className="bg-amber-500 text-white text-[10px] font-bold">Rated {existingFb.overall_rating || existingFb.rating}★</Badge>
+                        ) : (
+                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[10px] font-bold">Feedback Pending</Badge>
+                        )
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button asChild variant="outline" className="w-full text-xs font-semibold">
+                        <Link href={`/student/registrations/${reg.id}`}>View Pass</Link>
+                      </Button>
+                      {isFeedbackEligible && (
+                        <Button
+                          size="sm"
+                          onClick={() => feedbackHook.openModal({ ...reg.events, registration_id: reg.id }, existingFb || null)}
+                          className={existingFb ? 'w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold' : 'w-full bg-[#007C46] text-white text-xs font-bold'}
+                        >
+                          <Star className="h-3.5 w-3.5 mr-1 fill-amber-400 text-amber-400" />
+                          {existingFb ? 'Edit Review' : 'Rate Event'}
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )
       ) : (
@@ -190,6 +299,17 @@ export default function RegistrationsPage() {
           className="mt-6"
         />
       )}
+
+      {/* Feedback Dialog */}
+      <FeedbackDialog
+        isOpen={feedbackHook.isOpen}
+        onClose={feedbackHook.closeModal}
+        event={feedbackHook.selectedEvent}
+        existingFeedback={feedbackHook.existingFeedback}
+        onSubmit={feedbackHook.handleSubmit}
+        submitting={feedbackHook.submitting}
+      />
     </div>
   );
 }
+

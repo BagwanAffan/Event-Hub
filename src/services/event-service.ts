@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/client";
 import { dataSync } from "@/lib/data-sync";
 import { adminService } from "./admin-service";
+import { notificationService } from "./notification-service";
+
 import type {
   Event,
   EventStatus,
@@ -229,9 +231,37 @@ export const eventService = {
     }
 
     const updated = data?.[0] || ({ id, ...cleanUpdates } as Event);
+
+    // Send notifications to attended students when event status is set to completed
+    if (cleanUpdates.status === 'completed') {
+      try {
+        const { data: attList } = await supabase
+          .from("attendance")
+          .select("user_id")
+          .eq("event_id", id);
+
+        if (attList && attList.length > 0) {
+          const uniqueUserIds = Array.from(new Set<string>(attList.map((a: any) => String(a.user_id))));
+          for (const uid of uniqueUserIds) {
+            await notificationService.createNotification(
+              uid,
+              "Rate Your Event Experience",
+              `Your event "${updated.title || 'Event'}" has been completed. Please rate your experience.`,
+              "info",
+              "/student/registrations"
+            );
+          }
+        }
+
+      } catch (notifErr) {
+        console.warn("Failed to notify students of completed event:", notifErr);
+      }
+    }
+
     dataSync.notify("events");
     return updated;
   },
+
 
   async deleteEvent(id: string) {
     const res = await adminService.deleteEventPermanently(id);

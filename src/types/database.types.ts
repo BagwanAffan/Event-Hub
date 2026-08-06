@@ -302,10 +302,43 @@ export interface Feedback {
   id: string;
   event_id: string;
   user_id: string;
-  rating: number;
-  feedback: string;
+  registration_id?: string | null;
+  overall_rating: number;
+  rating?: number; // Backwards compatible alias
+  organization_rating?: number | null;
+  content_rating?: number | null;
+  venue_rating?: number | null;
+  speaker_rating?: number | null;
+  recommendation?: 'yes' | 'maybe' | 'no' | null;
+  comment?: string | null;
+  feedback?: string | null; // Backwards compatible alias
+  anonymous: boolean;
   created_at: string;
+  updated_at?: string;
+  profiles?: {
+    full_name?: string | null;
+    profile_picture?: string | null;
+    department?: string | null;
+  } | null;
+  events?: {
+    title?: string;
+  } | null;
 }
+
+export interface FeedbackSubmissionPayload {
+  eventId: string;
+  userId: string;
+  registrationId?: string | null;
+  overallRating: number;
+  organizationRating?: number;
+  contentRating?: number;
+  venueRating?: number;
+  speakerRating?: number;
+  recommendation?: 'yes' | 'maybe' | 'no';
+  comment?: string;
+  anonymous?: boolean;
+}
+
 
 export interface AuditLog {
   id: string;
