@@ -23,7 +23,7 @@ export default function StudentDashboardPage() {
     if (!profile?.id) return;
     
     try {
-      setLoading(true);
+      if (!stats) setLoading(true);
       const [statsData, eventsData] = await Promise.all([
         analyticsService.getStudentDashboardStats(profile.id),
         registrationService.getUserRegistrations(profile.id)

@@ -54,7 +54,7 @@ export default function AdminEventsPage() {
 
   const fetchEvents = async () => {
     try {
-      setLoading(true);
+      if (events.length === 0) setLoading(true);
       const res = await adminService.getAllEventsForAdmin({
         status: statusFilter,
         category: categoryFilter,

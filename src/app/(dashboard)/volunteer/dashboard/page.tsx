@@ -20,7 +20,7 @@ export default function VolunteerDashboardPage() {
   const loadData = useCallback(async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (tasks.length === 0) setLoading(true);
       const [tasksData, statsData] = await Promise.all([
         volunteerService.getAssignedTasks(profile.id),
         analyticsService.getVolunteerDashboardStats(profile.id)

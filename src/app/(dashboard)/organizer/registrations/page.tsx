@@ -24,7 +24,7 @@ export default function RegistrationsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const loadRegistrations = async () => {
-    setLoading(true);
+    if (registrations.length === 0) setLoading(true);
     try {
       const res = await registrationService.getRegistrations({
         status: statusFilter === 'all' ? undefined : (statusFilter as any),

@@ -21,7 +21,7 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
 
   const loadEventData = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!event) setLoading(true);
       const data = await eventService.getEventById(id);
       setEvent(data);
       const s = await eventService.getEventStats(id);

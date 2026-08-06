@@ -24,7 +24,7 @@ export default function StudentCertificatesPage() {
   const loadData = useCallback(async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (certificates.length === 0) setLoading(true);
       const data = await certificateService.getCertificates({ user_id: profile.id });
       setCertificates(data || []);
     } catch (error) {

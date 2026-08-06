@@ -26,7 +26,7 @@ export default function RegistrationsPage() {
   const loadData = useCallback(async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (registrations.length === 0) setLoading(true);
       const data = await registrationService.getUserRegistrations(profile.id);
       setRegistrations(data || []);
     } catch (error) {
@@ -58,10 +58,13 @@ export default function RegistrationsPage() {
     switch(status?.toLowerCase()) {
       case 'approved':
       case 'completed': return <Badge variant="outline" className="text-[#41B177] border-[#41B177] font-bold">Paid</Badge>;
+      case 'under_review':
+      case 'payment_under_review':
+      case 'submitted': return <Badge variant="outline" className="text-amber-600 border-amber-600 font-bold">Under Review</Badge>;
       case 'pending': return <Badge variant="outline" className="text-orange-500 border-orange-500 font-bold">Pending</Badge>;
       case 'not_required':
       case 'free': return <Badge variant="outline" className="text-slate-500 border-slate-500 font-bold">Free</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
+      default: return <Badge variant="outline" className="capitalize">{status?.replace('_', ' ')}</Badge>;
     }
   };
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export type DataTag =
@@ -112,7 +111,6 @@ export function useDataSync(
   fetchFn?: () => void | Promise<void>,
   deps: any[] = []
 ) {
-  const router = useRouter();
   const fetchRef = useRef(fetchFn);
 
   useEffect(() => {
@@ -142,11 +140,6 @@ export function useDataSync(
             console.error("[useDataSync] Re-fetch error:", err)
           );
         }
-        try {
-          router.refresh();
-        } catch {
-          /* noop */
-        }
       }
     };
 
@@ -168,5 +161,6 @@ export function useDataSync(
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(Array.isArray(tags) ? tags : [tags]), router, ...deps]);
+  }, [JSON.stringify(Array.isArray(tags) ? tags : [tags]), ...deps]);
 }
+

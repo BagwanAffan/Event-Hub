@@ -43,7 +43,7 @@ export default function OrganizerDashboard() {
   const loadDashboard = useCallback(async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (stats.totalEvents === 0) setLoading(true);
       const s = await analyticsService.getOrganizerDashboardStats(profile.id);
       setStats(s);
       const t = await analyticsService.getRegistrationTrend(profile.id);

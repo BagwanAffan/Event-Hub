@@ -25,7 +25,7 @@ export default function VolunteerCertificatesPage() {
   const loadCertificates = useCallback(async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (certificates.length === 0) setLoading(true);
       const data = await certificateService.getCertificates({ user_id: profile.id });
       const volunteerCerts = (data || []).filter((c: any) => c.certificate_type === 'volunteer');
       setCertificates(volunteerCerts);

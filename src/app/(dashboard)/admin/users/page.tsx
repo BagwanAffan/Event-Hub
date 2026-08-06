@@ -57,7 +57,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      setLoading(true);
+      if (users.length === 0) setLoading(true);
       const res = await adminService.getUsers({
         role: roleFilter,
         status: statusFilter,

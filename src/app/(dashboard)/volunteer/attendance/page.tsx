@@ -19,7 +19,7 @@ export default function AttendanceRecordsPage() {
 
   const loadLogs = useCallback(async () => {
     if (!profile?.id) return;
-    setLoading(true);
+    if (attendance.length === 0) setLoading(true);
     const volunteerId = profile?.id || '';
 
     try {

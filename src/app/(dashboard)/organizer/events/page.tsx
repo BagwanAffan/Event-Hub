@@ -43,7 +43,7 @@ export default function OrganizerEventsPage() {
   const fetchEvents = async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (events.length === 0) setLoading(true);
       const res = await eventService.getEvents({ created_by: profile.id });
       setEvents(res.data || []);
     } catch (err: any) {

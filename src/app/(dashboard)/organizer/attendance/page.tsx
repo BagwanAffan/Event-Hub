@@ -42,7 +42,7 @@ export default function AttendancePage() {
 
   const loadAttendance = async () => {
     if (!selectedEventId) return;
-    setLoading(true);
+    if (attendance.length === 0) setLoading(true);
 
     try {
       const [data, s] = await Promise.all([

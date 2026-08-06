@@ -40,7 +40,7 @@ export default function VolunteerEventsPage() {
   const loadData = useCallback(async () => {
     if (!profile?.id) return;
     try {
-      setLoading(true);
+      if (events.length === 0) setLoading(true);
 
       const [eventsRes, volsRes, approvedVolsRes] = await Promise.all([
         eventService.getPublicEvents({ limit: 100 }),

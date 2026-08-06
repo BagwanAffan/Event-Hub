@@ -50,7 +50,7 @@ export default function AdminApprovalsPage() {
 
   const fetchApplications = async () => {
     try {
-      setLoading(true);
+      if (organizers.length === 0) setLoading(true);
       const res = await adminService.getOrganizerApplications({
         status: statusFilter as OrganizerStatus | 'all',
         search,

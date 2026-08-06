@@ -34,7 +34,7 @@ export default function RegistrationDetailsPage({ params }: { params: Promise<{ 
 
   const loadData = async () => {
     try {
-      setLoading(true);
+      if (!registration) setLoading(true);
       const data = await registrationService.getRegistrationById(resolvedParams.id);
       if (!data) {
         toast.error('Registration not found');
@@ -72,12 +72,12 @@ export default function RegistrationDetailsPage({ params }: { params: Promise<{ 
       )
       .subscribe();
 
-    // 2. Fallback polling every 3 seconds to guarantee freshness
+    // 2. Fallback polling every 15 seconds to guarantee freshness
     const interval = setInterval(async () => {
       if (resolvedParams.id) {
         await fetchAttendanceState(resolvedParams.id);
       }
-    }, 3000);
+    }, 15000);
 
     return () => {
       supabase.removeChannel(channel);
@@ -138,7 +138,8 @@ export default function RegistrationDetailsPage({ params }: { params: Promise<{ 
   const isCancelled = registration.status === 'cancelled';
   const requiresPayment = (event.registration_fee || 0) > 0;
   const paymentCompleted = registration.payment_status === 'approved';
-  const paymentPending = registration.payment_status === 'pending';
+  const isUnderReview = registration.payment_status === 'under_review' || registration.status === 'payment_under_review' || registration.payment_status === 'submitted';
+  const paymentPending = (registration.payment_status === 'pending' || !registration.payment_status) && !isUnderReview && !paymentCompleted && registration.status !== 'payment_under_review';
 
   // Attendance states based directly on attendance table in Supabase
   const isCheckedOut = attendance?.attendance_status === 'present' || !!attendance?.check_out_time;
@@ -279,7 +280,7 @@ export default function RegistrationDetailsPage({ params }: { params: Promise<{ 
                       </Link>
                     </Button>
                   )}
-                  {requiresPayment && registration.payment_status === 'under_review' && !isCancelled && (
+                  {requiresPayment && isUnderReview && !isCancelled && (
                     <div className="text-sm text-center text-orange-600 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
                       Payment under review. We will notify you once verified.
                     </div>

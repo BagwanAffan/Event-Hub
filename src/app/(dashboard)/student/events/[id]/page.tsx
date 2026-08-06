@@ -33,7 +33,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
 
   const loadData = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!event) setLoading(true);
       const eventData = await eventService.getEventById(resolvedParams.id);
       if (!eventData) {
         toast.error('Event not found');

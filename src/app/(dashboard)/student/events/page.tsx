@@ -37,7 +37,7 @@ function StudentEventsContent() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      setLoading(true);
+      if (events.length === 0) setLoading(true);
       const data = await eventService.getPublicEvents();
       // Strict deduplication by ID and filtering out deleted/disabled events
       const activeEvents = (data.data || []).filter((e: any) => 

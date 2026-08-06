@@ -70,6 +70,15 @@ export const paymentService = {
       if (error || !data) {
         throw error || new Error('Failed to create payment');
       }
+
+      await supabase
+        .from("registrations")
+        .update({
+          payment_status: "under_review",
+          status: "payment_under_review",
+        })
+        .eq("id", paymentData.registration_id);
+
       dataSync.notify("payments", "registrations");
       return data as Payment;
     } catch (error) {
@@ -93,6 +102,15 @@ export const paymentService = {
       if (error || !data) {
         throw error || new Error('Failed to approve payment');
       }
+
+      await supabase
+        .from("registrations")
+        .update({
+          payment_status: "approved",
+          status: "approved",
+        })
+        .eq("id", data.registration_id);
+
       dataSync.notify("payments", "registrations");
       return data as Payment;
     } catch (error) {
@@ -115,6 +133,15 @@ export const paymentService = {
       if (error || !data) {
         throw error || new Error('Failed to reject payment');
       }
+
+      await supabase
+        .from("registrations")
+        .update({
+          payment_status: "rejected",
+          status: "pending_payment",
+        })
+        .eq("id", data.registration_id);
+
       dataSync.notify("payments", "registrations");
       return data as Payment;
     } catch (error) {
