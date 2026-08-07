@@ -288,21 +288,21 @@ export default function OrganizerEventsPage() {
                 </div>
 
                 <CardHeader className="p-5 pb-3">
-                  <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-100 line-clamp-1 tracking-tight">
+                  <CardTitle className="text-lg font-bold text-[#01424E] dark:text-[#F5F5F5] line-clamp-1 tracking-tight">
                     {evt.title}
                   </CardTitle>
-                  <CardDescription className="line-clamp-2 text-xs text-muted-foreground leading-relaxed mt-1">
+                  <CardDescription className="line-clamp-2 text-xs text-muted-foreground dark:text-[#9CA3AF] leading-relaxed mt-1">
                     {evt.short_description || evt.description}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="px-5 pb-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                <CardContent className="px-5 pb-5 space-y-2.5 text-xs text-slate-600 dark:text-[#CFCFCF]">
                   <div className="flex items-center gap-2.5">
-                    <MapPin className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB] shrink-0" />
+                    <MapPin className="h-4 w-4 text-[#01424E] dark:text-[#22C55E] shrink-0" />
                     <span className="truncate">{evt.venue || 'Main Campus Auditorium'}</span>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <Calendar className="h-4 w-4 text-[#007C46] shrink-0" />
+                    <Calendar className="h-4 w-4 text-[#007C46] dark:text-[#22C55E] shrink-0" />
                     <span className="truncate">{new Date(evt.start_date).toLocaleDateString()} at {new Date(evt.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex items-center gap-2.5">
@@ -312,12 +312,12 @@ export default function OrganizerEventsPage() {
                 </CardContent>
               </div>
 
-              <CardFooter className="p-4 sm:p-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col gap-2.5 bg-slate-50/50 dark:bg-slate-900/40 rounded-b-2xl">
+              <CardFooter className="p-4 sm:p-5 pt-4 border-t border-slate-100 dark:border-white/[0.08] flex flex-col gap-2.5 bg-slate-50/50 dark:bg-[#181818] rounded-b-2xl">
                 {evt.status === 'draft' ? (
                   <div className="flex items-center gap-2.5 w-full">
                     <Button
                       onClick={() => handlePublish(evt)}
-                      className="h-10 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-xs cursor-pointer"
+                      className="h-10 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] shadow-xs cursor-pointer"
                     >
                       <Rocket className="h-4 w-4 shrink-0" />
                       <span>Publish</span>
@@ -325,9 +325,9 @@ export default function OrganizerEventsPage() {
                     <Button
                       onClick={() => handleOpenEdit(evt)}
                       variant="outline"
-                      className="h-10 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-xs"
+                      className="h-10 flex-1 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 border-slate-200 dark:border-white/10 dark:bg-[#1F1F1F] dark:text-[#F5F5F5] hover:bg-slate-100 dark:hover:bg-[#222222] transition-colors cursor-pointer shadow-xs"
                     >
-                      <Edit2 className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB] shrink-0" />
+                      <Edit2 className="h-4 w-4 text-[#01424E] dark:text-[#22C55E] shrink-0" />
                       <span>Edit</span>
                     </Button>
                   </div>
@@ -335,9 +335,9 @@ export default function OrganizerEventsPage() {
                   <Button
                     onClick={() => handleOpenEdit(evt)}
                     variant="outline"
-                    className="h-10 w-full text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-xs"
+                    className="h-10 w-full text-xs font-bold rounded-xl inline-flex items-center justify-center gap-2 border-slate-200 dark:border-white/10 dark:bg-[#1F1F1F] dark:text-[#F5F5F5] hover:bg-slate-100 dark:hover:bg-[#222222] transition-colors cursor-pointer shadow-xs"
                   >
-                    <Edit2 className="h-4 w-4 text-[#01424E] dark:text-[#7CEAAB] shrink-0" />
+                    <Edit2 className="h-4 w-4 text-[#01424E] dark:text-[#22C55E] shrink-0" />
                     <span>Edit Event</span>
                   </Button>
                 )}
@@ -345,7 +345,7 @@ export default function OrganizerEventsPage() {
                 <Button
                   asChild
                   variant="outline"
-                  className="h-10 w-full text-xs font-bold rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[#01424E] dark:text-teal-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#007C46] transition-all cursor-pointer shadow-xs"
+                  className="h-10 w-full text-xs font-bold rounded-xl border-slate-200 dark:border-white/10 bg-white dark:bg-[#15271B] text-[#01424E] dark:text-[#22C55E] dark:hover:bg-[#1F2B22] transition-all cursor-pointer shadow-xs"
                 >
                   <Link href={`/organizer/events/${evt.id}`} className="inline-flex items-center justify-center gap-2 h-full w-full">
                     <Eye className="h-4 w-4 shrink-0" />

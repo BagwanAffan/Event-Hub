@@ -79,15 +79,15 @@ export default function OrganizerDashboard() {
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] dark:from-[#030d08] dark:via-[#012a16] dark:to-[#01391e] text-white shadow-xl dark:shadow-2xl dark:shadow-emerald-950/30 dark:border dark:border-emerald-900/30">
+      <div className="relative overflow-hidden flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-7 sm:p-9 rounded-2xl bg-gradient-to-r from-[#01424E] via-[#013540] to-[#007C46] dark:from-[#07130A] dark:via-[#0E2616] dark:to-[#10391F] text-white shadow-xl dark:shadow-2xl dark:border dark:border-white/[0.08]">
         {/* Premium SaaS mesh background — Dark mode only */}
         <div className="absolute inset-0 hidden dark:block pointer-events-none" aria-hidden="true">
           {/* Radial green glow */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_65%_55%,rgba(0,124,70,0.12),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_65%_55%,rgba(34,197,94,0.12),transparent)]" />
           {/* Dotted wave mesh + accent line */}
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Primary wave mesh */}
-            <g stroke="rgba(124,234,171,0.13)" strokeWidth="0.7" strokeDasharray="2 8">
+            <g stroke="rgba(34,197,94,0.15)" strokeWidth="0.7" strokeDasharray="2 8">
               <path d="M300,-10 C400,30 520,120 600,185 S740,290 800,330" />
               <path d="M280,15 C380,55 500,145 580,210 S720,310 800,350" />
               <path d="M320,-35 C420,5 540,95 620,160 S760,270 800,310" />
@@ -100,7 +100,7 @@ export default function OrganizerDashboard() {
               <path d="M200,115 C300,155 420,245 500,310 S640,385 800,410" />
             </g>
             {/* Cross-wave mesh */}
-            <g stroke="rgba(124,234,171,0.08)" strokeWidth="0.5" strokeDasharray="1.5 10">
+            <g stroke="rgba(34,197,94,0.08)" strokeWidth="0.5" strokeDasharray="1.5 10">
               <path d="M350,400 C400,300 500,200 600,145 S730,75 800,35" />
               <path d="M380,400 C425,310 520,215 615,165 S740,100 800,65" />
               <path d="M320,400 C370,290 475,185 585,125 S720,50 800,5" />
@@ -111,33 +111,33 @@ export default function OrganizerDashboard() {
               <path d="M470,400 C500,345 575,275 665,225 S770,175 800,155" />
             </g>
             {/* Glowing accent line */}
-            <path d="M180,395 C320,325 460,210 570,150 S720,70 800,40" stroke="rgba(74,222,128,0.15)" strokeWidth="6" strokeLinecap="round" />
-            <path d="M180,395 C320,325 460,210 570,150 S720,70 800,40" stroke="#4ade80" strokeWidth="1.2" opacity="0.6" strokeLinecap="round" />
+            <path d="M180,395 C320,325 460,210 570,150 S720,70 800,40" stroke="rgba(34,197,94,0.18)" strokeWidth="6" strokeLinecap="round" />
+            <path d="M180,395 C320,325 460,210 570,150 S720,70 800,40" stroke="#22C55E" strokeWidth="1.2" opacity="0.6" strokeLinecap="round" />
           </svg>
         </div>
 
         <div className="relative z-10 space-y-3 max-w-2xl">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight dark:text-[#F5F5F5]">
             Welcome back, {profile?.full_name || 'Organizer'} 👋
           </h1>
-          <p className="text-[#d1f8e8] text-sm sm:text-base leading-relaxed opacity-95">
+          <p className="text-[#d1f8e8] dark:text-[#CFCFCF] text-sm sm:text-base leading-relaxed opacity-95">
             Manage events, verify payments, track QR attendance live, allocate volunteers, and generate digital certificates.
           </p>
         </div>
         <div className="relative z-10 flex flex-wrap items-center gap-3.5 w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
-          <Button asChild className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 shadow-md cursor-pointer shrink-0">
+          <Button asChild className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-[#7CEAAB] text-[#01424E] hover:bg-[#7CEAAB]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] shadow-md cursor-pointer shrink-0">
             <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
               <Plus className="h-4 w-4 shrink-0" />
               <span>Create Event</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 text-white border-white/20 hover:bg-white/20 shadow-md cursor-pointer shrink-0">
+          <Button asChild variant="outline" className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 text-white border-white/20 dark:bg-[#181818] dark:text-[#F5F5F5] dark:border-white/10 dark:hover:bg-[#222222] shadow-md cursor-pointer shrink-0">
             <Link href="/organizer/ai" className="inline-flex items-center justify-center gap-2 h-full w-full">
-              <Sparkles className="h-4 w-4 text-[#7CEAAB] shrink-0" />
+              <Sparkles className="h-4 w-4 text-[#7CEAAB] dark:text-[#22C55E] shrink-0" />
               <span>AI Copilot</span>
             </Link>
           </Button>
-          <Button onClick={handleExportFullReport} variant="outline" className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 text-white border-white/20 hover:bg-white/20 shadow-md cursor-pointer shrink-0 inline-flex items-center justify-center gap-2">
+          <Button onClick={handleExportFullReport} variant="outline" className="h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 text-white border-white/20 dark:bg-[#181818] dark:text-[#F5F5F5] dark:border-white/10 dark:hover:bg-[#222222] shadow-md cursor-pointer shrink-0 inline-flex items-center justify-center gap-2">
             <Download className="h-4 w-4 shrink-0" />
             <span>Export Report</span>
           </Button>
@@ -146,83 +146,83 @@ export default function OrganizerDashboard() {
 
       {/* Quick Statistics Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
+        <Card className="hover:shadow-md transition-all duration-200 border-slate-200 dark:border-white/[0.08] dark:bg-[#151515] hover:-translate-y-0.5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Events</CardTitle>
-            <div className="p-2 rounded-xl bg-teal-100/90 text-[#01424E]">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-[#9CA3AF]">Total Events</CardTitle>
+            <div className="p-2 rounded-xl bg-teal-100/90 text-[#01424E] dark:bg-[#15271B] dark:text-[#22C55E] border dark:border-[#22C55E]/30">
               <Calendar className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="h-8 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md mt-1" />
+              <div className="h-8 w-16 bg-slate-200 dark:bg-[#1B1B1B] animate-pulse rounded-md mt-1" />
             ) : (
-              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">{stats.totalEvents}</div>
+              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">{stats.totalEvents}</div>
             )}
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-[#007C46] font-semibold">{stats.activeEvents} Active</span> right now
+            <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1 flex items-center gap-1">
+              <span className="text-[#007C46] dark:text-[#22C55E] font-semibold">{stats.activeEvents} Active</span> right now
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
+        <Card className="hover:shadow-md transition-all duration-200 border-slate-200 dark:border-white/[0.08] dark:bg-[#151515] hover:-translate-y-0.5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Registrations</CardTitle>
-            <div className="p-2 rounded-xl bg-emerald-100/90 text-[#007C46]">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-[#9CA3AF]">Registrations</CardTitle>
+            <div className="p-2 rounded-xl bg-emerald-100/90 text-[#007C46] dark:bg-[#15271B] dark:text-[#22C55E] border dark:border-[#22C55E]/30">
               <Users className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="h-8 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md mt-1" />
+              <div className="h-8 w-16 bg-slate-200 dark:bg-[#1B1B1B] animate-pulse rounded-md mt-1" />
             ) : (
-              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">{stats.totalRegistrations}</div>
+              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">{stats.totalRegistrations}</div>
             )}
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1 flex items-center gap-1">
               <span className="text-amber-600 dark:text-amber-400 font-medium">{stats.pendingRegistrations} Pending Verification</span>
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
+        <Card className="hover:shadow-md transition-all duration-200 border-slate-200 dark:border-white/[0.08] dark:bg-[#151515] hover:-translate-y-0.5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Live Attendance</CardTitle>
-            <div className="p-2 rounded-xl bg-teal-100/90 text-[#01424E]">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-[#9CA3AF]">Live Attendance</CardTitle>
+            <div className="p-2 rounded-xl bg-teal-100/90 text-[#01424E] dark:bg-[#15271B] dark:text-[#22C55E] border dark:border-[#22C55E]/30">
               <QrCode className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="h-8 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md mt-1" />
+              <div className="h-8 w-16 bg-slate-200 dark:bg-[#1B1B1B] animate-pulse rounded-md mt-1" />
             ) : (
-              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">{stats.totalAttendance}</div>
+              <div className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">{stats.totalAttendance}</div>
             )}
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-[#007C46] font-semibold">{stats.totalRegistrations > 0 ? `${Math.round((stats.totalAttendance / stats.totalRegistrations) * 100)}%` : '0%'} Attendance Rate</span> via QR
+            <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1 flex items-center gap-1">
+              <span className="text-[#007C46] dark:text-[#22C55E] font-semibold">{stats.totalRegistrations > 0 ? `${Math.round((stats.totalAttendance / stats.totalRegistrations) * 100)}%` : '0%'} Attendance Rate</span> via QR
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow border-slate-200 dark:border-slate-800">
+        <Card className="hover:shadow-md transition-all duration-200 border-slate-200 dark:border-white/[0.08] dark:bg-[#151515] hover:-translate-y-0.5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Average Rating</CardTitle>
-            <div className="p-2 rounded-xl bg-amber-100/90 text-amber-600">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-[#9CA3AF]">Average Rating</CardTitle>
+            <div className="p-2 rounded-xl bg-amber-100/90 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border dark:border-amber-800/40">
               <Star className="h-5 w-5 fill-amber-400" />
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="h-8 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md mt-1" />
+              <div className="h-8 w-16 bg-slate-200 dark:bg-[#1B1B1B] animate-pulse rounded-md mt-1" />
             ) : (
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-300">
+                <span className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">
                   {ratingStats.averageRating > 0 ? ratingStats.averageRating.toFixed(1) : '0.0'}
                 </span>
                 <StarRating size="sm" value={ratingStats.averageRating} readOnly />
               </div>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
-              Based on <span className="font-semibold text-slate-800 dark:text-slate-200">{ratingStats.totalReviews || 0}</span> reviews
+            <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1">
+              Based on <span className="font-semibold text-slate-800 dark:text-[#CFCFCF]">{ratingStats.totalReviews || 0}</span> reviews
             </p>
           </CardContent>
         </Card>
@@ -231,80 +231,80 @@ export default function OrganizerDashboard() {
 
       {/* Quick Action Bar */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold tracking-tight text-[#01424E] dark:text-teal-200">Organizer Quick Actions</h2>
+        <h2 className="text-xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">Organizer Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 w-full items-stretch">
           <Link
             href="/organizer/events"
-            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-card dark:bg-[#151515] hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 hover:bg-[#edfcf6]/60 dark:hover:bg-[#1F1F1F] shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px] hover:-translate-y-0.5"
           >
-            <div className="w-12 h-12 rounded-full bg-teal-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] shrink-0">
+            <div className="w-12 h-12 rounded-full bg-teal-100/90 dark:bg-[#15271B] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#01424E] dark:text-[#22C55E] shrink-0 border dark:border-[#22C55E]/30">
               <Calendar className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Manage Events</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F5F5]">Manage Events</span>
           </Link>
 
           <Link
             href="/organizer/registrations"
-            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-card dark:bg-[#151515] hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 hover:bg-[#edfcf6]/60 dark:hover:bg-[#1F1F1F] shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px] hover:-translate-y-0.5"
           >
-            <div className="w-12 h-12 rounded-full bg-emerald-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#007C46] shrink-0">
+            <div className="w-12 h-12 rounded-full bg-emerald-100/90 dark:bg-[#15271B] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-[#007C46] dark:text-[#22C55E] shrink-0 border dark:border-[#22C55E]/30">
               <Users className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Registrations</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F5F5]">Registrations</span>
           </Link>
 
           <Link
             href="/organizer/payments"
-            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-card dark:bg-[#151515] hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 hover:bg-[#edfcf6]/60 dark:hover:bg-[#1F1F1F] shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px] hover:-translate-y-0.5"
           >
-            <div className="w-12 h-12 rounded-full bg-amber-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-amber-700 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-amber-100/90 dark:bg-amber-950/40 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-amber-700 dark:text-amber-400 shrink-0 border dark:border-amber-800/40">
               <ShieldCheck className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Verify Payments</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F5F5]">Verify Payments</span>
           </Link>
 
           <Link
             href="/organizer/volunteers"
-            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-card dark:bg-[#151515] hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 hover:bg-[#edfcf6]/60 dark:hover:bg-[#1F1F1F] shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px] hover:-translate-y-0.5"
           >
-            <div className="w-12 h-12 rounded-full bg-purple-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-purple-700 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-purple-100/90 dark:bg-purple-950/40 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-purple-700 dark:text-purple-400 shrink-0 border dark:border-purple-800/40">
               <Activity className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Volunteers ({stats.totalVolunteers})</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F5F5]">Volunteers ({stats.totalVolunteers})</span>
           </Link>
 
           <Link
             href="/organizer/certificates"
-            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-card dark:bg-[#151515] hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 hover:bg-[#edfcf6]/60 dark:hover:bg-[#1F1F1F] shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px] hover:-translate-y-0.5"
           >
-            <div className="w-12 h-12 rounded-full bg-emerald-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-emerald-700 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-emerald-100/90 dark:bg-[#15271B] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-emerald-700 dark:text-[#22C55E] shrink-0 border dark:border-[#22C55E]/30">
               <Award className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Certificates</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F5F5]">Certificates</span>
           </Link>
 
           <Link
             href="/organizer/analytics"
-            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card hover:border-[#7CEAAB] hover:bg-[#edfcf6]/60 dark:hover:bg-teal-950/40 shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px]"
+            className="flex flex-col items-center justify-center text-center p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-card dark:bg-[#151515] hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 hover:bg-[#edfcf6]/60 dark:hover:bg-[#1F1F1F] shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer w-full h-full min-h-[120px] hover:-translate-y-0.5"
           >
-            <div className="w-12 h-12 rounded-full bg-cyan-100/90 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-blue-700 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-cyan-100/90 dark:bg-blue-950/40 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform text-blue-700 dark:text-blue-400 shrink-0 border dark:border-blue-800/40">
               <BarChart3 className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Analytics</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F5F5]">Analytics</span>
           </Link>
         </div>
       </div>
 
       {/* Charts Section */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-slate-200 dark:border-slate-800">
+        <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold text-[#01424E] dark:text-teal-200">Registration Trend</CardTitle>
-                <CardDescription>Daily registration accumulation over time</CardDescription>
+                <CardTitle className="text-base font-bold text-[#01424E] dark:text-[#F5F5F5]">Registration Trend</CardTitle>
+                <CardDescription className="dark:text-[#9CA3AF]">Daily registration accumulation over time</CardDescription>
               </div>
-              <Badge variant="secondary" className="text-xs">30 Days</Badge>
+              <Badge variant="secondary" className="text-xs dark:bg-[#1F1F1F] dark:text-[#CFCFCF] dark:border-white/[0.08]">30 Days</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -314,26 +314,26 @@ export default function OrganizerDashboard() {
                   <AreaChart data={trendData}>
                     <defs>
                       <linearGradient id="regGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#01424E" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#01424E" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#22C55E" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#22C55E" stopOpacity={0}/>
                       </linearGradient>
                       <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7CEAAB" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#7CEAAB" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }} />
-                    <Legend />
-                    <Area type="monotone" dataKey="registrations" stroke="#01424E" fillOpacity={1} fill="url(#regGrad)" name="Registrations" />
-                    <Area type="monotone" dataKey="attendance" stroke="#41B177" fillOpacity={1} fill="url(#attGrad)" name="QR Attendance" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9CA3AF' }} />
+                    <YAxis tick={{ fontSize: 11, fill: '#9CA3AF' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#181818', borderColor: 'rgba(255,255,255,0.1)', color: '#F5F5F5', borderRadius: '12px' }} />
+                    <Legend wrapperStyle={{ color: '#9CA3AF' }} />
+                    <Area type="monotone" dataKey="registrations" stroke="#22C55E" strokeWidth={2} fillOpacity={1} fill="url(#regGrad)" name="Registrations" />
+                    <Area type="monotone" dataKey="attendance" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#attGrad)" name="QR Attendance" />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="text-center text-muted-foreground py-10 space-y-2">
-                  <BarChart3 className="h-10 w-10 mx-auto opacity-40 text-[#01424E]" />
+                <div className="text-center text-muted-foreground dark:text-[#9CA3AF] py-10 space-y-2">
+                  <BarChart3 className="h-10 w-10 mx-auto opacity-40 text-[#01424E] dark:text-[#22C55E]" />
                   <p className="text-sm font-medium">No registration trend data recorded yet</p>
                   <p className="text-xs">Data will appear once students register for your events</p>
                 </div>
@@ -342,14 +342,14 @@ export default function OrganizerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 dark:border-slate-800">
+        <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold text-[#01424E] dark:text-teal-200">Department Participation</CardTitle>
-                <CardDescription>Breakdown by student academic branch</CardDescription>
+                <CardTitle className="text-base font-bold text-[#01424E] dark:text-[#F5F5F5]">Department Participation</CardTitle>
+                <CardDescription className="dark:text-[#9CA3AF]">Breakdown by student academic branch</CardDescription>
               </div>
-              <Badge variant="secondary" className="text-xs">All Events</Badge>
+              <Badge variant="secondary" className="text-xs dark:bg-[#1F1F1F] dark:text-[#CFCFCF] dark:border-white/[0.08]">All Events</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -359,13 +359,13 @@ export default function OrganizerDashboard() {
       </div>
 
       {/* Active Events Overview */}
-      <Card className="border-slate-200 dark:border-slate-800">
+      <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-[#01424E] dark:text-teal-200">Active & Upcoming Events</CardTitle>
-            <CardDescription>Monitor status, registrations, and live check-in progress</CardDescription>
+            <CardTitle className="text-lg font-bold text-[#01424E] dark:text-[#F5F5F5]">Active & Upcoming Events</CardTitle>
+            <CardDescription className="dark:text-[#9CA3AF]">Monitor status, registrations, and live check-in progress</CardDescription>
           </div>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="dark:border-white/10 dark:bg-[#1F1F1F] dark:text-[#F5F5F5] dark:hover:bg-[#222222]">
             <Link href="/organizer/events">View All ({stats.totalEvents})</Link>
           </Button>
         </CardHeader>
@@ -373,9 +373,9 @@ export default function OrganizerDashboard() {
           {upcomingEvents.length > 0 ? (
             <div className="space-y-4">
               {upcomingEvents.map((evt) => (
-                <div key={evt.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 gap-4 hover:border-[#7CEAAB] transition-colors">
+                <div key={evt.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-white/[0.08] bg-slate-50/50 dark:bg-[#181818] gap-4 hover:border-[#7CEAAB] dark:hover:border-[#22C55E]/40 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200 dark:border-slate-800">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200 dark:border-white/10">
                       <img
                         src={evt.banner_url || evt.poster_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=300'}
                         alt={evt.title}
@@ -387,10 +387,10 @@ export default function OrganizerDashboard() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-[#01424E] dark:text-teal-100">{evt.title}</h4>
-                        <Badge className="bg-[#edfcf6] dark:bg-emerald-900/30 text-[#007C46] dark:text-emerald-300 border-[#41B177] dark:border-emerald-700 capitalize">{evt.status?.replace('_', ' ')}</Badge>
+                        <h4 className="font-bold text-[#01424E] dark:text-[#F5F5F5]">{evt.title}</h4>
+                        <Badge className="bg-[#edfcf6] dark:bg-[#15271B] text-[#007C46] dark:text-[#22C55E] border-[#41B177] dark:border-[#22C55E]/30 capitalize">{evt.status?.replace('_', ' ')}</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
+                      <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-0.5 flex items-center gap-3">
                         <span>📍 {evt.venue || 'Main Campus'}</span>
                         <span>🗓 {new Date(evt.start_date).toLocaleDateString()}</span>
                         <span>💰 {evt.registration_fee > 0 ? `₹${evt.registration_fee}` : 'Free'}</span>
@@ -398,10 +398,10 @@ export default function OrganizerDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <Button asChild variant="secondary" size="sm">
+                    <Button asChild variant="secondary" size="sm" className="dark:bg-[#1F1F1F] dark:text-[#F5F5F5] dark:hover:bg-[#222222]">
                       <Link href={`/organizer/events/${evt.id}`}>Dashboard</Link>
                     </Button>
-                    <Button asChild size="sm" className="bg-[#01424E] text-white hover:bg-[#013540]">
+                    <Button asChild size="sm" className="bg-[#01424E] text-white hover:bg-[#013540] dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold">
                       <Link href="/organizer/registrations">Registrations</Link>
                     </Button>
                   </div>
@@ -410,9 +410,9 @@ export default function OrganizerDashboard() {
             </div>
           ) : (
             <div className="text-center py-10 space-y-3">
-              <Calendar className="h-12 w-12 mx-auto text-muted-foreground opacity-40" />
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">No active or upcoming events created yet</p>
-              <Button asChild size="sm" className="bg-[#007C46] text-white">
+              <Calendar className="h-12 w-12 mx-auto text-muted-foreground dark:text-[#9CA3AF] opacity-40" />
+              <p className="text-sm font-medium text-slate-700 dark:text-[#CFCFCF]">No active or upcoming events created yet</p>
+              <Button asChild size="sm" className="bg-[#007C46] text-white dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold">
                 <Link href="/organizer/events/create"><Plus className="mr-2 h-4 w-4" /> Create Your First Event</Link>
               </Button>
             </div>

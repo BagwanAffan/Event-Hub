@@ -187,37 +187,37 @@ export default function RegistrationsPage() {
       </Card>
 
       {/* Registrations Table */}
-      <Card className="border-slate-200 dark:border-slate-800">
+      <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                <TableHead className="font-bold text-xs uppercase">Student Name</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Event</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Type</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Payment Status</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Approval Status</TableHead>
-                <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
+              <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Student Name</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Event</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Type</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Payment Status</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Approval Status</TableHead>
+                <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading registrations...</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground dark:text-[#9CA3AF]">Loading registrations...</TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No registrations found matching search.</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground dark:text-[#9CA3AF]">No registrations found matching search.</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((reg) => (
-                  <TableRow key={reg.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40">
+                  <TableRow key={reg.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1F1F1F] dark:border-white/[0.08]">
                     <TableCell>
-                      <div className="font-bold text-[#01424E] dark:text-teal-100">{reg.profiles?.full_name || 'Anuj Sharma'}</div>
-                      <div className="text-xs text-muted-foreground">{reg.profiles?.email || 'anuj@eventhub.edu'} • {reg.department || 'CS'} ({reg.year || '3rd Yr'})</div>
+                      <div className="font-bold text-[#01424E] dark:text-[#F5F5F5]">{reg.profiles?.full_name || 'Anuj Sharma'}</div>
+                      <div className="text-xs text-muted-foreground dark:text-[#9CA3AF]">{reg.profiles?.email || 'anuj@eventhub.edu'} • {reg.department || 'CS'} ({reg.year || '3rd Yr'})</div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-semibold text-sm">{reg.events?.title || 'TechSprint 2026 Hackathon'}</div>
+                      <div className="font-semibold text-sm dark:text-[#F5F5F5]">{reg.events?.title || 'TechSprint 2026 Hackathon'}</div>
                       <div className="text-xs text-muted-foreground">Registered: {reg.created_at ? new Date(reg.created_at).toLocaleDateString() : 'Recent'}</div>
                     </TableCell>
                     <TableCell>

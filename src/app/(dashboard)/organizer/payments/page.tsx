@@ -82,66 +82,66 @@ export default function PaymentsPage() {
     <div className="space-y-6 animate-fade-in pb-10">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-100">Simulated Payment Verification</h1>
-          <p className="text-muted-foreground text-sm">Review student payment proofs, UPI transaction references, and verify fees</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">Simulated Payment Verification</h1>
+          <p className="text-muted-foreground dark:text-[#9CA3AF] text-sm">Review student payment proofs, UPI transaction references, and verify fees</p>
         </div>
-        <Button onClick={loadPayments} variant="outline" size="sm">
+        <Button onClick={loadPayments} variant="outline" size="sm" className="dark:border-white/10 dark:text-[#F5F5F5] dark:hover:bg-[#1F1F1F]">
           <RefreshCw className="mr-2 h-4 w-4" /> Refresh List
         </Button>
       </div>
 
       {/* Filter and Search */}
-      <Card className="border-slate-200 dark:border-slate-800">
+      <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
         <CardContent className="p-4">
           <div className="relative w-full sm:w-[420px] md:w-[450px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground dark:text-[#9CA3AF]" />
             <Input
               placeholder="Search by student name or UPI reference number..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="pl-9 text-xs bg-white dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
             />
           </div>
         </CardContent>
       </Card>
 
       {/* Payments Table */}
-      <Card className="border-slate-200 dark:border-slate-800">
+      <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                <TableHead className="font-bold text-xs uppercase">Student</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Event & Amount</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Method & Ref #</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Proof Screenshot</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Status</TableHead>
-                <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
+              <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Student</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Event & Amount</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Method & Ref #</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Proof Screenshot</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Status</TableHead>
+                <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading payment verification queue...</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground dark:text-[#9CA3AF]">Loading payment verification queue...</TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No payments pending verification.</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground dark:text-[#9CA3AF]">No payments pending verification.</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((pay) => (
-                  <TableRow key={pay.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40">
+                  <TableRow key={pay.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1F1F1F] dark:border-white/[0.08]">
                     <TableCell>
-                      <div className="font-bold text-[#01424E] dark:text-teal-100">{pay.profiles?.full_name || 'Anuj Sharma'}</div>
-                      <div className="text-xs text-muted-foreground">{pay.profiles?.email}</div>
+                      <div className="font-bold text-[#01424E] dark:text-[#F5F5F5]">{pay.profiles?.full_name || 'Anuj Sharma'}</div>
+                      <div className="text-xs text-muted-foreground dark:text-[#9CA3AF]">{pay.profiles?.email}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-semibold text-sm">{pay.events?.title || 'TechSprint 2026 Hackathon'}</div>
-                      <div className="text-xs font-bold text-[#007C46]">₹{pay.amount}</div>
+                      <div className="font-semibold text-sm dark:text-[#F5F5F5]">{pay.events?.title || 'TechSprint 2026 Hackathon'}</div>
+                      <div className="text-xs font-bold text-[#007C46] dark:text-[#22C55E]">₹{pay.amount}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="uppercase text-[10px] tracking-wider mb-1">{pay.payment_method}</Badge>
-                      <div className="text-xs font-mono text-slate-700 dark:text-slate-300">{pay.transaction_reference || 'N/A'}</div>
+                      <Badge variant="outline" className="uppercase text-[10px] tracking-wider mb-1 dark:border-white/10 dark:text-[#CFCFCF]">{pay.payment_method}</Badge>
+                      <div className="text-xs font-mono text-slate-700 dark:text-[#CFCFCF]">{pay.transaction_reference || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
                       {pay.screenshot_url ? (
@@ -149,19 +149,19 @@ export default function PaymentsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedProof(pay.screenshot_url)}
-                          className="h-8 text-xs text-[#01424E] dark:text-[#7CEAAB] hover:underline p-0"
+                          className="h-8 text-xs text-[#01424E] dark:text-[#22C55E] hover:underline p-0"
                         >
                           <ExternalLink className="mr-1 h-3.5 w-3.5" /> View Proof
                         </Button>
                       ) : (
-                        <span className="text-xs text-muted-foreground">No Image</span>
+                        <span className="text-xs text-muted-foreground dark:text-[#9CA3AF]">No Image</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <Badge className={
-                        pay.status === 'approved' ? 'bg-[#edfcf6] text-[#007C46] border border-[#41B177]' :
-                        pay.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                        'bg-amber-100 text-amber-800'
+                        pay.status === 'approved' ? 'bg-[#edfcf6] dark:bg-[#15271B] text-[#007C46] dark:text-[#22C55E] border border-[#41B177] dark:border-[#22C55E]/30' :
+                        pay.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300' :
+                        'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
                       }>
                         {pay.status?.replace('_', ' ')}
                       </Badge>
@@ -172,7 +172,7 @@ export default function PaymentsPage() {
                           <Button
                             onClick={() => handleApprove(pay.id, pay.registration_id)}
                             size="sm"
-                            className="bg-[#007C46] text-white hover:bg-[#007C46]/90 h-8 px-3 font-semibold"
+                            className="bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] h-8 px-3 font-semibold"
                           >
                             <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Verify & Approve
                           </Button>

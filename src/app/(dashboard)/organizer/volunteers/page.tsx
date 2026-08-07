@@ -351,8 +351,8 @@ export default function VolunteersPage() {
       {/* PAGE HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-teal-100">Volunteer Management</h1>
-          <p className="text-muted-foreground text-sm">Review applications, assign shift duties, manage volunteer attendance and crew presence</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5]">Volunteer Management</h1>
+          <p className="text-muted-foreground dark:text-[#9CA3AF] text-sm">Review applications, assign shift duties, manage volunteer attendance and crew presence</p>
         </div>
         <Button
           onClick={() => {
@@ -362,25 +362,25 @@ export default function VolunteersPage() {
               toast.info('Please approve a volunteer application first.');
             }
           }}
-          className="bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold shadow-sm"
+          className="bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold shadow-sm"
         >
           <Plus className="mr-2 h-4 w-4" /> Create Task Assignment
         </Button>
       </div>
 
       {/* HORIZONTAL SEGMENTED CONTROL TAB BAR */}
-      <div className="bg-slate-100 dark:bg-slate-900/80 p-1.5 rounded-xl border flex items-center gap-1 w-full max-w-2xl">
+      <div className="bg-slate-100 dark:bg-[#151515] p-1.5 rounded-xl border dark:border-white/[0.08] flex items-center gap-1 w-full max-w-2xl">
         <button
           onClick={() => setActiveTab('applications')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === 'applications'
-              ? 'bg-[#01424E] text-[#7CEAAB] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50'
+              ? 'bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm'
+              : 'text-slate-600 dark:text-[#CFCFCF] hover:text-slate-900 dark:hover:text-[#F5F5F5] hover:bg-slate-200/50 dark:hover:bg-[#1F1F1F]'
           }`}
         >
           <Users className="h-4 w-4" />
           <span>Applications</span>
-          <Badge className={`ml-1 text-[10px] ${activeTab === 'applications' ? 'bg-[#7CEAAB] text-[#01424E]' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
+          <Badge className={`ml-1 text-[10px] ${activeTab === 'applications' ? 'bg-[#7CEAAB] text-[#01424E] dark:bg-[#22C55E] dark:text-[#090909]' : 'bg-slate-200 text-slate-700 dark:bg-[#181818] dark:text-[#9CA3AF]'}`}>
             {filteredVolunteers.length}
           </Badge>
         </button>
@@ -389,13 +389,13 @@ export default function VolunteersPage() {
           onClick={() => setActiveTab('assigned')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === 'assigned'
-              ? 'bg-[#01424E] text-[#7CEAAB] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50'
+              ? 'bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm'
+              : 'text-slate-600 dark:text-[#CFCFCF] hover:text-slate-900 dark:hover:text-[#F5F5F5] hover:bg-slate-200/50 dark:hover:bg-[#1F1F1F]'
           }`}
         >
           <UserCheck className="h-4 w-4" />
           <span>Assigned Volunteers</span>
-          <Badge className={`ml-1 text-[10px] ${activeTab === 'assigned' ? 'bg-[#7CEAAB] text-[#01424E]' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
+          <Badge className={`ml-1 text-[10px] ${activeTab === 'assigned' ? 'bg-[#7CEAAB] text-[#01424E] dark:bg-[#22C55E] dark:text-[#090909]' : 'bg-slate-200 text-slate-700 dark:bg-[#181818] dark:text-[#9CA3AF]'}`}>
             {assignedVolunteersList.length}
           </Badge>
         </button>
@@ -404,13 +404,13 @@ export default function VolunteersPage() {
           onClick={() => setActiveTab('tasks')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === 'tasks'
-              ? 'bg-[#01424E] text-[#7CEAAB] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50'
+              ? 'bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm'
+              : 'text-slate-600 dark:text-[#CFCFCF] hover:text-slate-900 dark:hover:text-[#F5F5F5] hover:bg-slate-200/50 dark:hover:bg-[#1F1F1F]'
           }`}
         >
           <ListChecks className="h-4 w-4" />
           <span>Task Assignments</span>
-          <Badge className={`ml-1 text-[10px] ${activeTab === 'tasks' ? 'bg-[#7CEAAB] text-[#01424E]' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
+          <Badge className={`ml-1 text-[10px] ${activeTab === 'tasks' ? 'bg-[#7CEAAB] text-[#01424E] dark:bg-[#22C55E] dark:text-[#090909]' : 'bg-slate-200 text-slate-700 dark:bg-[#181818] dark:text-[#9CA3AF]'}`}>
             {tasks.length}
           </Badge>
         </button>
@@ -419,27 +419,27 @@ export default function VolunteersPage() {
       {/* APPLICATIONS TAB */}
       {activeTab === 'applications' && (
         <div className="space-y-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl border bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl border dark:border-white/[0.08] bg-slate-50/50 dark:bg-[#151515]">
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
               <div className="relative w-full sm:w-80 md:w-[350px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-[#9CA3AF]" />
                 <Input
                   placeholder="Search candidate, email, skill, dept..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 text-xs bg-white dark:bg-slate-900"
+                  className="pl-9 text-xs bg-white dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
 
               <Select value={selectedEventId} onValueChange={(val) => setSelectedEventId(val || 'all')}>
-                <SelectTrigger className="w-full sm:w-72 md:w-[360px] text-xs bg-white dark:bg-slate-900">
+                <SelectTrigger className="w-full sm:w-72 md:w-[360px] text-xs bg-white dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]">
                   <SelectValue>
                     {selectedEventId === 'all'
                       ? 'All Organized Events'
                       : events.find((e) => e.id === selectedEventId)?.title || 'All Organized Events'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-[#181818] dark:border-white/[0.08] dark:text-[#F5F5F5]">
                   <SelectItem value="all">All Organized Events</SelectItem>
                   {events.map((evt) => (
                     <SelectItem key={evt.id} value={evt.id}>
@@ -457,8 +457,8 @@ export default function VolunteersPage() {
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all whitespace-nowrap ${
                     statusFilter === st
-                      ? 'bg-[#007C46] text-white shadow-sm'
-                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border hover:bg-slate-100 dark:hover:bg-slate-800'
+                      ? 'bg-[#007C46] text-white dark:bg-[#22C55E] dark:text-[#090909] shadow-sm'
+                      : 'bg-white dark:bg-[#181818] text-slate-600 dark:text-[#CFCFCF] border dark:border-white/[0.08] hover:bg-slate-100 dark:hover:bg-[#222222]'
                   }`}
                 >
                   {st}
@@ -467,60 +467,60 @@ export default function VolunteersPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="rounded-xl border dark:border-white/[0.08] bg-white dark:bg-[#151515] overflow-hidden">
             {loading ? (
               <div className="py-16 text-center text-muted-foreground">Loading volunteer applications...</div>
             ) : filteredVolunteers.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 dark:bg-slate-900/80">
-                    <TableHead className="font-bold text-xs uppercase">Volunteer Candidate</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Event Title</TableHead>
-                    <TableHead className="font-bold text-xs uppercase hidden md:table-cell">Department & Year</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Matched Skills</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Status</TableHead>
-                    <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
+                  <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Volunteer Candidate</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Event Title</TableHead>
+                    <TableHead className="font-bold text-xs uppercase hidden md:table-cell dark:text-[#9CA3AF]">Department & Year</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Matched Skills</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredVolunteers.map((vol) => {
                     const skillsList = parseSkills(vol.skills);
                     return (
-                      <TableRow key={vol.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                      <TableRow key={vol.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1F1F1F] dark:border-white/[0.08]">
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9 shrink-0 border">
+                            <Avatar className="h-9 w-9 shrink-0 border dark:border-white/10">
                               <AvatarImage src={vol.profiles?.profile_picture || ''} />
-                              <AvatarFallback className="bg-[#7CEAAB]/20 text-[#01424E] font-bold text-xs">
+                              <AvatarFallback className="bg-[#7CEAAB]/20 dark:bg-[#15271B] text-[#01424E] dark:text-[#22C55E] font-bold text-xs">
                                 {(vol.profiles?.full_name || 'V').charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-bold text-[#01424E] dark:text-teal-100 text-sm">{vol.profiles?.full_name || 'Volunteer Candidate'}</div>
-                              <div className="text-xs text-muted-foreground">{vol.profiles?.email}</div>
+                              <div className="font-bold text-[#01424E] dark:text-[#F5F5F5] text-sm">{vol.profiles?.full_name || 'Volunteer Candidate'}</div>
+                              <div className="text-xs text-muted-foreground dark:text-[#9CA3AF]">{vol.profiles?.email}</div>
                             </div>
                           </div>
                         </TableCell>
 
                         <TableCell>
-                          <div className="font-semibold text-xs text-slate-800 dark:text-slate-200">{vol.events?.title || 'Campus Event'}</div>
-                          <div className="text-[11px] text-muted-foreground">{vol.events?.category}</div>
+                          <div className="font-semibold text-xs text-slate-800 dark:text-[#F5F5F5]">{vol.events?.title || 'Campus Event'}</div>
+                          <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF]">{vol.events?.category}</div>
                         </TableCell>
 
                         <TableCell className="hidden md:table-cell">
-                          <div className="text-xs font-medium">{vol.profiles?.department || 'N/A'}</div>
-                          <div className="text-[11px] text-muted-foreground">Year: {vol.profiles?.year || 'N/A'}</div>
+                          <div className="text-xs font-medium dark:text-[#F5F5F5]">{vol.profiles?.department || 'N/A'}</div>
+                          <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF]">Year: {vol.profiles?.year || 'N/A'}</div>
                         </TableCell>
 
                         <TableCell>
                           <div className="flex flex-wrap gap-1 max-w-xs">
                             {skillsList.slice(0, 3).map((sk: string) => (
-                              <Badge key={sk} variant="outline" className="text-[10px] border-[#41B177] text-[#007C46] bg-[#edfcf6]/50">
+                              <Badge key={sk} variant="outline" className="text-[10px] border-[#41B177] dark:border-[#22C55E]/30 text-[#007C46] dark:text-[#22C55E] bg-[#edfcf6]/50 dark:bg-[#15271B]">
                                 {sk}
                               </Badge>
                             ))}
                             {skillsList.length > 3 && (
-                              <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                              <Badge variant="outline" className="text-[10px] text-muted-foreground dark:text-[#9CA3AF]">
                                 +{skillsList.length - 3} more
                               </Badge>
                             )}
@@ -541,7 +541,7 @@ export default function VolunteersPage() {
                               setSelectedVolunteer(vol);
                               setReviewModalOpen(true);
                             }}
-                            className="text-xs font-bold text-[#01424E] border-[#01424E]/30 hover:bg-[#edfcf6]"
+                            className="text-xs font-bold text-[#01424E] dark:text-[#22C55E] border-[#01424E]/30 dark:border-[#22C55E]/30 dark:bg-[#15271B] hover:bg-[#edfcf6] dark:hover:bg-[#1F2B22]"
                           >
                             <Eye className="mr-1.5 h-3.5 w-3.5" /> Review Application
                           </Button>
@@ -553,10 +553,10 @@ export default function VolunteersPage() {
               </Table>
             ) : (
               <div className="py-16 text-center space-y-3">
-                <Users className="h-12 w-12 mx-auto text-muted-foreground opacity-40" />
+                <Users className="h-12 w-12 mx-auto text-muted-foreground dark:text-[#9CA3AF] opacity-40" />
                 <div>
-                  <h3 className="font-bold text-base text-[#01424E] dark:text-teal-100">No Volunteer Applications</h3>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                  <h3 className="font-bold text-base text-[#01424E] dark:text-[#F5F5F5]">No Volunteer Applications</h3>
+                  <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1 max-w-sm mx-auto">
                     No volunteer applications match your search or status filter.
                   </p>
                 </div>
@@ -569,24 +569,24 @@ export default function VolunteersPage() {
       {/* ASSIGNED VOLUNTEERS TAB */}
       {activeTab === 'assigned' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-xl border bg-slate-50/50 dark:bg-slate-900/50">
-            <h3 className="font-bold text-sm text-[#01424E] dark:text-teal-100 flex items-center gap-2">
-              <UserCheck className="h-4 w-4 text-[#007C46]" /> Active Event Crew ({assignedVolunteersList.length})
+          <div className="flex items-center justify-between p-4 rounded-xl border dark:border-white/[0.08] bg-slate-50/50 dark:bg-[#151515]">
+            <h3 className="font-bold text-sm text-[#01424E] dark:text-[#F5F5F5] flex items-center gap-2">
+              <UserCheck className="h-4 w-4 text-[#007C46] dark:text-[#22C55E]" /> Active Event Crew ({assignedVolunteersList.length})
             </h3>
-            <span className="text-xs text-muted-foreground">Approved volunteers for your events ready for task assignment</span>
+            <span className="text-xs text-muted-foreground dark:text-[#9CA3AF]">Approved volunteers for your events ready for task assignment</span>
           </div>
 
-          <div className="rounded-xl border bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="rounded-xl border dark:border-white/[0.08] bg-white dark:bg-[#151515] overflow-hidden">
             {assignedVolunteersList.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 dark:bg-slate-900/80">
-                    <TableHead className="font-bold text-xs uppercase">Volunteer</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Role & Skills</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Assigned Task</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Reporting Location</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Status</TableHead>
-                    <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
+                  <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Volunteer</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Role & Skills</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Assigned Task</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Reporting Location</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -594,18 +594,18 @@ export default function VolunteersPage() {
                     const assignedTask = tasks.find(t => t.volunteer_id === vol.id);
                     const skillsList = parseSkills(vol.skills);
                     return (
-                      <TableRow key={vol.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                      <TableRow key={vol.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1F1F1F] dark:border-white/[0.08]">
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9 shrink-0 border">
+                            <Avatar className="h-9 w-9 shrink-0 border dark:border-white/10">
                               <AvatarImage src={vol.profiles?.profile_picture || ''} />
-                              <AvatarFallback className="bg-[#7CEAAB]/20 text-[#01424E] font-bold text-xs">
+                              <AvatarFallback className="bg-[#7CEAAB]/20 dark:bg-[#15271B] text-[#01424E] dark:text-[#22C55E] font-bold text-xs">
                                 {(vol.profiles?.full_name || 'V').charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-bold text-[#01424E] dark:text-teal-100 text-sm">{vol.profiles?.full_name}</div>
-                              <div className="text-xs text-muted-foreground">{vol.profiles?.department || 'Dept'} • Year {vol.profiles?.year || 'N/A'} • 📞 {vol.profiles?.phone || 'No phone'}</div>
+                              <div className="font-bold text-[#01424E] dark:text-[#F5F5F5] text-sm">{vol.profiles?.full_name}</div>
+                              <div className="text-xs text-muted-foreground dark:text-[#9CA3AF]">{vol.profiles?.department || 'Dept'} • Year {vol.profiles?.year || 'N/A'} • 📞 {vol.profiles?.phone || 'No phone'}</div>
                             </div>
                           </div>
                         </TableCell>
@@ -613,7 +613,7 @@ export default function VolunteersPage() {
                         <TableCell>
                           <div className="flex flex-wrap gap-1 max-w-xs">
                             {skillsList.slice(0, 2).map((sk: string) => (
-                              <Badge key={sk} variant="outline" className="text-[10px] border-[#41B177] text-[#007C46] bg-[#edfcf6]/50">
+                              <Badge key={sk} variant="outline" className="text-[10px] border-[#41B177] dark:border-[#22C55E]/30 text-[#007C46] dark:text-[#22C55E] bg-[#edfcf6]/50 dark:bg-[#15271B]">
                                 {sk}
                               </Badge>
                             ))}
@@ -622,20 +622,20 @@ export default function VolunteersPage() {
 
                         <TableCell>
                           {assignedTask ? (
-                            <div className="font-bold text-xs text-indigo-900 dark:text-indigo-300">
+                            <div className="font-bold text-xs text-indigo-900 dark:text-[#22C55E]">
                               {assignedTask.title}
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground italic">No task assigned</span>
+                            <span className="text-xs text-muted-foreground dark:text-[#9CA3AF] italic">No task assigned</span>
                           )}
                         </TableCell>
 
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs dark:text-[#CFCFCF]">
                           <div>📍 {assignedTask?.location || vol.events?.reporting_location || vol.events?.venue || 'Main Entrance'}</div>
                         </TableCell>
 
                         <TableCell>
-                          <Badge className="bg-[#edfcf6] text-[#007C46] border border-[#41B177] text-[11px] font-bold">
+                          <Badge className="bg-[#edfcf6] dark:bg-[#15271B] text-[#007C46] dark:text-[#22C55E] border border-[#41B177] dark:border-[#22C55E]/30 text-[11px] font-bold">
                             APPROVED CREW
                           </Badge>
                         </TableCell>
@@ -645,7 +645,7 @@ export default function VolunteersPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleOpenTaskModalForVolunteer(vol.id, vol.event_id)}
-                            className="text-xs bg-white dark:bg-slate-800 text-[#007C46] dark:text-[#7CEAAB] border-[#007C46]/30 font-bold"
+                            className="text-xs bg-white dark:bg-[#15271B] text-[#007C46] dark:text-[#22C55E] border-[#007C46]/30 dark:border-[#22C55E]/30 font-bold dark:hover:bg-[#1F2B22]"
                           >
                             <Plus className="mr-1 h-3.5 w-3.5" /> Assign Task
                           </Button>
@@ -657,10 +657,10 @@ export default function VolunteersPage() {
               </Table>
             ) : (
               <div className="py-16 text-center space-y-3">
-                <UserCheck className="h-12 w-12 mx-auto text-muted-foreground opacity-40" />
+                <UserCheck className="h-12 w-12 mx-auto text-muted-foreground dark:text-[#9CA3AF] opacity-40" />
                 <div>
-                  <h3 className="font-bold text-base text-[#01424E] dark:text-teal-100">No Active Assigned Volunteers</h3>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                  <h3 className="font-bold text-base text-[#01424E] dark:text-[#F5F5F5]">No Active Assigned Volunteers</h3>
+                  <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1 max-w-sm mx-auto">
                     Approved volunteers for your events will appear here ready for shift assignment and duty tracking.
                   </p>
                 </div>
@@ -673,12 +673,12 @@ export default function VolunteersPage() {
       {/* TASK ASSIGNMENTS TAB */}
       {activeTab === 'tasks' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-xl border bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex items-center justify-between p-4 rounded-xl border dark:border-white/[0.08] bg-slate-50/50 dark:bg-[#151515]">
             <div>
-              <h3 className="font-bold text-sm text-[#01424E] dark:text-teal-100 flex items-center gap-2">
-                <ListChecks className="h-4 w-4 text-[#007C46]" /> Event Shift Duties ({tasks.length})
+              <h3 className="font-bold text-sm text-[#01424E] dark:text-[#F5F5F5] flex items-center gap-2">
+                <ListChecks className="h-4 w-4 text-[#007C46] dark:text-[#22C55E]" /> Event Shift Duties ({tasks.length})
               </h3>
-              <p className="text-xs text-muted-foreground">Active task assignments for volunteer crew</p>
+              <p className="text-xs text-muted-foreground dark:text-[#9CA3AF]">Active task assignments for volunteer crew</p>
             </div>
             <Button
               onClick={() => {
@@ -689,62 +689,62 @@ export default function VolunteersPage() {
                 }
               }}
               size="sm"
-              className="bg-[#007C46] text-white hover:bg-[#007C46]/90 text-xs font-bold"
+              className="bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] text-xs font-bold"
             >
               <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Task
             </Button>
           </div>
 
-          <div className="rounded-xl border bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="rounded-xl border dark:border-white/[0.08] bg-white dark:bg-[#151515] overflow-hidden">
             {tasks.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 dark:bg-slate-900/80">
-                    <TableHead className="font-bold text-xs uppercase">Volunteer</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Task</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Priority</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Accepted</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Accepted At</TableHead>
-                    <TableHead className="font-bold text-xs uppercase">Attendance Status</TableHead>
-                    <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
+                  <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Volunteer</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Task</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Priority</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Accepted</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Accepted At</TableHead>
+                    <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Attendance Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tasks.map((task) => {
                     const isAccepted = task.status === 'accepted' || !!task.accepted_at;
                     return (
-                      <TableRow key={task.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                      <TableRow key={task.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1F1F1F] dark:border-white/[0.08]">
                         <TableCell>
-                          <div className="font-bold text-[#01424E] dark:text-teal-100 text-sm">
+                          <div className="font-bold text-[#01424E] dark:text-[#F5F5F5] text-sm">
                             {task.volunteers?.profiles?.full_name || 'Assigned Volunteer'}
                           </div>
-                          <div className="text-xs text-muted-foreground">{task.volunteers?.profiles?.email}</div>
+                          <div className="text-xs text-muted-foreground dark:text-[#9CA3AF]">{task.volunteers?.profiles?.email}</div>
                           {task.volunteers?.profiles?.department && (
-                            <div className="text-[11px] text-muted-foreground">{task.volunteers?.profiles?.department}</div>
+                            <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF]">{task.volunteers?.profiles?.department}</div>
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="font-semibold text-xs text-slate-800 dark:text-slate-200">{task.title}</div>
-                          <div className="text-[11px] text-muted-foreground line-clamp-1">{task.description}</div>
-                          {task.location && <div className="text-[11px] text-muted-foreground mt-0.5">📍 {task.location}</div>}
+                          <div className="font-semibold text-xs text-slate-800 dark:text-[#F5F5F5]">{task.title}</div>
+                          <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF] line-clamp-1">{task.description}</div>
+                          {task.location && <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF] mt-0.5">📍 {task.location}</div>}
                         </TableCell>
                         <TableCell>
-                          <Badge className="uppercase text-[10px] bg-amber-100 text-amber-900 font-bold border-0">
+                          <Badge className="uppercase text-[10px] bg-amber-100 text-amber-900 dark:bg-amber-950/40 dark:text-amber-300 font-bold border-0">
                             {task.priority}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           {isAccepted ? (
-                            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border-emerald-500/30 text-[11px]">
+                            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-[#22C55E] font-bold border-emerald-500/30 text-[11px]">
                               ✅ Yes
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-slate-500 text-[11px]">
+                            <Badge variant="outline" className="text-slate-500 dark:text-[#9CA3AF] text-[11px]">
                               ❌ No
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
+                        <TableCell className="text-xs text-muted-foreground dark:text-[#9CA3AF]">
                           {task.accepted_at ? new Date(task.accepted_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '-'}
                         </TableCell>
                         <TableCell>
@@ -753,7 +753,7 @@ export default function VolunteersPage() {
                           ) : task.attendance_status === 'absent' ? (
                             <Badge variant="destructive" className="font-bold text-[11px]">Absent ❌</Badge>
                           ) : (
-                            <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-[11px]">
+                            <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 text-[11px]">
                               Pending
                             </Badge>
                           )}
@@ -768,7 +768,7 @@ export default function VolunteersPage() {
                                     setTaskToMarkPresent(task);
                                     setMarkPresentDialogOpen(true);
                                   }}
-                                  className="h-7 text-xs bg-[#007C46] hover:bg-[#006036] text-white font-semibold"
+                                  className="h-7 text-xs bg-[#007C46] hover:bg-[#006036] dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] text-white font-semibold"
                                 >
                                   Mark Present
                                 </Button>
@@ -791,10 +791,10 @@ export default function VolunteersPage() {
               </Table>
             ) : (
               <div className="py-16 text-center space-y-3">
-                <ListChecks className="h-12 w-12 mx-auto text-muted-foreground opacity-40" />
+                <ListChecks className="h-12 w-12 mx-auto text-muted-foreground dark:text-[#9CA3AF] opacity-40" />
                 <div>
-                  <h3 className="font-bold text-base text-[#01424E] dark:text-teal-100">No Shift Tasks Created</h3>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                  <h3 className="font-bold text-base text-[#01424E] dark:text-[#F5F5F5]">No Shift Tasks Created</h3>
+                  <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] mt-1 max-w-sm mx-auto">
                     Click "Add Task" on an approved volunteer to delegate shift duties.
                   </p>
                 </div>
@@ -806,14 +806,14 @@ export default function VolunteersPage() {
 
       {/* VOLUNTEER REVIEW MODAL */}
       <Dialog open={reviewModalOpen} onOpenChange={setReviewModalOpen}>
-        <DialogContent className="max-w-4xl sm:max-w-[950px] w-full p-6 max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="pb-4 border-b">
+        <DialogContent className="max-w-4xl sm:max-w-[950px] w-full p-6 max-h-[90vh] overflow-y-auto dark:bg-[#171717] dark:border-white/[0.08]">
+          <DialogHeader className="pb-4 border-b dark:border-white/[0.08]">
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="text-xl font-bold text-[#01424E] dark:text-teal-100 flex items-center gap-2">
-                  <UserCheck className="h-5 w-5 text-[#007C46]" /> Volunteer Application Review
+                <DialogTitle className="text-xl font-bold text-[#01424E] dark:text-[#F5F5F5] flex items-center gap-2">
+                  <UserCheck className="h-5 w-5 text-[#007C46] dark:text-[#22C55E]" /> Volunteer Application Review
                 </DialogTitle>
-                <DialogDescription className="text-xs">
+                <DialogDescription className="text-xs dark:text-[#9CA3AF]">
                   Applicant profile details, skills, notes, and approval decision
                 </DialogDescription>
               </div>
@@ -827,70 +827,70 @@ export default function VolunteersPage() {
 
           {selectedVolunteer && (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-4">
-              <div className="md:col-span-5 space-y-4 border-r md:pr-6">
-                <div className="flex flex-col items-center text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border">
-                  <Avatar className="h-20 w-20 border-2 border-white dark:border-slate-800 shadow-md mb-2">
+              <div className="md:col-span-5 space-y-4 border-r dark:border-white/[0.08] md:pr-6">
+                <div className="flex flex-col items-center text-center p-4 rounded-xl bg-slate-50 dark:bg-[#151515] border dark:border-white/[0.08]">
+                  <Avatar className="h-20 w-20 border-2 border-white dark:border-white/10 shadow-md mb-2">
                     <AvatarImage src={selectedVolunteer.profiles?.profile_picture || ''} />
-                    <AvatarFallback className="bg-[#7CEAAB]/20 text-[#01424E] font-bold text-xl">
+                    <AvatarFallback className="bg-[#7CEAAB]/20 dark:bg-[#15271B] text-[#01424E] dark:text-[#22C55E] font-bold text-xl">
                       {(selectedVolunteer.profiles?.full_name || 'V').charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <h3 className="text-lg font-bold text-[#01424E] dark:text-teal-100">{selectedVolunteer.profiles?.full_name}</h3>
-                  <Badge className="bg-[#007C46] text-white mt-1 text-[10px]">Volunteer Applicant</Badge>
+                  <h3 className="text-lg font-bold text-[#01424E] dark:text-[#F5F5F5]">{selectedVolunteer.profiles?.full_name}</h3>
+                  <Badge className="bg-[#007C46] dark:bg-[#22C55E] text-white dark:text-[#090909] mt-1 text-[10px] font-bold">Volunteer Applicant</Badge>
                 </div>
 
-                <div className="space-y-2.5 text-xs bg-slate-50/50 dark:bg-slate-900/30 p-3.5 rounded-xl border">
+                <div className="space-y-2.5 text-xs bg-slate-50/50 dark:bg-[#181818] p-3.5 rounded-xl border dark:border-white/[0.08]">
                   <div className="flex items-center gap-2">
-                    <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{selectedVolunteer.profiles?.email}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="font-medium text-slate-800 dark:text-slate-200">{selectedVolunteer.profiles?.phone || 'Not provided'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 pt-1 border-t">
-                    <Building className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="font-medium text-slate-800 dark:text-slate-200">{selectedVolunteer.profiles?.department || 'General'}</span>
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground dark:text-[#9CA3AF] shrink-0" />
+                    <span className="font-medium text-slate-800 dark:text-[#F5F5F5] truncate">{selectedVolunteer.profiles?.email}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <GraduationCap className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="font-medium text-slate-800 dark:text-slate-200">Year {selectedVolunteer.profiles?.year || 'N/A'}</span>
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground dark:text-[#9CA3AF] shrink-0" />
+                    <span className="font-medium text-slate-800 dark:text-[#F5F5F5]">{selectedVolunteer.profiles?.phone || 'Not provided'}</span>
                   </div>
-                  <div className="flex items-center gap-2 pt-1 border-t">
-                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase">College</span>
-                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{selectedVolunteer.profiles?.college || 'Main Campus'}</span>
+                  <div className="flex items-center gap-2 pt-1 border-t dark:border-white/[0.08]">
+                    <Building className="h-3.5 w-3.5 text-muted-foreground dark:text-[#9CA3AF] shrink-0" />
+                    <span className="font-medium text-slate-800 dark:text-[#F5F5F5]">{selectedVolunteer.profiles?.department || 'General'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="h-3.5 w-3.5 text-muted-foreground dark:text-[#9CA3AF] shrink-0" />
+                    <span className="font-medium text-slate-800 dark:text-[#F5F5F5]">Year {selectedVolunteer.profiles?.year || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1 border-t dark:border-white/[0.08]">
+                    <span className="text-muted-foreground dark:text-[#9CA3AF] block text-[10px] font-semibold uppercase">College</span>
+                    <span className="font-medium text-slate-800 dark:text-[#F5F5F5] truncate">{selectedVolunteer.profiles?.college || 'Main Campus'}</span>
                   </div>
                 </div>
               </div>
 
               <div className="md:col-span-7 space-y-4">
-                <div className="p-3.5 rounded-xl border bg-[#edfcf6]/30 dark:bg-teal-950/20 space-y-1.5">
-                  <div className="text-[10px] font-bold uppercase text-muted-foreground">Target Event Application</div>
-                  <h4 className="text-base font-bold text-[#01424E] dark:text-teal-100">{selectedVolunteer.events?.title || 'Campus Event'}</h4>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground pt-0.5">
+                <div className="p-3.5 rounded-xl border bg-[#edfcf6]/30 dark:bg-[#15271B]/50 dark:border-[#22C55E]/30 space-y-1.5">
+                  <div className="text-[10px] font-bold uppercase text-muted-foreground dark:text-[#9CA3AF]">Target Event Application</div>
+                  <h4 className="text-base font-bold text-[#01424E] dark:text-[#F5F5F5]">{selectedVolunteer.events?.title || 'Campus Event'}</h4>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-[#9CA3AF] pt-0.5">
                     <span>📍 {selectedVolunteer.events?.venue || 'Main Venue'}</span>
                     <span>🗓 Applied: {selectedVolunteer.created_at ? new Date(selectedVolunteer.created_at).toLocaleDateString() : 'Recent'}</span>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Matched Skills</label>
-                  <div className="flex flex-wrap gap-1.5 p-3 rounded-xl border bg-white dark:bg-slate-900 min-h-[48px] items-center">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-[#9CA3AF]">Matched Skills</label>
+                  <div className="flex flex-wrap gap-1.5 p-3 rounded-xl border dark:border-white/[0.08] bg-white dark:bg-[#141414] min-h-[48px] items-center">
                     {parseSkills(selectedVolunteer.skills).length > 0 ? (
                       parseSkills(selectedVolunteer.skills).map((sk: string) => (
-                        <Badge key={sk} className="bg-[#7CEAAB]/20 text-[#01424E] border border-[#41B177]/40 font-bold text-xs py-0.5 px-2">
+                        <Badge key={sk} className="bg-[#7CEAAB]/20 dark:bg-[#15271B] text-[#01424E] dark:text-[#22C55E] border border-[#41B177]/40 dark:border-[#22C55E]/30 font-bold text-xs py-0.5 px-2">
                           {sk}
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-xs text-muted-foreground italic">No specific skills tagged</span>
+                      <span className="text-xs text-muted-foreground dark:text-[#9CA3AF] italic">No specific skills tagged</span>
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Applicant Notes to Organizer</label>
-                  <div className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-900 text-xs text-slate-700 dark:text-slate-300 min-h-[80px] whitespace-pre-line italic">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-[#9CA3AF]">Applicant Notes to Organizer</label>
+                  <div className="p-3 rounded-xl border dark:border-white/[0.08] bg-slate-50 dark:bg-[#141414] text-xs text-slate-700 dark:text-[#CFCFCF] min-h-[80px] whitespace-pre-line italic">
                     {selectedVolunteer.notes || 'No additional notes provided by applicant.'}
                   </div>
                 </div>
@@ -898,8 +898,8 @@ export default function VolunteersPage() {
             </div>
           )}
 
-          <DialogFooter className="border-t pt-4 flex items-center justify-between gap-3">
-            <Button variant="outline" onClick={() => setReviewModalOpen(false)}>
+          <DialogFooter className="border-t dark:border-white/[0.08] pt-4 flex items-center justify-between gap-3">
+            <Button variant="outline" onClick={() => setReviewModalOpen(false)} className="dark:border-white/10 dark:text-[#F5F5F5] dark:hover:bg-[#1F1F1F]">
               Close
             </Button>
             <div className="flex items-center gap-2">
@@ -908,7 +908,7 @@ export default function VolunteersPage() {
                   <Button variant="outline" onClick={handleReject} className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/30">
                     <XCircle className="mr-1.5 h-4 w-4" /> Reject Application
                   </Button>
-                  <Button onClick={handleApprove} className="bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold">
+                  <Button onClick={handleApprove} className="bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold">
                     <CheckCircle2 className="mr-1.5 h-4 w-4" /> Approve Volunteer
                   </Button>
                 </>
@@ -918,14 +918,14 @@ export default function VolunteersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ASSIGN VOLUNTEER TASK DIALOG (NO Volunteer Dropdown, READ-ONLY Assigned Event Title) */}
+      {/* ASSIGN VOLUNTEER TASK DIALOG */}
       <Dialog open={createTaskOpen} onOpenChange={setCreateTaskOpen}>
-        <DialogContent className="max-w-2xl sm:max-w-2xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto border-slate-200 dark:border-slate-800 shadow-xl rounded-2xl">
-          <DialogHeader className="pb-3 border-b space-y-1">
-            <DialogTitle className="text-2xl font-extrabold text-[#01424E] dark:text-teal-100 flex items-center gap-2.5">
-              <ListChecks className="h-6 w-6 text-[#007C46]" /> Assign Volunteer Task
+        <DialogContent className="max-w-2xl sm:max-w-2xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto border-slate-200 dark:border-white/[0.08] dark:bg-[#171717] shadow-xl rounded-2xl">
+          <DialogHeader className="pb-3 border-b dark:border-white/[0.08] space-y-1">
+            <DialogTitle className="text-2xl font-extrabold text-[#01424E] dark:text-[#F5F5F5] flex items-center gap-2.5">
+              <ListChecks className="h-6 w-6 text-[#007C46] dark:text-[#22C55E]" /> Assign Volunteer Task
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+            <DialogDescription className="text-xs text-muted-foreground dark:text-[#9CA3AF]">
               Assign duties and reporting details for this volunteer.
             </DialogDescription>
           </DialogHeader>
@@ -933,20 +933,20 @@ export default function VolunteersPage() {
           <div className="space-y-6 text-xs">
             {/* Task Title */}
             <div className="space-y-2">
-              <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Task Title *</label>
+              <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Task Title *</label>
               <Input
                 placeholder="e.g. Registration Desk Badge Distribution & Scanner"
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="text-xs h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+                className="text-xs h-10 bg-slate-50/50 dark:bg-[#141414] border-slate-200 dark:border-white/[0.08] dark:text-[#F5F5F5]"
               />
             </div>
 
-            {/* Assigned Event (Purely Read-Only Text - No Dropdown / Input) */}
+            {/* Assigned Event */}
             <div className="space-y-2">
-              <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Assigned Event *</label>
-              <div className="p-3 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-xs text-[#01424E] dark:text-teal-200 flex items-center gap-2 select-none">
-                <Calendar className="h-4 w-4 text-[#007C46] shrink-0" />
+              <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Assigned Event *</label>
+              <div className="p-3 bg-slate-100 dark:bg-[#181818] rounded-xl border border-slate-200 dark:border-white/[0.08] font-bold text-xs text-[#01424E] dark:text-[#22C55E] flex items-center gap-2 select-none">
+                <Calendar className="h-4 w-4 text-[#007C46] dark:text-[#22C55E] shrink-0" />
                 <span>{assignedEventTitle}</span>
               </div>
             </div>
@@ -954,10 +954,10 @@ export default function VolunteersPage() {
             {/* Priority & Location */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Priority</label>
+                <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Priority</label>
                 <Select value={newTaskPriority} onValueChange={(val) => setNewTaskPriority(val as TaskPriority)}>
-                  <SelectTrigger className="h-10 text-xs bg-slate-50/50 dark:bg-slate-900/50"><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-10 text-xs bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"><SelectValue /></SelectTrigger>
+                  <SelectContent className="dark:bg-[#181818] dark:border-white/[0.08] dark:text-[#F5F5F5]">
                     <SelectItem value="low">Low Priority</SelectItem>
                     <SelectItem value="medium">Medium Priority</SelectItem>
                     <SelectItem value="high">High Priority</SelectItem>
@@ -967,12 +967,12 @@ export default function VolunteersPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Reporting Location</label>
+                <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Reporting Location</label>
                 <Input
                   placeholder="e.g. Main Auditorium Entrance"
                   value={newTaskLocation}
                   onChange={(e) => setNewTaskLocation(e.target.value)}
-                  className="text-xs h-10 bg-slate-50/50 dark:bg-slate-900/50"
+                  className="text-xs h-10 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
             </div>
@@ -980,30 +980,30 @@ export default function VolunteersPage() {
             {/* Building / Floor / Room/Lab */}
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
-                <label className="font-semibold text-[11px] text-muted-foreground uppercase">Building</label>
+                <label className="font-semibold text-[11px] text-muted-foreground dark:text-[#9CA3AF] uppercase">Building</label>
                 <Input
                   placeholder="e.g. Block B"
                   value={newTaskBuilding}
                   onChange={(e) => setNewTaskBuilding(e.target.value)}
-                  className="text-xs h-9 bg-slate-50/50 dark:bg-slate-900/50"
+                  className="text-xs h-9 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="font-semibold text-[11px] text-muted-foreground uppercase">Floor</label>
+                <label className="font-semibold text-[11px] text-muted-foreground dark:text-[#9CA3AF] uppercase">Floor</label>
                 <Input
                   placeholder="e.g. 3rd Floor"
                   value={newTaskFloor}
                   onChange={(e) => setNewTaskFloor(e.target.value)}
-                  className="text-xs h-9 bg-slate-50/50 dark:bg-slate-900/50"
+                  className="text-xs h-9 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="font-semibold text-[11px] text-muted-foreground uppercase">Room / Lab</label>
+                <label className="font-semibold text-[11px] text-muted-foreground dark:text-[#9CA3AF] uppercase">Room / Lab</label>
                 <Input
                   placeholder="e.g. Room 302"
                   value={newTaskRoom}
                   onChange={(e) => setNewTaskRoom(e.target.value)}
-                  className="text-xs h-9 bg-slate-50/50 dark:bg-slate-900/50"
+                  className="text-xs h-9 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
             </div>
@@ -1011,43 +1011,43 @@ export default function VolunteersPage() {
             {/* Reporting Start & Shift End */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Reporting Start *</label>
+                <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Reporting Start *</label>
                 <Input
                   type="datetime-local"
                   value={newTaskStartTime}
                   onChange={(e) => setNewTaskStartTime(e.target.value)}
-                  className="text-xs h-10 bg-slate-50/50 dark:bg-slate-900/50"
+                  className="text-xs h-10 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Shift End *</label>
+                <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Shift End *</label>
                 <Input
                   type="datetime-local"
                   value={newTaskEndTime}
                   onChange={(e) => setNewTaskEndTime(e.target.value)}
-                  className="text-xs h-10 bg-slate-50/50 dark:bg-slate-900/50"
+                  className="text-xs h-10 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                 />
               </div>
             </div>
 
             {/* Special Instructions */}
             <div className="space-y-2">
-              <label className="font-bold text-xs text-slate-800 dark:text-slate-200">Special Instructions</label>
+              <label className="font-bold text-xs text-slate-800 dark:text-[#F5F5F5]">Special Instructions</label>
               <Textarea
                 rows={2}
                 placeholder="Specific instructions for volunteer on duty..."
                 value={newTaskDescription}
                 onChange={(e) => setNewTaskDescription(e.target.value)}
-                className="text-xs bg-slate-50/50 dark:bg-slate-900/50"
+                className="text-xs bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
               />
             </div>
 
             {/* Checklist Duties */}
-            <div className="space-y-3 pt-3 border-t">
+            <div className="space-y-3 pt-3 border-t dark:border-white/[0.08]">
               <div className="flex items-center justify-between">
-                <label className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">Checklist Duties</label>
-                <Button type="button" variant="outline" size="sm" onClick={addChecklistItem} className="h-7 text-xs border-[#007C46] text-[#007C46] hover:bg-[#edfcf6] font-semibold">
+                <label className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-[#CFCFCF]">Checklist Duties</label>
+                <Button type="button" variant="outline" size="sm" onClick={addChecklistItem} className="h-7 text-xs border-[#007C46] dark:border-[#22C55E]/30 text-[#007C46] dark:text-[#22C55E] dark:bg-[#15271B] hover:bg-[#edfcf6] font-semibold">
                   <Plus className="mr-1 h-3.5 w-3.5" /> Add Duty
                 </Button>
               </div>
@@ -1055,14 +1055,14 @@ export default function VolunteersPage() {
               <div className="space-y-2.5 max-h-44 overflow-y-auto pr-1">
                 {checklistItems.map((item, idx) => (
                   <div key={item.id} className="flex items-center gap-2.5">
-                    <span className="font-bold text-xs text-muted-foreground w-6 text-right shrink-0">{idx + 1}.</span>
+                    <span className="font-bold text-xs text-muted-foreground dark:text-[#9CA3AF] w-6 text-right shrink-0">{idx + 1}.</span>
                     <Input
                       placeholder="Enter specific duty or task step..."
                       value={item.text}
                       onChange={(e) => updateChecklistItemText(item.id, e.target.value)}
-                      className="text-xs flex-1 h-9 bg-slate-50/50 dark:bg-slate-900/50"
+                      className="text-xs flex-1 h-9 bg-slate-50/50 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
                     />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChecklistItem(item.id)} className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 shrink-0">
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChecklistItem(item.id)} className="h-8 w-8 text-slate-400 dark:text-[#9CA3AF] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 shrink-0">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -1071,11 +1071,11 @@ export default function VolunteersPage() {
             </div>
           </div>
 
-          <DialogFooter className="gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={() => setCreateTaskOpen(false)} className="h-10 px-5">
+          <DialogFooter className="gap-3 pt-4 border-t dark:border-white/[0.08]">
+            <Button variant="outline" onClick={() => setCreateTaskOpen(false)} className="h-10 px-5 dark:border-white/10 dark:text-[#F5F5F5] dark:hover:bg-[#1F1F1F]">
               Cancel
             </Button>
-            <Button onClick={handleCreateTask} className="bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold h-10 px-6">
+            <Button onClick={handleCreateTask} className="bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold h-10 px-6">
               Assign Task
             </Button>
           </DialogFooter>
@@ -1084,13 +1084,13 @@ export default function VolunteersPage() {
 
       {/* MARK PRESENT CONFIRMATION DIALOG */}
       <Dialog open={markPresentDialogOpen} onOpenChange={setMarkPresentDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md dark:bg-[#171717] dark:border-white/[0.08]">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-[#01424E] dark:text-teal-100 flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-[#007C46]" /> Mark Volunteer as Present
+            <DialogTitle className="text-lg font-bold text-[#01424E] dark:text-[#F5F5F5] flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-[#007C46] dark:text-[#22C55E]" /> Mark Volunteer as Present
             </DialogTitle>
-            <DialogDescription className="text-xs pt-2 leading-relaxed">
-              Mark this volunteer as <strong className="text-emerald-600 dark:text-emerald-400">PRESENT</strong> for the event?
+            <DialogDescription className="text-xs pt-2 leading-relaxed dark:text-[#9CA3AF]">
+              Mark this volunteer as <strong className="text-emerald-600 dark:text-[#22C55E]">PRESENT</strong> for the event?
               <br /><br />
               <span className="text-amber-800 dark:text-amber-300 font-semibold bg-amber-50 dark:bg-amber-950/40 p-2 rounded block border border-amber-200 dark:border-amber-900">
                 ⚠️ Only volunteers marked Present will receive volunteer certificates.
@@ -1099,7 +1099,7 @@ export default function VolunteersPage() {
           </DialogHeader>
 
           {taskToMarkPresent && (
-            <div className="py-2 text-xs space-y-1 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border">
+            <div className="py-2 text-xs space-y-1 bg-slate-50 dark:bg-[#151515] p-3 rounded-lg border dark:border-white/[0.08] dark:text-[#F5F5F5]">
               <div>👤 <strong>Volunteer:</strong> {taskToMarkPresent.volunteers?.profiles?.full_name || 'Volunteer'}</div>
               <div>📋 <strong>Task:</strong> {taskToMarkPresent.title}</div>
               <div>⏰ <strong>Accepted At:</strong> {taskToMarkPresent.accepted_at ? new Date(taskToMarkPresent.accepted_at).toLocaleString() : 'Yes'}</div>
@@ -1107,12 +1107,12 @@ export default function VolunteersPage() {
           )}
 
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setMarkPresentDialogOpen(false)} disabled={markingAttendanceLoading}>
+            <Button variant="outline" onClick={() => setMarkPresentDialogOpen(false)} disabled={markingAttendanceLoading} className="dark:border-white/10 dark:text-[#F5F5F5] dark:hover:bg-[#1F1F1F]">
               Cancel
             </Button>
             <Button
               onClick={() => handleMarkAttendance(taskToMarkPresent.id, 'present')}
-              className="bg-[#007C46] hover:bg-[#006036] text-white font-bold"
+              className="bg-[#007C46] hover:bg-[#006036] dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] text-white font-bold"
               disabled={markingAttendanceLoading}
             >
               {markingAttendanceLoading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-1.5 h-4 w-4" />}

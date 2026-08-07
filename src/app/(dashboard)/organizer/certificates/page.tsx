@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Award, Download, Sparkles, RefreshCw, CheckCircle2, Users } from 'lucide-react';
+import { Award, Download, Sparkles, RefreshCw, CheckCircle2, Users, Search } from 'lucide-react';
 import { certificateService } from '@/services/certificate-service';
 import { eventService } from '@/services/event-service';
 import { exportService } from '@/services/export-service';
@@ -32,6 +33,7 @@ export default function CertificatesPage() {
   const [generating, setGenerating] = useState(false);
   const [selectedCertData, setSelectedCertData] = useState<FormattedCertificateData | null>(null);
   const [certTypeFilter, setCertTypeFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function loadEvents() {
@@ -253,6 +255,24 @@ export default function CertificatesPage() {
     toast.success('Downloaded official PDF Certificate!');
   };
 
+  const handleDesignateWinner = (userId: string, val: string) => {
+    if (val === 'none') {
+      handleRemoveWinner(userId);
+    } else {
+      handleSetWinner(userId, val as 'winner' | 'runner_up' | 'second_runner_up');
+    }
+  };
+
+  const filteredCertificates = certificates.filter(cert => {
+    const formatted = buildCertificateData(cert);
+    const q = searchQuery.toLowerCase();
+    return (
+      formatted.recipientName.toLowerCase().includes(q) ||
+      formatted.verificationId.toLowerCase().includes(q) ||
+      formatted.eventName.toLowerCase().includes(q)
+    );
+  });
+
   const selectedEventObj = events.find(ev => ev.id === selectedEventId);
 
   return (
@@ -454,23 +474,19 @@ export default function CertificatesPage() {
                             )}
                           </TableCell>
                           <TableCell className="text-right">
-                            {winRecord ? (
-                              <Button onClick={() => handleRemoveWinner(p.user_id)} variant="destructive" size="sm" className="h-8">
-                                Remove
-                              </Button>
-                            ) : (
-                              <div className="flex items-center justify-end gap-1.5">
-                                <Button onClick={() => handleSetWinner(p.user_id, 'winner')} size="sm" variant="outline" className="h-8 border-[#D97706] text-[#D97706] hover:bg-[#D97706]/10 text-xs">
-                                  1st Place
-                                </Button>
-                                <Button onClick={() => handleSetWinner(p.user_id, 'runner_up')} size="sm" variant="outline" className="h-8 border-[#64748B] text-[#64748B] hover:bg-[#64748B]/10 text-xs">
-                                  Runner-Up
-                                </Button>
-                                <Button onClick={() => handleSetWinner(p.user_id, 'second_runner_up')} size="sm" variant="outline" className="h-8 border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10 text-xs">
-                                  2nd Runner-Up
-                                </Button>
-                              </div>
-                            )}
+                            <Select
+                              value={winRecord?.certificate_type || 'none'}
+                              onValueChange={(val) => handleDesignateWinner(p.user_id, val)}
+                            >
+                              <SelectTrigger className="h-7 text-[11px] w-32 ml-auto dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]">
+                                <SelectValue placeholder="Set Rank" />
+                              </SelectTrigger>
+                              <SelectContent className="dark:bg-[#181818] dark:border-white/[0.08] dark:text-[#F5F5F5]">
+                                <SelectItem value="none">No Award</SelectItem>
+                                <SelectItem value="winner">🥇 1st Winner</SelectItem>
+                                <SelectItem value="runner_up">🥈 Runner Up</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                         </TableRow>
                       );
@@ -484,46 +500,48 @@ export default function CertificatesPage() {
       )}
 
       {/* Requirement 4: Certificates Table with Centered Empty State when no certificates exist */}
-      <Card className="border-slate-200 dark:border-slate-800">
-        <CardHeader className="border-b border-slate-100 dark:border-slate-800/80">
-          <div className="flex items-center justify-between">
+      <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-lg">Issued Certificates</CardTitle>
-              <CardDescription>View, preview, and download official digital certificates.</CardDescription>
+              <CardTitle className="text-base font-bold text-[#01424E] dark:text-[#F5F5F5]">Issued Certificates Log</CardTitle>
+              <CardDescription className="dark:text-[#9CA3AF]">Verification IDs, digital credentials, and downloadable PDFs</CardDescription>
             </div>
-            {certificates.length > 0 && (
-              <Badge variant="outline" className="font-semibold text-xs border-[#007C46] text-[#007C46] dark:border-emerald-500 dark:text-emerald-400">
-                {certificates.length} {certificates.length === 1 ? 'Certificate' : 'Certificates'} Issued
-              </Badge>
-            )}
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground dark:text-[#9CA3AF]" />
+              <Input 
+                placeholder="Search by student or code..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="pl-8 text-xs h-9 dark:bg-[#141414] dark:border-white/[0.08] dark:text-[#F5F5F5]"
+              />
+            </div>
           </div>
         </CardHeader>
-        {loading ? (
-          <CardContent className="p-8 text-center text-muted-foreground">
-            Loading issued certificates...
-          </CardContent>
-        ) : certificates.length === 0 ? (
-          <CardContent className="p-8 sm:p-12 text-center flex flex-col items-center justify-center">
-            <div className="h-16 w-16 rounded-full bg-[#007C46]/10 dark:bg-teal-400/10 text-[#007C46] dark:text-[#7CEAAB] flex items-center justify-center mb-4">
-              <Award className="h-8 w-8" />
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-8 text-center text-xs text-muted-foreground dark:text-[#9CA3AF]">Loading certificates...</div>
+          ) : certificates.length === 0 ? (
+            <div className="p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+              <div className="h-14 w-14 rounded-full bg-slate-100 dark:bg-[#181818] flex items-center justify-center mb-3 text-muted-foreground dark:text-[#9CA3AF]">
+                <Award className="h-7 w-7 opacity-60 text-[#007C46] dark:text-[#22C55E]" />
+              </div>
+              <h4 className="text-sm font-bold text-[#01424E] dark:text-[#F5F5F5] mb-1">
+                No certificates have been issued yet
+              </h4>
+              <p className="text-xs text-muted-foreground dark:text-[#9CA3AF] max-w-sm leading-relaxed">
+                Generated digital certificates for participants, approved volunteers, and winners will be listed here with instant PDF downloads.
+              </p>
             </div>
-            <h3 className="text-base font-bold text-[#01424E] dark:text-teal-100 mb-1">
-              No certificates have been issued yet
-            </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-md leading-relaxed">
-              Certificates will appear here once generated for eligible participants, volunteers, or winners.
-            </p>
-          </CardContent>
-        ) : (
-          <CardContent className="p-0">
+          ) : (
             <Table>
               <TableHeader>
-                <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                  <TableHead className="font-bold text-xs uppercase">Recipient</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Event Title</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Type</TableHead>
-                  <TableHead className="font-bold text-xs uppercase">Verification ID</TableHead>
-                  <TableHead className="font-bold text-xs uppercase text-right">Actions</TableHead>
+                <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                  <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Recipient</TableHead>
+                  <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Type</TableHead>
+                  <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Verification Code</TableHead>
+                  <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Issued Date</TableHead>
+                  <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -565,8 +583,8 @@ export default function CertificatesPage() {
                 })}
               </TableBody>
             </Table>
-          </CardContent>
-        )}
+          )}
+        </CardContent>
       </Card>
 
       {/* Certificate Preview Modal */}

@@ -61,8 +61,8 @@ export const SIDEBAR_CONFIG = {
   },
   itemRadius: 'rounded-xl',
   iconTextGap: 'gap-3.5',
-  activeClasses: 'bg-[#7CEAAB]/20 text-[#7CEAAB] font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.14)] border border-[#7CEAAB]/25',
-  inactiveClasses: 'text-slate-300 font-medium hover:bg-white/[0.08] hover:text-white hover:translate-x-1',
+  activeClasses: 'bg-[#7CEAAB]/20 dark:bg-[#1F2B22] text-[#7CEAAB] dark:text-[#22C55E] font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.14)] border border-[#7CEAAB]/25 dark:border-[#22C55E]/30',
+  inactiveClasses: 'text-slate-300 dark:text-[#CFCFCF] font-medium hover:bg-white/[0.08] dark:hover:bg-[#1F1F1F] hover:text-white dark:hover:text-[#F5F5F5] hover:translate-x-1',
   transition: 'transition-all duration-200 ease-out',
 };
 
@@ -135,37 +135,40 @@ export function Sidebar() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "relative flex flex-col bg-gradient-to-b from-[#014856] via-[#01424E] to-[#01353E] dark:from-[#060b13] dark:via-[#0a1018] dark:to-[#060b13] text-slate-100 transition-all duration-300 ease-in-out hidden md:flex z-30 shadow-xl select-none",
+        "relative flex flex-col bg-gradient-to-b from-[#014856] via-[#01424E] to-[#01353E] dark:from-[#0D0D0D] dark:via-[#0D0D0D] dark:to-[#0D0D0D] text-slate-100 dark:text-[#CFCFCF] transition-all duration-300 ease-in-out hidden md:flex z-30 shadow-xl select-none dark:border-r dark:border-white/[0.08]",
         isCollapsed && !isHovered ? "w-[80px]" : "w-[270px]"
       )}
     >
       {/* Brand Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-white/10 shrink-0">
+      <div className="flex h-16 items-center justify-between px-4 border-b border-white/10 dark:border-white/[0.08] shrink-0">
         {showExpanded ? (
           <>
-            <Link href={`/${role}/dashboard`} className="flex items-center gap-2.5 font-extrabold text-xl text-white tracking-tight truncate">
-              <div className="bg-[#7CEAAB] rounded-lg p-1.5 shadow-sm shrink-0">
-                <Calendar className="h-5 w-5 text-[#01424E]" />
+            <Link href={`/${role}/dashboard`} className="flex items-center gap-2.5 font-extrabold text-xl tracking-tight truncate">
+              <div className="bg-[#7CEAAB] dark:bg-[#22C55E] rounded-lg p-1.5 shadow-sm shrink-0">
+                <Calendar className="h-5 w-5 text-[#01424E] dark:text-[#090909]" />
               </div>
-              <span className="truncate">EventHub</span>
+              <span className="truncate">
+                <span className="text-white dark:text-[#F5F5F5]">Event</span>
+                <span className="text-[#7CEAAB] dark:text-[#22C55E]">Hub</span>
+              </span>
             </Link>
             <Button
               variant="ghost"
               size="icon"
               onClick={toggle}
-              className="h-8 w-8 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer shrink-0 transition-colors"
+              className="h-8 w-8 text-slate-300 dark:text-[#9CA3AF] hover:text-white dark:hover:text-[#F5F5F5] hover:bg-white/10 dark:hover:bg-[#1F1F1F] rounded-lg cursor-pointer shrink-0 transition-colors"
               title={isCollapsed ? "Lock Expanded Sidebar" : "Collapse Sidebar (Auto-expand on hover)"}
             >
-              {isCollapsed ? <PanelLeftOpen className="h-4 w-4 text-[#7CEAAB]" /> : <PanelLeftClose className="h-4 w-4" />}
+              {isCollapsed ? <PanelLeftOpen className="h-4 w-4 text-[#7CEAAB] dark:text-[#22C55E]" /> : <PanelLeftClose className="h-4 w-4" />}
             </Button>
           </>
         ) : (
           <button
             onClick={toggle}
-            className="mx-auto bg-[#7CEAAB] rounded-lg p-1.5 shadow-sm hover:scale-105 transition-transform cursor-pointer"
+            className="mx-auto bg-[#7CEAAB] dark:bg-[#22C55E] rounded-lg p-1.5 shadow-sm hover:scale-105 transition-transform cursor-pointer"
             title="Expand Sidebar"
           >
-            <Calendar className="h-6 w-6 text-[#01424E]" />
+            <Calendar className="h-6 w-6 text-[#01424E] dark:text-[#090909]" />
           </button>
         )}
       </div>
@@ -196,7 +199,7 @@ export function Sidebar() {
                 <item.icon
                   className={cn(
                     "h-4 w-4 shrink-0 transition-all duration-200 group-hover:scale-105",
-                    isActive ? "text-[#7CEAAB]" : "text-slate-400 group-hover:text-white"
+                    isActive ? "text-[#7CEAAB] dark:text-[#22C55E]" : "text-slate-400 dark:text-[#9CA3AF] group-hover:text-white dark:group-hover:text-[#F5F5F5]"
                   )}
                 />
                 {showExpanded && (
@@ -209,14 +212,14 @@ export function Sidebar() {
       </div>
 
       {/* Footer Profile & Logout */}
-      <div className="border-t border-white/10 p-3.5 shrink-0 bg-black/10">
+      <div className="border-t border-white/10 dark:border-white/[0.08] p-3.5 shrink-0 bg-black/10 dark:bg-[#151515] rounded-b-xl">
         {loading ? (
           <div className="flex justify-center py-2">
             <Loader2 className="h-4 w-4 animate-spin text-white/50" />
           </div>
         ) : profile ? (
           <div className={cn("flex items-center", !showExpanded ? "justify-center" : "gap-3")}>
-            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/20 border border-[#7CEAAB]/40 flex items-center justify-center font-bold text-[#7CEAAB] text-xs shadow-inner ring-2 ring-[#7CEAAB]/20">
+            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/20 dark:bg-[#15271B] border border-[#7CEAAB]/40 dark:border-[#22C55E]/40 flex items-center justify-center font-bold text-[#7CEAAB] dark:text-[#22C55E] text-xs shadow-inner ring-2 ring-[#7CEAAB]/20 dark:ring-[#22C55E]/20">
               {profile.profile_picture ? (
                 <img src={profile.profile_picture} alt="Avatar" className="h-full w-full object-cover" />
               ) : (
@@ -225,15 +228,15 @@ export function Sidebar() {
             </div>
             {showExpanded && (
               <div className="flex flex-col overflow-hidden flex-1 min-w-0">
-                <span className="truncate text-xs font-bold text-white tracking-tight">{profile.full_name}</span>
-                <span className="truncate text-[10px] text-[#7CEAAB] uppercase font-bold tracking-wider">{profile.role}</span>
+                <span className="truncate text-xs font-bold text-white dark:text-[#F5F5F5] tracking-tight">{profile.full_name}</span>
+                <span className="truncate text-[10px] text-[#7CEAAB] dark:text-[#22C55E] uppercase font-bold tracking-wider">{profile.role}</span>
               </div>
             )}
             {showExpanded && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-slate-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg shrink-0 cursor-pointer transition-colors duration-200"
+                className="h-8 w-8 text-slate-400 dark:text-[#9CA3AF] hover:text-red-300 dark:hover:text-red-400 hover:bg-red-500/15 rounded-lg shrink-0 cursor-pointer transition-colors duration-200"
                 onClick={signOut}
                 title="Sign Out"
               >
@@ -243,7 +246,7 @@ export function Sidebar() {
           </div>
         ) : (
           showExpanded && (
-            <Button variant="outline" className="w-full text-xs font-bold text-white border-white/20 hover:bg-white/10 transition-colors" onClick={signOut}>
+            <Button variant="outline" className="w-full text-xs font-bold text-white dark:text-[#F5F5F5] border-white/20 dark:border-white/[0.08] hover:bg-white/10 dark:hover:bg-[#1F1F1F] transition-colors" onClick={signOut}>
               Logout
             </Button>
           )
@@ -252,7 +255,7 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="mt-2 w-full text-slate-400 hover:text-red-300 hover:bg-red-500/15 flex justify-center cursor-pointer transition-colors duration-200"
+            className="mt-2 w-full text-slate-400 dark:text-[#9CA3AF] hover:text-red-300 dark:hover:text-red-400 hover:bg-red-500/15 flex justify-center cursor-pointer transition-colors duration-200"
             onClick={signOut}
             title="Sign Out"
           >

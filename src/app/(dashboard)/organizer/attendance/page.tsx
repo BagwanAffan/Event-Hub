@@ -183,45 +183,45 @@ export default function AttendancePage() {
       </Card>
 
       {/* Attendance Logs Table */}
-      <Card className="border-slate-200 dark:border-slate-800">
+      <Card className="border-slate-200 dark:border-white/[0.08] dark:bg-[#151515]">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                <TableHead className="font-bold text-xs uppercase">Student Name</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Department & Year</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Check-In</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Check-Out</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Duration</TableHead>
-                <TableHead className="font-bold text-xs uppercase">Scanner / Volunteer</TableHead>
-                <TableHead className="font-bold text-xs uppercase text-right">Status</TableHead>
+              <TableRow className="bg-slate-50 dark:bg-[#181818] dark:border-white/[0.08]">
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Student Name</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Department & Year</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Check-In</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Check-Out</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Duration</TableHead>
+                <TableHead className="font-bold text-xs uppercase dark:text-[#9CA3AF]">Scanner / Volunteer</TableHead>
+                <TableHead className="font-bold text-xs uppercase text-right dark:text-[#9CA3AF]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading attendance logs...</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground dark:text-[#9CA3AF]">Loading attendance logs...</TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No attendance records found matching search.</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground dark:text-[#9CA3AF]">No attendance records found matching search.</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((att) => {
                   const isPendingCheckout = att.attendance_status === 'pending_checkout';
                   const duration = calculateDuration(att.check_in_time, att.check_out_time);
                   return (
-                    <TableRow key={att.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 text-xs">
+                    <TableRow key={att.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1F1F1F] dark:border-white/[0.08] text-xs">
                       <TableCell>
-                        <div className="font-bold text-[#01424E] dark:text-teal-100">{att.profiles?.full_name || 'Participant'}</div>
-                        <div className="text-[11px] text-muted-foreground">{att.profiles?.email}</div>
+                        <div className="font-bold text-[#01424E] dark:text-[#F5F5F5]">{att.profiles?.full_name || 'Participant'}</div>
+                        <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF]">{att.profiles?.email}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-semibold">{att.profiles?.department || 'N/A'}</div>
-                        <div className="text-[11px] text-muted-foreground">{att.profiles?.year || ''}</div>
+                        <div className="font-semibold dark:text-[#F5F5F5]">{att.profiles?.department || 'N/A'}</div>
+                        <div className="text-[11px] text-muted-foreground dark:text-[#9CA3AF]">{att.profiles?.year || ''}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-mono font-bold text-[#01424E] dark:text-teal-200">
+                        <div className="font-mono font-bold text-[#01424E] dark:text-[#22C55E]">
                           {att.check_in_time ? new Date(att.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                         </div>
                         <div className="text-[10px] text-muted-foreground">{att.check_in_time ? new Date(att.check_in_time).toLocaleDateString() : ''}</div>

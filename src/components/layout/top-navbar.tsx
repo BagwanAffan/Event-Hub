@@ -156,13 +156,13 @@ export function TopNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-[68px] items-center justify-between border-b bg-background/80 px-3 sm:px-8 lg:px-9 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex h-[68px] items-center justify-between border-b bg-background/80 dark:bg-[#111111]/90 px-3 sm:px-8 lg:px-9 backdrop-blur-md dark:border-white/[0.08]">
         {/* Left Zone: Sidebar Toggle + Breadcrumb */}
         <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 w-auto lg:w-1/4">
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden shrink-0 h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#01424E] dark:text-teal-100 hover:bg-[#007C46]/10"
+            className="md:hidden shrink-0 h-10 w-10 rounded-xl bg-slate-100 dark:bg-[#151515] text-[#01424E] dark:text-[#22C55E] hover:bg-[#007C46]/10 dark:hover:bg-[#1F1F1F]"
             onClick={() => setMobileOpen(true)}
           >
             <Menu className="h-5 w-5" />
@@ -172,7 +172,7 @@ export function TopNavbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex text-slate-500 hover:text-[#007C46] dark:text-slate-400 dark:hover:text-teal-200 cursor-pointer shrink-0 h-10 w-10 rounded-xl"
+            className="hidden md:flex text-slate-500 hover:text-[#007C46] dark:text-[#9CA3AF] dark:hover:text-[#22C55E] cursor-pointer shrink-0 h-10 w-10 rounded-xl"
             onClick={toggle}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar (Auto-expand on hover)"}
           >
@@ -180,25 +180,25 @@ export function TopNavbar() {
           </Button>
 
           {/* Mobile Title Badge */}
-          <span className="sm:hidden font-bold text-sm text-[#01424E] dark:text-teal-100 truncate">
+          <span className="sm:hidden font-bold text-sm text-[#01424E] dark:text-[#F5F5F5] truncate">
             EventHub
           </span>
 
           {/* Dynamic Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-2.5 text-xs text-muted-foreground overflow-hidden">
-            <Link href={`/${role}/dashboard`} className="hover:text-[#007C46] font-medium transition-colors shrink-0">
+          <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-2.5 text-xs text-muted-foreground dark:text-[#9CA3AF] overflow-hidden">
+            <Link href={`/${role}/dashboard`} className="hover:text-[#007C46] dark:hover:text-[#22C55E] font-medium transition-colors shrink-0">
               Dashboard
             </Link>
             {breadcrumbItems.length > 1 && (
               <>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
                 {breadcrumbItems.slice(1).map((item, idx) => (
                   <span key={item.href} className="flex items-center gap-2.5 truncate">
-                    {idx > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />}
+                    {idx > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-600 shrink-0" />}
                     {item.isLast ? (
-                      <span className="font-bold text-[#01424E] dark:text-teal-200 truncate">{item.label}</span>
+                      <span className="font-bold text-[#01424E] dark:text-[#F5F5F5] truncate">{item.label}</span>
                     ) : (
-                      <Link href={item.href} className="hover:text-[#007C46] transition-colors truncate font-medium">
+                      <Link href={item.href} className="hover:text-[#007C46] dark:hover:text-[#22C55E] transition-colors truncate font-medium">
                         {item.label}
                       </Link>
                     )}
@@ -213,11 +213,11 @@ export function TopNavbar() {
         <div className="hidden sm:flex flex-1 justify-center px-4 max-w-[540px]">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2.5 px-4 py-2 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-muted-foreground text-xs hover:border-[#7CEAAB] transition-colors w-full max-w-[480px] cursor-pointer shadow-2xs"
+            className="flex items-center gap-2.5 px-4 py-2 h-10 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-[#141414] text-muted-foreground dark:text-[#9CA3AF] text-xs hover:border-[#7CEAAB] dark:hover:border-[#22C55E] transition-colors w-full max-w-[480px] cursor-pointer shadow-2xs"
           >
-            <Search className="h-4 w-4 text-[#007C46] shrink-0" />
+            <Search className="h-4 w-4 text-[#007C46] dark:text-[#22C55E] shrink-0" />
             <span className="truncate">Search events, passes...</span>
-            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 shrink-0">
+            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border dark:border-white/10 bg-muted dark:bg-[#1F1F1F] dark:text-[#9CA3AF] px-1.5 font-mono text-[10px] font-medium opacity-100 shrink-0">
               <span className="text-xs">⌘</span>K
             </kbd>
           </button>
@@ -229,35 +229,35 @@ export function TopNavbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="sm:hidden h-9 w-9 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="sm:hidden h-9 w-9 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1F1F1F]"
             onClick={() => setIsSearchOpen(true)}
             title="Search"
           >
-            <Search className="h-4 w-4 text-[#007C46]" />
+            <Search className="h-4 w-4 text-[#007C46] dark:text-[#22C55E]" />
             <span className="sr-only">Search</span>
           </Button>
 
-          <Badge className="bg-[#edfcf6] text-[#007C46] border-[#41B177] capitalize hidden sm:inline-flex text-xs font-bold px-3.5 py-1 rounded-full border dark:bg-[#007C46]/20 dark:text-[#7CEAAB] dark:border-[#007C46]/40 shadow-2xs">
+          <Badge className="bg-[#edfcf6] text-[#007C46] border-[#41B177] capitalize hidden sm:inline-flex text-xs font-bold px-3.5 py-1 rounded-full border dark:bg-[#15271B] dark:text-[#22C55E] dark:border-[#22C55E]/30 shadow-2xs">
             {role}
           </Badge>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:border dark:border-white/[0.08]"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             title="Toggle theme"
           >
             <Sun className="h-4 w-4 sm:h-5 sm:w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500" />
-            <Moon className="absolute h-4 w-4 sm:h-5 sm:w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-teal-400" />
+            <Moon className="absolute h-4 w-4 sm:h-5 sm:w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-[#22C55E]" />
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 relative" asChild>
+          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:border dark:border-white/[0.08] relative" asChild>
             <Link href={`/${role}/notifications`} title="Notifications">
-              <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5 dark:text-[#9CA3AF]" />
               {unreadCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] sm:h-5 sm:min-w-[20px] items-center justify-center rounded-full bg-[#007C46] text-[9px] sm:text-[10px] font-bold text-white px-1 shadow-sm">
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] sm:h-5 sm:min-w-[20px] items-center justify-center rounded-full bg-[#007C46] dark:bg-[#22C55E] text-[9px] sm:text-[10px] font-bold text-white dark:text-[#090909] px-1 shadow-sm">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -265,8 +265,8 @@ export function TopNavbar() {
           </Button>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center justify-center relative h-9 w-9 rounded-full transition-all hover:ring-2 hover:ring-[#007C46]/30 focus-visible:outline-none cursor-pointer shrink-0">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-[#01424E] text-[#7CEAAB] font-bold text-sm shadow-sm border border-[#7CEAAB]/30">
+            <DropdownMenuTrigger className="inline-flex items-center justify-center relative h-9 w-9 rounded-full transition-all hover:ring-2 hover:ring-[#007C46]/30 dark:hover:ring-[#22C55E]/30 focus-visible:outline-none cursor-pointer shrink-0">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-[#01424E] dark:bg-[#15271B] text-[#7CEAAB] dark:text-[#22C55E] font-bold text-sm shadow-sm border border-[#7CEAAB]/30 dark:border-[#22C55E]/30">
                 {profile?.profile_picture ? (
                   <img src={profile.profile_picture} alt="Avatar" className="h-full w-full rounded-full object-cover" />
                 ) : (
