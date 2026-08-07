@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { eventService } from '@/services/event-service';
 import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
+import { getEventStatusDetails } from '@/utils/event-status';
 
 export default function OrganizerEventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,31 +25,30 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
       if (!event) setLoading(true);
       const data = await eventService.getEventById(id);
       setEvent(data);
-      const s = await eventService.getEventStats(id);
-      setStats(s);
+      if (data?.id) {
+        const s = await eventService.getEventStats(data.id);
+        setStats(s);
+      }
     } catch (err) {
-      console.error('Error loading event detail:', err);
-      toast.error('Failed to load event details');
+      console.error('Error fetching event details:', err);
+      toast.error('Failed to load event details.');
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, event]);
 
   useDataSync(['events', 'registrations', 'volunteers', 'attendance', 'certificates'], loadEventData, [id]);
 
   if (loading) {
     return (
-      <div className="w-full space-y-6 animate-pulse pb-12">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-9 w-36 rounded-lg" />
-          <Skeleton className="h-6 w-24 rounded-full" />
-        </div>
-        <Skeleton className="h-72 w-full rounded-2xl" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Skeleton className="h-32 rounded-2xl" />
-          <Skeleton className="h-32 rounded-2xl" />
-          <Skeleton className="h-32 rounded-2xl" />
-          <Skeleton className="h-32 rounded-2xl" />
+      <div className="space-y-6 animate-pulse">
+        <Skeleton className="h-10 w-32 rounded-lg" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Skeleton className="h-28 rounded-xl" />
+          <Skeleton className="h-28 rounded-xl" />
+          <Skeleton className="h-28 rounded-xl" />
+          <Skeleton className="h-28 rounded-xl" />
         </div>
       </div>
     );
@@ -56,19 +56,21 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
 
   if (!event) {
     return (
-      <div className="text-center py-16 space-y-4 max-w-md mx-auto">
-        <h2 className="text-2xl font-bold text-[#01424E] dark:text-teal-100">Event Not Found</h2>
-        <p className="text-sm text-muted-foreground">The event you are looking for does not exist or was removed.</p>
-        <Button asChild variant="outline" className="rounded-lg">
-          <Link href="/organizer/events"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Events</Link>
+      <div className="py-16 text-center space-y-4">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Event Not Found</h2>
+        <p className="text-muted-foreground text-sm">The event you are looking for does not exist or has been removed.</p>
+        <Button asChild variant="outline">
+          <Link href="/organizer/events">Return to Events List</Link>
         </Button>
       </div>
     );
   }
 
+  const statusDetails = getEventStatusDetails(event);
+
   return (
     <div className="w-full space-y-6 sm:space-y-8 animate-fade-in pb-12">
-      {/* Top Action Bar: Back Button & Published Badge */}
+      {/* Top Action Bar: Back Button & Status Badge */}
       <div className="flex items-center justify-between gap-4 w-full">
         <Button asChild variant="outline" size="sm" className="h-9 px-3.5 rounded-lg border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-xs sm:text-sm transition-colors shadow-2xs">
           <Link href="/organizer/events" className="inline-flex items-center gap-2">
@@ -77,9 +79,15 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
           </Link>
         </Button>
         <Badge className={`capitalize text-xs font-semibold px-3 py-1 rounded-full shadow-2xs ${
-          event.status === 'published' ? 'bg-[#007C46] text-white dark:bg-[#007C46] dark:text-white' : 'bg-amber-500 text-white'
+          event.status === 'draft'
+            ? 'bg-amber-500 text-white'
+            : statusDetails.timeStatus === 'ongoing'
+            ? 'bg-[#007C46] text-white'
+            : statusDetails.timeStatus === 'upcoming'
+            ? 'bg-[#01424E] text-[#7CEAAB]'
+            : 'bg-slate-500 text-white'
         }`}>
-          {event.status}
+          {event.status === 'draft' ? 'Draft' : statusDetails.badgeLabel}
         </Badge>
       </div>
 

@@ -35,28 +35,32 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
     if (!isProfileComplete) {
       return (
         <div className="min-h-[85vh] flex items-center justify-center p-4 animate-fade-in">
-          <Card className="max-w-lg w-full border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden text-center">
-            <div className="h-2.5 w-full bg-[#007C46]" />
-            <CardHeader className="space-y-3 pt-8 pb-4">
-              <div className="w-16 h-16 rounded-3xl bg-[#edfcf6] dark:bg-teal-950/60 text-[#007C46] flex items-center justify-center mx-auto shadow-inner">
+          <Card className="pt-0 max-w-lg w-full border-slate-200 dark:border-slate-800/80 shadow-xl rounded-2xl overflow-hidden text-center bg-card">
+            <div className="h-2.5 w-full bg-[#007C46] dark:bg-[#22C55E] shrink-0" />
+            <CardHeader className="space-y-3 pt-6 pb-3">
+              <div className="w-16 h-16 rounded-2xl bg-[#edfcf6] dark:bg-teal-950/60 text-[#007C46] dark:text-[#22C55E] flex items-center justify-center mx-auto shadow-xs">
                 <FileText className="h-8 w-8" />
               </div>
-              <CardTitle className="text-2xl font-extrabold text-[#01424E] dark:text-teal-100">
+              <CardTitle className="text-xl sm:text-2xl font-extrabold text-[#01424E] dark:text-teal-100">
                 Organizer Verification Profile Required
               </CardTitle>
-              <CardDescription className="text-xs leading-relaxed text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
+              <CardDescription className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400 max-w-md mx-auto">
                 Before accessing your Organizer Dashboard, you must complete your official Organizer Verification Profile details.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 px-6 py-2">
-              <Button asChild className="w-full bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold text-xs py-5">
-                <Link href="/organizer/verify">
-                  Complete Organizer Profile <ArrowRight className="ml-2 h-4 w-4" />
+            <CardContent className="pt-2 pb-6 px-6 flex justify-center">
+              <Button
+                asChild
+                className="max-w-[260px] w-full h-11 sm:h-12 px-6 rounded-xl font-bold text-xs sm:text-sm bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                <Link href="/organizer/verify" className="inline-flex items-center justify-center gap-2 h-full w-full">
+                  <span>Complete Organizer Profile</span>
+                  <ArrowRight className="h-4 w-4 shrink-0" />
                 </Link>
               </Button>
             </CardContent>
-            <CardFooter className="p-4 border-t flex justify-center bg-slate-50 dark:bg-slate-900/40">
-              <Button onClick={() => signOut()} variant="ghost" size="sm" className="text-xs text-red-600">
+            <CardFooter className="py-3 px-4 border-t border-slate-100 dark:border-white/[0.08] flex justify-center bg-slate-50/50 dark:bg-slate-900/40">
+              <Button onClick={() => signOut()} variant="ghost" size="sm" className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 font-medium cursor-pointer">
                 <LogOut className="mr-2 h-3.5 w-3.5" /> Sign Out
               </Button>
             </CardFooter>
@@ -71,9 +75,9 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
 
       return (
         <div className="min-h-[85vh] flex items-center justify-center p-4 animate-fade-in">
-          <Card className="max-w-lg w-full border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-            <div className={`h-2.5 w-full ${isRejected ? 'bg-red-500' : 'bg-amber-500 animate-pulse'}`} />
-            <CardHeader className="text-center space-y-3 pt-8 pb-4">
+          <Card className="pt-0 max-w-lg w-full border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+            <div className={`h-2.5 w-full shrink-0 ${isRejected ? 'bg-red-500' : 'bg-amber-500 animate-pulse'}`} />
+            <CardHeader className="text-center space-y-3 pt-6 pb-4">
               <div className={`w-16 h-16 rounded-3xl mx-auto flex items-center justify-center shadow-inner ${
                 isRejected ? 'bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400'
               }`}>

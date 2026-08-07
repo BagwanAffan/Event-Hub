@@ -13,6 +13,7 @@ import { DashboardCardsSkeleton } from '@/components/ui/page-skeleton';
 import { CalendarDays, CheckCircle2, Award, Clock, ArrowRight, Activity, Users, Ticket, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { useFeedback } from '@/hooks/use-feedback';
+import { getEventTimeStatus } from '@/utils/event-status';
 
 export default function StudentDashboardPage() {
   const { profile } = useAuth();
@@ -34,8 +35,12 @@ export default function StudentDashboardPage() {
       
       setStats(statsData);
       const upcoming = (eventsData || [])
-        .filter((reg: any) => new Date(reg.events?.start_date || new Date()) >= new Date() && reg.status === 'approved')
-        .sort((a: any, b: any) => new Date(a.event?.start_date).getTime() - new Date(b.event?.start_date).getTime())
+        .filter((reg: any) => getEventTimeStatus(reg.events) !== 'ended' && reg.status === 'approved')
+        .sort((a: any, b: any) => {
+          const tA = new Date(a.events?.start_date || a.event?.start_date || 0).getTime();
+          const tB = new Date(b.events?.start_date || b.event?.start_date || 0).getTime();
+          return tA - tB;
+        })
         .slice(0, 3);
         
       setUpcomingEvents(upcoming);

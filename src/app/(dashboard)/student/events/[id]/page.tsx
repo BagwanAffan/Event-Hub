@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { checkProfileCompletion } from '@/hooks/use-profile-completion';
 import { ProfileGuardDialog } from '@/components/shared/profile-guard-dialog';
 import { useDataSync } from '@/lib/data-sync';
+import { getEventStatusDetails } from '@/utils/event-status';
 
 export default function EventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -142,9 +143,8 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
 
   if (!event) return null;
 
-  const isPast = new Date(event.start_date || new Date()) < new Date();
-  const deadlinePassed = event.registration_deadline && new Date(event.registration_deadline) < new Date();
-  const canRegister = !isPast && !deadlinePassed && (!event.max_participants || (event.registered_count || 0) < event.max_participants);
+  const statusDetails = getEventStatusDetails(event);
+  const { canRegister, buttonText, badgeLabel, isEnded } = statusDetails;
 
   return (
     <div className="space-y-6 pb-12 fade-in">
@@ -229,8 +229,8 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
               <CardContent className="pt-6 space-y-6">
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-muted-foreground">Status</span>
-                  <Badge variant={isPast ? "secondary" : "default"} className={isPast ? "" : "bg-[#41B177]"}>
-                    {isPast ? 'Completed' : deadlinePassed ? 'Closed' : 'Open'}
+                  <Badge variant={isEnded ? "secondary" : "default"} className={isEnded ? "" : "bg-[#41B177]"}>
+                    {badgeLabel}
                   </Badge>
                 </div>
                 
@@ -271,9 +271,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                       onClick={handleRegister}
                       disabled={!canRegister || isRegistering}
                     >
-                      {isRegistering ? 'Processing...' : 
-                       !canRegister ? (isPast ? 'Event Ended' : deadlinePassed ? 'Registration Closed' : 'Event Full') : 
-                       'Register Now'}
+                      {isRegistering ? 'Processing...' : buttonText}
                     </Button>
                   )}
                   {(event.max_team_size || 1) > 1 && !registration && (

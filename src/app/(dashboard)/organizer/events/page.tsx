@@ -21,6 +21,7 @@ import { Event } from '@/types/database.types';
 import { useDataSync } from '@/lib/data-sync';
 import { toast } from 'sonner';
 import { BannerUpload } from '@/components/shared/banner-upload';
+import { getEventStatusDetails } from '@/utils/event-status';
 
 export default function OrganizerEventsPage() {
   const { profile } = useAuth();
@@ -214,16 +215,23 @@ export default function OrganizerEventsPage() {
 
       {/* Empty State */}
       {!loading && filteredEvents.length === 0 && (
-        <Card className="border-dashed border-2 border-slate-300 dark:border-slate-800">
-          <CardContent className="py-12 text-center space-y-4">
-            <Calendar className="h-16 w-16 mx-auto text-muted-foreground opacity-40" />
-            <div>
-              <h3 className="text-lg font-bold text-[#01424E] dark:text-teal-200">No events found</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                {search || statusFilter !== 'all' ? 'Try adjusting your search filters' : 'You haven\'t created any events yet. Click below to draft your first event.'}
+        <Card className="border-dashed border-2 border-slate-300 dark:border-slate-800 rounded-2xl bg-card">
+          <CardContent className="py-12 sm:py-16 flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#edfcf6] dark:bg-teal-950/60 text-[#007C46] dark:text-[#22C55E] flex items-center justify-center shadow-xs mx-auto mb-1">
+              <Calendar className="h-8 w-8" />
+            </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-lg sm:text-xl font-bold text-[#01424E] dark:text-[#F5F5F5]">No Events Found</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#9CA3AF] leading-relaxed">
+                {search || statusFilter !== 'all'
+                  ? 'Try adjusting your search query or status filter criteria.'
+                  : 'You haven\'t created any events yet. Click below to draft and publish your first event.'}
               </p>
             </div>
-            <Button asChild className="h-10 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#007C46] text-white hover:bg-[#007C46]/90 shadow-sm">
+            <Button
+              asChild
+              className="h-11 sm:h-12 px-6 sm:px-8 rounded-xl font-bold text-xs sm:text-sm bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer mt-2"
+            >
               <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
                 <Plus className="h-4 w-4 shrink-0" />
                 <span>Create Event Now</span>
@@ -255,17 +263,24 @@ export default function OrganizerEventsPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 pointer-events-none" />
 
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                    <Badge
-                      className={`capitalize font-bold text-[10px] px-2.5 py-0.5 rounded-lg shrink-0 ${
-                        evt.status === 'published'
-                          ? 'bg-[#007C46] text-white shadow-xs'
-                          : evt.status === 'draft'
-                          ? 'bg-amber-500 text-white shadow-xs'
-                          : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
-                      }`}
-                    >
-                      {evt.status}
-                    </Badge>
+                    {(() => {
+                      const statusDetails = getEventStatusDetails(evt);
+                      return (
+                        <Badge
+                          className={`capitalize font-bold text-[10px] px-2.5 py-0.5 rounded-lg shrink-0 ${
+                            evt.status === 'draft'
+                              ? 'bg-amber-500 text-white shadow-xs'
+                              : statusDetails.timeStatus === 'ongoing'
+                              ? 'bg-[#007C46] text-white shadow-xs'
+                              : statusDetails.timeStatus === 'upcoming'
+                              ? 'bg-[#01424E] text-[#7CEAAB] shadow-xs'
+                              : 'bg-slate-500 text-white shadow-xs'
+                          }`}
+                        >
+                          {evt.status === 'draft' ? 'Draft' : statusDetails.badgeLabel}
+                        </Badge>
+                      );
+                    })()}
                     <Badge className="bg-white/90 text-[#01424E] border-0 backdrop-blur text-[10px] uppercase tracking-wider font-bold">
                       {evt.category || 'General'}
                     </Badge>

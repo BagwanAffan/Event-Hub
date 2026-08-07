@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useDataSync } from '@/lib/data-sync';
 import type { Feedback } from '@/types/database.types';
+import { getEventTimeStatus } from '@/utils/event-status';
 
 export default function RegistrationsPage() {
   const { profile } = useAuth();
@@ -107,7 +108,7 @@ export default function RegistrationsPage() {
   };
 
   const isEventCompleted = (reg: any) => {
-    return reg.events?.status === 'completed' || (reg.events?.end_date && new Date(reg.events.end_date) < new Date());
+    return reg.events ? getEventTimeStatus(reg.events) === 'ended' : false;
   };
 
   const hasAttended = (reg: any) => {

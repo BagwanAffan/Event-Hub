@@ -409,11 +409,24 @@ export default function OrganizerDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-10 space-y-3">
-              <Calendar className="h-12 w-12 mx-auto text-muted-foreground dark:text-[#9CA3AF] opacity-40" />
-              <p className="text-sm font-medium text-slate-700 dark:text-[#CFCFCF]">No active or upcoming events created yet</p>
-              <Button asChild size="sm" className="bg-[#007C46] text-white dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold">
-                <Link href="/organizer/events/create"><Plus className="mr-2 h-4 w-4" /> Create Your First Event</Link>
+            <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#edfcf6] dark:bg-teal-950/60 text-[#007C46] dark:text-[#22C55E] flex items-center justify-center shadow-xs mx-auto mb-1">
+                <Calendar className="h-8 w-8" />
+              </div>
+              <div className="space-y-1.5 max-w-sm mx-auto">
+                <h3 className="text-lg sm:text-xl font-bold text-[#01424E] dark:text-[#F5F5F5]">No Events Created Yet</h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-[#9CA3AF] leading-relaxed">
+                  Start organizing your campus hackathons, workshops, and summits by creating your first event.
+                </p>
+              </div>
+              <Button
+                asChild
+                className="h-11 sm:h-12 px-6 sm:px-8 rounded-xl font-bold text-xs sm:text-sm bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer mt-2"
+              >
+                <Link href="/organizer/events/create" className="inline-flex items-center justify-center gap-2 h-full w-full">
+                  <Plus className="h-4 w-4 shrink-0" />
+                  <span>Create Your First Event</span>
+                </Link>
               </Button>
             </div>
           )}
