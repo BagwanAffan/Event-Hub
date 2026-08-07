@@ -320,28 +320,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
               </CardContent>
             </Card>
 
-            {event.need_volunteers && (
-              <Card className="mt-6 border-[#41B177]/40 bg-[#edfcf6]/40 dark:bg-teal-950/20">
-                <CardContent className="pt-6 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-[#01424E] dark:text-teal-100 flex items-center gap-2 text-sm">
-                      🤝 Volunteer Crew Needed
-                    </h3>
-                    <Badge className="bg-[#007C46] text-white text-[10px]">
-                      {event.volunteers_needed || 0} Slots
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    This event is recruiting student volunteers for operations & desk management.
-                  </p>
-                  <Button asChild variant="outline" size="sm" className="w-full text-xs border-[#007C46] text-[#007C46]">
-                    <Link href="/volunteer/events">
-                      Apply as Volunteer
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+
           </div>
         </div>
       </div>
