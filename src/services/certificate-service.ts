@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { dataSync } from "@/lib/data-sync";
+import { logDeletionAudit } from "@/lib/deletion-framework";
 import type { Certificate } from "@/types/database.types";
 
 const supabase = createClient();
@@ -387,5 +388,79 @@ export const certificateService = {
     } catch {
       return null;
     }
+  },
+
+  async deleteCertificate(id: string) {
+    if (!id) throw new Error("Certificate ID is required for deletion");
+
+    // 1. Fetch certificate details first (verification_id, pdf_url, event_id)
+    const { data: cert, error: fetchErr } = await supabase
+      .from("certificates")
+      .select("id, verification_id, pdf_url, file_path, event_id, certificate_type")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchErr) {
+      console.error("[deleteCertificate] Fetch certificate error:", fetchErr);
+    }
+
+    const eventId = cert?.event_id;
+    const verificationId = cert?.verification_id;
+    const pdfUrl = (cert as any)?.pdf_url || (cert as any)?.file_path;
+
+    // 2. Remove generated PDF file from Supabase storage if stored
+    if (pdfUrl) {
+      try {
+        let filePath = pdfUrl;
+        if (filePath.includes('/certificates/')) {
+          filePath = filePath.split('/certificates/').pop() || filePath;
+        }
+        await supabase.storage.from('certificates').remove([filePath, `${id}.pdf`, `${verificationId}.pdf`]);
+      } catch (storageErr) {
+        console.warn("[deleteCertificate] Warning deleting PDF from storage:", storageErr);
+      }
+    }
+
+    // 3. Delete certificate record from database (Invalidates verification ID)
+    const { error: deleteErr } = await supabase
+      .from("certificates")
+      .delete()
+      .eq("id", id);
+
+    if (deleteErr) {
+      throw new Error(deleteErr.message || "Failed to delete certificate record");
+    }
+
+    // Log deletion event to audit_logs
+    await logDeletionAudit({
+      action: "DELETE_CERTIFICATE",
+      resourceType: "certificate",
+      resourceId: id,
+      details: { event_id: eventId, verification_id: verificationId }
+    });
+
+    // 4. Update certificate counters / event stats
+    if (eventId) {
+      try {
+        const { count: remainingCerts } = await supabase
+          .from("certificates")
+          .select("id", { count: "exact", head: true })
+          .eq("event_id", eventId);
+
+        await supabase
+          .from("events")
+          .update({
+            issued_certificates_count: remainingCerts || 0,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", eventId);
+      } catch (countErr) {
+        console.warn("[deleteCertificate] Warning updating certificate counter:", countErr);
+      }
+    }
+
+    // 5. Trigger real-time sync for certificates and events
+    dataSync.notify("certificates", "events");
+    return true;
   },
 };

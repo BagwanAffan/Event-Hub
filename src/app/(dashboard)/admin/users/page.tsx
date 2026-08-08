@@ -22,6 +22,7 @@ import {
   ClipboardList,
   Megaphone,
   RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 import { adminService } from '@/services/admin-service';
 import { Profile } from '@/types/database.types';
@@ -52,6 +53,12 @@ export default function AdminUsersPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetting, setResetting] = useState(false);
+
+  // Permanent Delete User Modal State
+  const [userToDelete, setUserToDelete] = useState<Profile | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [deletingUser, setDeletingUser] = useState(false);
 
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -93,17 +100,49 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleSoftDelete = async (user: Profile) => {
-    if (!confirm(`Are you sure you want to soft delete user "${user.full_name}"?`)) return;
-    setProcessingId(user.id);
+  const openDeleteUserModal = (user: Profile) => {
+    if (user.id === currentAdmin?.id) {
+      toast.error("You cannot delete your own logged-in admin account.");
+      return;
+    }
+    setUserToDelete(user);
+    setConfirmDeleteText('');
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmPermanentDelete = async () => {
+    if (!userToDelete) return;
+    if (userToDelete.id === currentAdmin?.id) {
+      toast.error("You cannot delete your own logged-in admin account.");
+      return;
+    }
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm account deletion');
+      return;
+    }
+
     try {
-      await adminService.softDeleteUser(user.id);
-      toast.warning(`User "${user.full_name}" soft deleted.`);
+      setDeletingUser(true);
+      const res = await fetch('/api/admin/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userToDelete.id, adminId: currentAdmin?.id }),
+      });
+
+      const result = await res.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete user account');
+      }
+
+      toast.success(`User "${userToDelete.full_name}" (${userToDelete.email}) and Supabase Auth record permanently deleted.`);
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
+      setConfirmDeleteText('');
       fetchUsers();
     } catch (err: any) {
-      toast.error(err?.message || 'Failed to soft delete user');
+      toast.error(err?.message || 'Failed to delete user account');
     } finally {
-      setProcessingId(null);
+      setDeletingUser(false);
     }
   };
 
@@ -303,16 +342,16 @@ export default function AdminUsersPage() {
                           >
                             {u.status === 'active' ? <UserX className="h-3.5 w-3.5" /> : <UserCheck className="h-3.5 w-3.5" />}
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={processingId === u.id}
-                            onClick={() => handleSoftDelete(u)}
-                            className="h-8 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                            title="Soft delete user"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={processingId === u.id || u.id === currentAdmin?.id}
+                        onClick={() => openDeleteUserModal(u)}
+                        className="h-8 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-40"
+                        title={u.id === currentAdmin?.id ? "Cannot delete your own logged-in admin account" : "Permanently delete user"}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                         </>
                       )}
                     </TableCell>
@@ -426,6 +465,65 @@ export default function AdminUsersPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permanent Delete User Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" /> Permanently Delete User Account
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently delete this user account?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Critical Warning:</strong> This action permanently removes the user's profile, credentials, registrations, and Supabase Authentication record (`auth.users`). Their email address will be completely freed for future registration.
+            </div>
+
+            {userToDelete && (
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <p className="font-bold text-slate-900 dark:text-white">{userToDelete.full_name}</p>
+                <p className="text-muted-foreground">{userToDelete.email} • Role: <strong className="capitalize">{userToDelete.role}</strong></p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteModalOpen(false); setUserToDelete(null); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || deletingUser}
+              onClick={handleConfirmPermanentDelete}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deletingUser ? 'Deleting User...' : 'Confirm Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

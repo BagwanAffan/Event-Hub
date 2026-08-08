@@ -11,6 +11,8 @@ import { notificationService } from '@/services/notification-service';
 import { PROFILE_REMINDER_TITLE } from '@/hooks/use-profile-completion';
 import { useRouter } from 'next/navigation';
 
+import { toast } from 'sonner';
+
 export default function OrganizerNotificationsPage() {
   const { profile } = useAuth();
   const router = useRouter();
@@ -40,8 +42,20 @@ export default function OrganizerNotificationsPage() {
       setNotifications(notifications.map(n =>
         n.title === PROFILE_REMINDER_TITLE ? n : { ...n, read: true }
       ));
+      toast.success("All notifications marked as read");
     } catch (err) {
       console.error("Error marking all read:", err);
+    }
+  };
+
+  const clearAllNotifications = async () => {
+    if (!profile?.id) return;
+    try {
+      await notificationService.clearAllNotifications(profile.id);
+      setNotifications(notifications.filter(n => n.title === PROFILE_REMINDER_TITLE));
+      toast.success("All notifications cleared");
+    } catch (err) {
+      toast.error("Failed to clear notifications");
     }
   };
 
@@ -62,10 +76,12 @@ export default function OrganizerNotificationsPage() {
     e.stopPropagation();
     try {
       if (notification.title === PROFILE_REMINDER_TITLE) return;
-      await notificationService.deleteNotification(notification.id);
+      await notificationService.deleteNotification(notification.id, profile?.id);
       setNotifications(notifications.filter(n => n.id !== notification.id));
+      toast.success("Notification deleted");
     } catch (err) {
       console.error("Error deleting notification:", err);
+      toast.error("Failed to delete notification");
     }
   };
 
@@ -80,6 +96,7 @@ export default function OrganizerNotificationsPage() {
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
+  const deletableCount = notifications.filter(n => n.title !== PROFILE_REMINDER_TITLE).length;
 
   return (
     <div className="space-y-6 fade-in max-w-4xl mx-auto">
@@ -93,11 +110,18 @@ export default function OrganizerNotificationsPage() {
           </p>
         </div>
         
-        {unreadCount > 0 && (
-          <Button variant="outline" onClick={markAllRead} className="shrink-0">
-            <Check className="mr-2 h-4 w-4" /> Mark all as read
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <Button variant="outline" onClick={markAllRead} className="shrink-0 text-xs font-bold">
+              <Check className="mr-1.5 h-3.5 w-3.5" /> Mark all read
+            </Button>
+          )}
+          {deletableCount > 0 && (
+            <Button variant="outline" onClick={clearAllNotifications} className="shrink-0 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Clear all
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading ? (

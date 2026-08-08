@@ -25,13 +25,18 @@ import {
   ExternalLink,
   MapPin,
   Briefcase,
+  AlertTriangle,
 } from 'lucide-react';
 import { adminService } from '@/services/admin-service';
 import { organizerVerificationService } from '@/services/organizer-verification-service';
 import { Profile, OrganizerStatus, OrganizerVerification } from '@/types/database.types';
+import { useAuth } from '@/hooks/use-auth';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
 export default function AdminOrganizersPage() {
+  const { profile: currentAdmin } = useAuth();
+  const supabase = createClient();
   const [organizers, setOrganizers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -49,6 +54,13 @@ export default function AdminOrganizersPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetting, setResetting] = useState(false);
+
+  // Permanent Delete Modal State
+  const [orgToDelete, setOrgToDelete] = useState<Profile | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [deletingOrg, setDeletingOrg] = useState(false);
+  const [ownedEventsCount, setOwnedEventsCount] = useState<number>(0);
 
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -91,17 +103,73 @@ export default function AdminOrganizersPage() {
     }
   };
 
-  const handleSoftDelete = async (org: Profile) => {
-    if (!confirm(`Are you sure you want to soft delete organizer "${org.full_name}"?`)) return;
-    setProcessingId(org.id);
+  const openDeleteOrgModal = async (org: Profile) => {
+    if (org.id === currentAdmin?.id) {
+      toast.error("You cannot delete your own logged-in admin account.");
+      return;
+    }
+    setOrgToDelete(org);
+    setConfirmDeleteText('');
+    setOwnedEventsCount(0);
+    setIsDeleteModalOpen(true);
+
     try {
-      await adminService.softDeleteUser(org.id);
-      toast.warning(`Organizer "${org.full_name}" soft deleted.`);
+      const { count } = await supabase
+        .from('events')
+        .select('id', { count: 'exact', head: true })
+        .eq('created_by', org.id);
+
+      if (count && count > 0) {
+        setOwnedEventsCount(count);
+        toast.error("This organizer owns active events. Delete or transfer these events before deleting the organizer.");
+      }
+    } catch (err) {
+      console.error('Error checking owned events:', err);
+    }
+  };
+
+  const handleConfirmPermanentDeleteOrg = async () => {
+    if (!orgToDelete) return;
+    if (orgToDelete.id === currentAdmin?.id) {
+      toast.error("You cannot delete your own logged-in admin account.");
+      return;
+    }
+    if (ownedEventsCount > 0) {
+      toast.error("This organizer owns active events. Delete or transfer these events before deleting the organizer.");
+      return;
+    }
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm organizer deletion');
+      return;
+    }
+
+    try {
+      setDeletingOrg(true);
+      const res = await fetch('/api/admin/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: orgToDelete.id, adminId: currentAdmin?.id }),
+      });
+
+      const result = await res.json();
+      if (!result.success) {
+        if (result.error?.includes('owns active events')) {
+          toast.error("This organizer owns active events. Delete or transfer these events before deleting the organizer.");
+        } else {
+          toast.error(result.error || 'Failed to delete organizer account');
+        }
+        return;
+      }
+
+      toast.success(`Organizer "${orgToDelete.full_name}" (${orgToDelete.email}) and Supabase Auth record permanently deleted.`);
+      setIsDeleteModalOpen(false);
+      setOrgToDelete(null);
+      setConfirmDeleteText('');
       fetchOrganizers();
     } catch (err: any) {
-      toast.error(err?.message || 'Failed to soft delete organizer');
+      toast.error(err?.message || 'Failed to delete organizer account');
     } finally {
-      setProcessingId(null);
+      setDeletingOrg(false);
     }
   };
 
@@ -297,10 +365,10 @@ export default function AdminOrganizersPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          disabled={processingId === org.id}
-                          onClick={() => handleSoftDelete(org)}
-                          className="h-8 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                          title="Soft delete organizer"
+                          disabled={processingId === org.id || org.id === currentAdmin?.id}
+                          onClick={() => openDeleteOrgModal(org)}
+                          className="h-8 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-40"
+                          title={org.id === currentAdmin?.id ? "Cannot delete your own logged-in admin account" : "Permanently delete organizer"}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -468,6 +536,72 @@ export default function AdminOrganizersPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permanent Delete Organizer Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" /> Permanently Delete Organizer Account
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently delete this organizer account?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            {ownedEventsCount > 0 ? (
+              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-900/50 text-xs text-amber-800 dark:text-amber-200 leading-relaxed font-semibold">
+                ⚠️ This organizer owns active events. Delete or transfer these events before deleting the organizer. ({ownedEventsCount} active event{ownedEventsCount > 1 ? 's' : ''} remaining)
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+                <strong>Critical Warning:</strong> This action permanently removes the organizer profile, credentials, events, verifications, and Supabase Authentication record (`auth.users`). Their email address will be completely freed for future registration.
+              </div>
+            )}
+
+            {orgToDelete && (
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <p className="font-bold text-slate-900 dark:text-white">{orgToDelete.full_name}</p>
+                <p className="text-muted-foreground">{orgToDelete.email} • Organization: <strong>{(orgToDelete as any).organization || (orgToDelete as any).organization_name || 'Individual'}</strong></p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                disabled={ownedEventsCount > 0}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500 disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteModalOpen(false); setOrgToDelete(null); setConfirmDeleteText(''); setOwnedEventsCount(0); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={ownedEventsCount > 0 || confirmDeleteText.trim() !== 'DELETE' || deletingOrg}
+              onClick={handleConfirmPermanentDeleteOrg}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deletingOrg ? 'Deleting Organizer...' : 'Confirm Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Calendar, Sun, Moon, ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -106,7 +106,7 @@ export default function PublicNavbar() {
             <Link
               href="/"
               onClick={handleLogoClick}
-              className="flex items-center gap-2.5 group cursor-pointer"
+              className="flex items-center gap-2.5 group cursor-pointer [&_*]:pointer-events-none"
             >
               <div className="p-1.5 rounded-xl bg-[#01424E] text-[#7CEAAB] group-hover:scale-105 transition-transform">
                 <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -127,7 +127,7 @@ export default function PublicNavbar() {
                   href={link.href}
                   onClick={() => handleNavClick(link.href)}
                   className={cn(
-                    "text-xs font-semibold px-4 py-2 rounded-full transition-all duration-200 cursor-pointer select-none",
+                    "text-xs font-semibold px-4 py-2 rounded-full transition-all duration-200 cursor-pointer select-none [&_*]:pointer-events-none",
                     isActive
                       ? "bg-[#01424E] text-[#7CEAAB] shadow-sm font-bold"
                       : "text-slate-600 dark:text-slate-300 hover:text-[#01424E] dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/60"
@@ -154,21 +154,24 @@ export default function PublicNavbar() {
                 <span className="sr-only">Toggle theme</span>
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 rounded-full font-bold text-xs cursor-pointer px-4 border border-slate-200 dark:border-slate-800 hover:border-[#01424E] transition-colors"
-              asChild
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-9 rounded-full font-bold text-xs cursor-pointer px-4 border border-slate-200 dark:border-slate-800 hover:border-[#01424E] transition-colors flex items-center justify-center"
+              )}
             >
-              <Link href="/login">Log In</Link>
-            </Button>
-            <Button
-              size="sm"
-              className="h-9 bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-full px-5 shadow-sm cursor-pointer transition-colors"
-              asChild
+              Log In
+            </Link>
+            <Link
+              href="/signup"
+              className={cn(
+                buttonVariants({ variant: "default", size: "sm" }),
+                "h-9 bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-full px-5 shadow-sm cursor-pointer transition-colors flex items-center justify-center"
+              )}
             >
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+              Sign Up
+            </Link>
           </div>
 
           {/* Mobile Navigation */}
@@ -213,12 +216,26 @@ export default function PublicNavbar() {
                     );
                   })}
                   <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
-                    <Button variant="outline" className="w-full h-10 rounded-xl font-bold text-xs" asChild onClick={() => setMobileOpen(false)}>
-                      <Link href="/login">Log In</Link>
-                    </Button>
-                    <Button className="w-full h-10 bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-xl" asChild onClick={() => setMobileOpen(false)}>
-                      <Link href="/signup">Sign Up</Link>
-                    </Button>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "outline" }),
+                        "w-full h-10 rounded-xl font-bold text-xs flex items-center justify-center cursor-pointer"
+                      )}
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "default" }),
+                        "w-full h-10 bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-xl flex items-center justify-center cursor-pointer"
+                      )}
+                    >
+                      Sign Up
+                    </Link>
                   </div>
                 </div>
               </SheetContent>

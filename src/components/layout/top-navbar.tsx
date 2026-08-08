@@ -213,7 +213,7 @@ export function TopNavbar() {
         <div className="hidden sm:flex flex-1 justify-center px-4 max-w-[540px]">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2.5 px-4 py-2 h-10 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-[#141414] text-muted-foreground dark:text-[#9CA3AF] text-xs hover:border-[#7CEAAB] dark:hover:border-[#22C55E] transition-colors w-full max-w-[480px] cursor-pointer shadow-2xs"
+            className="flex items-center gap-2.5 px-4 py-2 h-10 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-[#141414] text-muted-foreground dark:text-[#9CA3AF] text-xs hover:border-[#7CEAAB] dark:hover:border-[#22C55E] transition-colors w-full max-w-[480px] cursor-pointer shadow-2xs [&_*]:pointer-events-none"
           >
             <Search className="h-4 w-4 text-[#007C46] dark:text-[#22C55E] shrink-0" />
             <span className="truncate">Search events, passes...</span>
@@ -253,15 +253,19 @@ export function TopNavbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:border dark:border-white/[0.08] relative" asChild>
-            <Link href={`/${role}/notifications`} title="Notifications">
-              <Bell className="h-4 w-4 sm:h-5 sm:w-5 dark:text-[#9CA3AF]" />
-              {unreadCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] sm:h-5 sm:min-w-[20px] items-center justify-center rounded-full bg-[#007C46] dark:bg-[#22C55E] text-[9px] sm:text-[10px] font-bold text-white dark:text-[#090909] px-1 shadow-sm">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:border dark:border-white/[0.08] relative [&_*]:pointer-events-none"
+            onClick={() => router.push(`/${role}/notifications`)}
+            title="Notifications"
+          >
+            <Bell className="h-4 w-4 sm:h-5 sm:w-5 dark:text-[#9CA3AF]" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] sm:h-5 sm:min-w-[20px] items-center justify-center rounded-full bg-[#007C46] dark:bg-[#22C55E] text-[9px] sm:text-[10px] font-bold text-white dark:text-[#090909] px-1 shadow-sm">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Button>
 
           <DropdownMenu>
@@ -363,7 +367,7 @@ export function TopNavbar() {
                     <button
                       key={evt.id}
                       onClick={() => handleCommandSelect(`/${role}/events/${evt.id}`)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer border border-transparent hover:border-slate-200"
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer border border-transparent hover:border-slate-200 [&_*]:pointer-events-none"
                     >
                       <div className="flex flex-col">
                         <span className="font-semibold text-slate-800 dark:text-slate-200">{evt.title}</span>
@@ -387,7 +391,7 @@ export function TopNavbar() {
                   <button
                     key={idx}
                     onClick={() => handleCommandSelect(item.href)}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer [&_*]:pointer-events-none"
                   >
                     <span>{item.label}</span>
                     <span className="text-muted-foreground font-mono">→</span>

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { dataSync } from "@/lib/data-sync";
+import { logDeletionAudit } from "@/lib/deletion-framework";
 import type { Registration, RegistrationStatus, PaymentStatus } from "@/types/database.types";
 
 const supabase = createClient();
@@ -225,5 +226,120 @@ export const registrationService = {
 
   async cancelRegistration(id: string) {
     return this.updateRegistrationStatus(id, "cancelled");
+  },
+
+  async deleteRegistrationPermanently(id: string) {
+    if (!id) throw new Error("Registration ID is required");
+
+    // 1. Get registration details first
+    const { data: reg, error: fetchErr } = await supabase
+      .from("registrations")
+      .select("id, user_id, event_id, team_id")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchErr) {
+      console.error("[deleteRegistrationPermanently] Fetch error:", fetchErr);
+    }
+
+    const regUserId = reg?.user_id;
+    const eventId = reg?.event_id;
+    const teamId = reg?.team_id;
+
+    // 2. Remove attendance records
+    if (id) {
+      await supabase.from("attendance").delete().eq("registration_id", id);
+    }
+    if (regUserId && eventId) {
+      await supabase.from("attendance").delete().eq("user_id", regUserId).eq("event_id", eventId);
+    }
+
+    // 3. Remove issued certificates & invalidate them
+    if (id) {
+      await supabase.from("certificates").delete().eq("registration_id", id);
+    }
+    if (regUserId && eventId) {
+      await supabase.from("certificates").delete().eq("user_id", regUserId).eq("event_id", eventId);
+    }
+
+    // 4. Remove volunteer mapping if applicable
+    if (regUserId && eventId) {
+      const { data: volRows } = await supabase
+        .from("volunteers")
+        .select("id")
+        .eq("user_id", regUserId)
+        .eq("event_id", eventId);
+
+      if (volRows && volRows.length > 0) {
+        const volIds = volRows.map((v: any) => v.id);
+        await supabase.from("volunteer_tasks").delete().in("volunteer_id", volIds);
+      }
+      await supabase.from("volunteers").delete().eq("user_id", regUserId).eq("event_id", eventId);
+    }
+
+    // 5. Remove team membership if applicable
+    if (regUserId && eventId) {
+      if (teamId) {
+        await supabase.from("team_members").delete().eq("team_id", teamId).eq("user_id", regUserId);
+      }
+      const { data: teamRows } = await supabase
+        .from("teams")
+        .select("id")
+        .eq("event_id", eventId);
+
+      if (teamRows && teamRows.length > 0) {
+        const teamIds = teamRows.map((t: any) => t.id);
+        await supabase.from("team_members").delete().in("team_id", teamIds).eq("user_id", regUserId);
+      }
+    }
+
+    // 6. Delete payments
+    if (id) {
+      await supabase.from("payments").delete().eq("registration_id", id);
+    }
+
+    // 7. Delete registration row itself
+    const { error: deleteErr } = await supabase
+      .from("registrations")
+      .delete()
+      .eq("id", id);
+
+    if (deleteErr) {
+      throw new Error(deleteErr.message || "Failed to delete registration record");
+    }
+
+    // Log deletion event to audit_logs
+    await logDeletionAudit({
+      action: "DELETE_REGISTRATION",
+      resourceType: "registration",
+      resourceId: id,
+      details: { event_id: eventId, user_id: regUserId }
+    });
+
+    // 8. Update event participant count (recalculate remaining active registrations)
+    if (eventId) {
+      try {
+        const { count: activeCount } = await supabase
+          .from("registrations")
+          .select("id", { count: "exact", head: true })
+          .eq("event_id", eventId)
+          .in("status", ["approved", "completed", "pending", "pending_payment"]);
+
+        await supabase
+          .from("events")
+          .update({
+            registered_participants: activeCount || 0,
+            registered_count: activeCount || 0,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", eventId);
+      } catch (countErr) {
+        console.warn("[deleteRegistrationPermanently] Warning updating event count:", countErr);
+      }
+    }
+
+    // 9. Trigger real-time synchronization
+    dataSync.notify("registrations", "events", "attendance", "certificates", "volunteers");
+    return true;
   },
 };

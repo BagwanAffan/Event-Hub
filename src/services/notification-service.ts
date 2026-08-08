@@ -150,13 +150,37 @@ export const notificationService = {
     dataSync.notify("notifications");
   },
 
-  async deleteNotification(id: string) {
+  async deleteNotification(id: string, userId?: string) {
+    let query = supabase.from("notifications").delete().eq("id", id);
+    if (userId) {
+      query = query.eq("user_id", userId);
+    }
+    const { error } = await query;
+    if (error) throw error;
+    dataSync.notify("notifications");
+  },
+
+  async clearAllNotifications(userId: string) {
+    if (!userId) throw new Error("User ID is required to clear notifications");
     const { error } = await supabase
       .from("notifications")
       .delete()
-      .eq("id", id);
+      .eq("user_id", userId)
+      .neq("title", PROFILE_REMINDER_TITLE);
+
     if (error) throw error;
     dataSync.notify("notifications");
+  },
+
+  async clearAllAdminNotifications(userId: string) {
+    if (!userId) throw new Error("Admin User ID is required to clear notifications");
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) throw error;
+    dataSync.notify("notifications", "admin");
   },
 
   async createNotification(

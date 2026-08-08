@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -12,6 +12,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { notificationService } from '@/services/notification-service';
 import { useRouter } from 'next/navigation';
 import { Notification } from '@/types/database.types';
+import { useDataSync } from '@/lib/data-sync';
+
+import { toast } from 'sonner';
 
 export default function AdminNotificationsPage() {
   const { profile } = useAuth();
@@ -19,29 +22,44 @@ export default function AdminNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadNotifications() {
-      if (!profile?.id) return;
-      try {
-        setLoading(true);
-        const data = await notificationService.getNotifications(profile.id);
-        setNotifications(data);
-      } catch (err) {
-        console.error("Error loading admin notifications:", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadNotifications = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      setLoading(true);
+      const data = await notificationService.getNotifications(profile.id);
+      setNotifications(data);
+    } catch (err) {
+      console.error("Error loading admin notifications:", err);
+    } finally {
+      setLoading(false);
     }
-    loadNotifications();
   }, [profile?.id]);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
+
+  useDataSync(['notifications', 'admin'], loadNotifications, [profile?.id]);
 
   const markAllRead = async () => {
     if (!profile?.id) return;
     try {
       await notificationService.markAllAsRead(profile.id);
       setNotifications(notifications.map(n => ({ ...n, read: true })));
+      toast.success("All admin notifications marked as read");
     } catch (err) {
       console.error("Error marking all read:", err);
+    }
+  };
+
+  const clearAllNotifications = async () => {
+    if (!profile?.id) return;
+    try {
+      await notificationService.clearAllAdminNotifications(profile.id);
+      setNotifications([]);
+      toast.success("All admin notifications cleared");
+    } catch (err) {
+      toast.error("Failed to clear admin notifications");
     }
   };
 
@@ -62,10 +80,12 @@ export default function AdminNotificationsPage() {
   const deleteNotification = async (notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await notificationService.deleteNotification(notification.id);
+      await notificationService.deleteNotification(notification.id, profile?.id);
       setNotifications(notifications.filter(n => n.id !== notification.id));
+      toast.success("Admin notification deleted");
     } catch (err) {
       console.error("Error deleting notification:", err);
+      toast.error("Failed to delete notification");
     }
   };
 
@@ -95,11 +115,18 @@ export default function AdminNotificationsPage() {
           </p>
         </div>
         
-        {unreadCount > 0 && (
-          <Button variant="outline" onClick={markAllRead} className="shrink-0 text-xs font-bold">
-            <Check className="mr-2 h-4 w-4 text-[#007C46]" /> Mark all as read
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <Button variant="outline" onClick={markAllRead} className="shrink-0 text-xs font-bold">
+              <Check className="mr-1.5 h-3.5 w-3.5 text-[#007C46]" /> Mark all read
+            </Button>
+          )}
+          {notifications.length > 0 && (
+            <Button variant="outline" onClick={clearAllNotifications} className="shrink-0 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Clear all
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading ? (

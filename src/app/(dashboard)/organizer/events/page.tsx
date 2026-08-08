@@ -40,6 +40,7 @@ export default function OrganizerEventsPage() {
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
 
   const fetchEvents = async () => {
     if (!profile?.id) return;
@@ -570,19 +571,58 @@ export default function OrganizerEventsPage() {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-red-600 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" /> Delete Event
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" /> Permanently Delete Event
             </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete <strong>{deletingEvent?.title}</strong>? This action cannot be undone and will permanently remove all associated event data from Supabase.
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently delete this event? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
-            <Button onClick={handleDelete} disabled={deleteLoading} variant="destructive">
-              {deleteLoading ? 'Deleting...' : 'Delete Event'}
+
+          <div className="space-y-3 py-2">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Deleting an event permanently removes all associated registrations, teams, volunteers, certificates, payments, attendance, and feedback.
+            </div>
+
+            {deletingEvent && (
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
+                <p className="font-bold text-slate-900 dark:text-white">{deletingEvent.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Category: {deletingEvent.category || 'General'}</p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteOpen(false); setDeletingEvent(null); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || deleteLoading}
+              onClick={handleDelete}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deleteLoading ? 'Deleting Event...' : 'Confirm Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>

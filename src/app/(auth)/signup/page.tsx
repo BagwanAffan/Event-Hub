@@ -201,7 +201,7 @@ export default function SignupPage() {
               <Card
                 key={r.id}
                 className={cn(
-                  'cursor-pointer flex flex-col items-center justify-center p-3 gap-2 border-2 transition-all',
+                  'cursor-pointer flex flex-col items-center justify-center p-3 gap-2 border-2 transition-all [&_*]:pointer-events-none',
                   role === r.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                 )}
                 onClick={() => setValue('role', r.id as any)}
@@ -228,7 +228,7 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors [&_*]:pointer-events-none"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -256,7 +256,7 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors [&_*]:pointer-events-none"
             >
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>

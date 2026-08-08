@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, CheckCircle, XCircle, Download, QrCode, Filter, RefreshCw, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Search, CheckCircle, XCircle, Download, QrCode, Filter, RefreshCw, Eye, Trash2, AlertTriangle } from 'lucide-react';
 import { registrationService } from '@/services/registration-service';
 import { paymentService } from '@/services/payment-service';
 import { notificationService } from '@/services/notification-service';
@@ -22,6 +24,40 @@ export default function RegistrationsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Permanent Delete Registration Modal State
+  const [regToDelete, setRegToDelete] = useState<any | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  const openDeleteModal = (reg: any) => {
+    setRegToDelete(reg);
+    setConfirmDeleteText('');
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDeleteRegistration = async () => {
+    if (!regToDelete) return;
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm registration deletion');
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await registrationService.deleteRegistrationPermanently(regToDelete.id);
+      toast.success(`Registration for ${regToDelete.profiles?.full_name || 'student'} permanently deleted & event participant count updated.`);
+      setIsDeleteOpen(false);
+      setRegToDelete(null);
+      setConfirmDeleteText('');
+      loadRegistrations();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete registration');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const loadRegistrations = async () => {
     if (registrations.length === 0) setLoading(true);
@@ -253,10 +289,19 @@ export default function RegistrationsPage() {
                           </Button>
                         )}
                         {reg.status !== 'rejected' && (
-                          <Button onClick={() => handleReject(reg.id, reg.user_id, reg.events?.title)} variant="ghost" size="sm" className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                          <Button onClick={() => handleReject(reg.id, reg.user_id, reg.events?.title)} variant="ghost" size="sm" className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" title="Reject registration">
                             <XCircle className="h-4 w-4" />
                           </Button>
                         )}
+                        <Button
+                          onClick={() => openDeleteModal(reg)}
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          title="Permanently delete registration"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -266,6 +311,65 @@ export default function RegistrationsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Permanent Delete Registration Confirmation Modal */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" /> Permanently Delete Registration
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently delete this registration record?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Deleting this registration permanently removes team memberships, attendance records, volunteer assignments, and invalidates any issued certificates. Event participant count will be updated automatically.
+            </div>
+
+            {regToDelete && (
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <p className="font-bold text-slate-900 dark:text-white">{regToDelete.profiles?.full_name || 'Student'}</p>
+                <p className="text-muted-foreground">{regToDelete.profiles?.email} • Event: <strong>{regToDelete.events?.title || 'Campus Event'}</strong></p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteOpen(false); setRegToDelete(null); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || deleting}
+              onClick={handleConfirmDeleteRegistration}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deleting ? 'Deleting Registration...' : 'Confirm Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

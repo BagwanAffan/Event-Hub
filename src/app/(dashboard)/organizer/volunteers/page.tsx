@@ -33,8 +33,10 @@ import {
   Building,
   Phone,
   Mail,
-  GraduationCap
+  GraduationCap,
+  Trash2,
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import { volunteerService, parseSkills } from '@/services/volunteer-service';
 import { eventService } from '@/services/event-service';
 import { notificationService } from '@/services/notification-service';
@@ -59,6 +61,41 @@ export default function VolunteersPage() {
   // Modals
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState<any>(null);
+
+  // Permanent Delete Volunteer Modal State
+  const [volToDelete, setVolToDelete] = useState<any | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [deletingVol, setDeletingVol] = useState(false);
+
+  const openDeleteVolModal = (vol: any) => {
+    setVolToDelete(vol);
+    setConfirmDeleteText('');
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDeleteVolunteer = async () => {
+    if (!volToDelete) return;
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm volunteer removal');
+      return;
+    }
+
+    try {
+      setDeletingVol(true);
+      await volunteerService.deleteVolunteerPermanently(volToDelete.id);
+      toast.success(`Volunteer "${volToDelete.profiles?.full_name || 'Crew member'}" permanently removed & slots updated.`);
+      setIsDeleteOpen(false);
+      setReviewModalOpen(false);
+      setVolToDelete(null);
+      setConfirmDeleteText('');
+      loadData();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to remove volunteer');
+    } finally {
+      setDeletingVol(false);
+    }
+  };
 
   const [markPresentDialogOpen, setMarkPresentDialogOpen] = useState(false);
   const [taskToMarkPresent, setTaskToMarkPresent] = useState<any>(null);
@@ -372,7 +409,7 @@ export default function VolunteersPage() {
       <div className="bg-slate-100 dark:bg-[#151515] p-1.5 rounded-xl border dark:border-white/[0.08] flex items-center gap-1 w-full max-w-2xl">
         <button
           onClick={() => setActiveTab('applications')}
-          className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 [&_*]:pointer-events-none ${
             activeTab === 'applications'
               ? 'bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm'
               : 'text-slate-600 dark:text-[#CFCFCF] hover:text-slate-900 dark:hover:text-[#F5F5F5] hover:bg-slate-200/50 dark:hover:bg-[#1F1F1F]'
@@ -387,7 +424,7 @@ export default function VolunteersPage() {
 
         <button
           onClick={() => setActiveTab('assigned')}
-          className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 [&_*]:pointer-events-none ${
             activeTab === 'assigned'
               ? 'bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm'
               : 'text-slate-600 dark:text-[#CFCFCF] hover:text-slate-900 dark:hover:text-[#F5F5F5] hover:bg-slate-200/50 dark:hover:bg-[#1F1F1F]'
@@ -402,7 +439,7 @@ export default function VolunteersPage() {
 
         <button
           onClick={() => setActiveTab('tasks')}
-          className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 [&_*]:pointer-events-none ${
             activeTab === 'tasks'
               ? 'bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm'
               : 'text-slate-600 dark:text-[#CFCFCF] hover:text-slate-900 dark:hover:text-[#F5F5F5] hover:bg-slate-200/50 dark:hover:bg-[#1F1F1F]'
@@ -534,17 +571,28 @@ export default function VolunteersPage() {
                         </TableCell>
 
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedVolunteer(vol);
-                              setReviewModalOpen(true);
-                            }}
-                            className="text-xs font-bold text-[#01424E] dark:text-[#22C55E] border-[#01424E]/30 dark:border-[#22C55E]/30 dark:bg-[#15271B] hover:bg-[#edfcf6] dark:hover:bg-[#1F2B22]"
-                          >
-                            <Eye className="mr-1.5 h-3.5 w-3.5" /> Review Application
-                          </Button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedVolunteer(vol);
+                                setReviewModalOpen(true);
+                              }}
+                              className="text-xs font-bold text-[#01424E] dark:text-[#22C55E] border-[#01424E]/30 dark:border-[#22C55E]/30 dark:bg-[#15271B] hover:bg-[#edfcf6] dark:hover:bg-[#1F2B22]"
+                            >
+                              <Eye className="mr-1.5 h-3.5 w-3.5" /> Review Application
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openDeleteVolModal(vol)}
+                              className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                              title="Permanently remove volunteer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -641,14 +689,25 @@ export default function VolunteersPage() {
                         </TableCell>
 
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleOpenTaskModalForVolunteer(vol.id, vol.event_id)}
-                            className="text-xs bg-white dark:bg-[#15271B] text-[#007C46] dark:text-[#22C55E] border-[#007C46]/30 dark:border-[#22C55E]/30 font-bold dark:hover:bg-[#1F2B22]"
-                          >
-                            <Plus className="mr-1 h-3.5 w-3.5" /> Assign Task
-                          </Button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenTaskModalForVolunteer(vol.id, vol.event_id)}
+                              className="text-xs bg-white dark:bg-[#15271B] text-[#007C46] dark:text-[#22C55E] border-[#007C46]/30 dark:border-[#22C55E]/30 font-bold dark:hover:bg-[#1F2B22]"
+                            >
+                              <Plus className="mr-1 h-3.5 w-3.5" /> Assign Task
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openDeleteVolModal(vol)}
+                              className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                              title="Permanently remove volunteer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -903,6 +962,15 @@ export default function VolunteersPage() {
               Close
             </Button>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (selectedVolunteer) openDeleteVolModal(selectedVolunteer);
+                }}
+                className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" /> Remove Volunteer
+              </Button>
               {selectedVolunteer?.application_status === 'pending' && (
                 <>
                   <Button variant="outline" onClick={handleReject} className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/30">
@@ -1117,6 +1185,65 @@ export default function VolunteersPage() {
             >
               {markingAttendanceLoading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-1.5 h-4 w-4" />}
               Confirm Present
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permanent Delete Volunteer Confirmation Modal */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" /> Permanently Remove Volunteer
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently remove this volunteer from the event crew?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Deleting this volunteer removes all assigned shift tasks, volunteer attendance logs, revokes any issued volunteer certificates, and updates the event's volunteer slot count automatically.
+            </div>
+
+            {volToDelete && (
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <p className="font-bold text-slate-900 dark:text-white">{volToDelete.profiles?.full_name || 'Volunteer'}</p>
+                <p className="text-muted-foreground">{volToDelete.profiles?.email} • Event: <strong>{volToDelete.events?.title || 'Campus Event'}</strong></p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteOpen(false); setVolToDelete(null); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || deletingVol}
+              onClick={handleConfirmDeleteVolunteer}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deletingVol ? 'Removing Volunteer...' : 'Confirm Remove'}
             </Button>
           </DialogFooter>
         </DialogContent>

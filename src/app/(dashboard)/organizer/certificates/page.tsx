@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Award, Download, Sparkles, RefreshCw, CheckCircle2, Users, Search } from 'lucide-react';
+import { Award, Download, Sparkles, RefreshCw, CheckCircle2, Users, Search, Trash2, AlertTriangle } from 'lucide-react';
 import { certificateService } from '@/services/certificate-service';
 import { eventService } from '@/services/event-service';
 import { exportService } from '@/services/export-service';
@@ -34,6 +35,40 @@ export default function CertificatesPage() {
   const [selectedCertData, setSelectedCertData] = useState<FormattedCertificateData | null>(null);
   const [certTypeFilter, setCertTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Permanent Delete Certificate Modal State
+  const [certToDelete, setCertToDelete] = useState<any | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [deletingCert, setDeletingCert] = useState(false);
+
+  const openDeleteCertModal = (cert: any) => {
+    setCertToDelete(cert);
+    setConfirmDeleteText('');
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDeleteCertificate = async () => {
+    if (!certToDelete) return;
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm certificate deletion');
+      return;
+    }
+
+    try {
+      setDeletingCert(true);
+      await certificateService.deleteCertificate(certToDelete.id);
+      toast.success(`Certificate ${certToDelete.verification_id} permanently deleted & verification invalidated.`);
+      setIsDeleteOpen(false);
+      setCertToDelete(null);
+      setConfirmDeleteText('');
+      loadData();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete certificate');
+    } finally {
+      setDeletingCert(false);
+    }
+  };
 
   useEffect(() => {
     async function loadEvents() {
@@ -576,6 +611,15 @@ export default function CertificatesPage() {
                           <Button onClick={() => handleDownloadPDF(cert)} size="sm" className="bg-[#01424E] text-[#7CEAAB] h-8">
                             <Download className="mr-1 h-3.5 w-3.5" /> PDF
                           </Button>
+                          <Button
+                            onClick={() => openDeleteCertModal(cert)}
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            title="Permanently delete certificate"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -625,6 +669,65 @@ export default function CertificatesPage() {
               Replace & Assign
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permanent Delete Certificate Confirmation Modal */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" /> Permanently Delete Certificate
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently delete this digital certificate credential?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Deleting this certificate permanently removes the database record, invalidates the verification ID (<strong>{certToDelete?.verification_id}</strong>), purges any stored PDF file, and updates certificate counters.
+            </div>
+
+            {certToDelete && (
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <p className="font-bold text-slate-900 dark:text-white">{certToDelete.profiles?.full_name || 'Recipient'}</p>
+                <p className="text-muted-foreground">{certToDelete.profiles?.email} • Verification ID: <strong className="font-mono text-slate-800 dark:text-slate-200">{certToDelete.verification_id}</strong></p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteOpen(false); setCertToDelete(null); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || deletingCert}
+              onClick={handleConfirmDeleteCertificate}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deletingCert ? 'Deleting Certificate...' : 'Confirm Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

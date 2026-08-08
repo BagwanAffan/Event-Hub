@@ -23,6 +23,7 @@ import {
   CheckSquare,
   UserCheck,
   FileText,
+  UserX,
   LogOut,
   Loader2,
   PanelLeftClose,
@@ -117,6 +118,7 @@ export function Sidebar() {
       { name: 'Organizers', icon: Users, href: '/admin/organizers' },
       { name: 'Events', icon: Calendar, href: '/admin/events' },
       { name: 'Users', icon: Users, href: '/admin/users' },
+      { name: 'Deletion Requests', icon: UserX, href: '/admin/deletion-requests' },
       { name: 'Reports', icon: FileText, href: '/admin/reports' },
       { name: 'Settings', icon: Settings, href: '/admin/settings' },
     ],
@@ -183,7 +185,7 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center text-xs cursor-pointer group",
+                  "flex items-center text-xs cursor-pointer group [&_*]:pointer-events-none",
                   SIDEBAR_CONFIG.itemRadius,
                   SIDEBAR_CONFIG.iconTextGap,
                   SIDEBAR_CONFIG.transition,

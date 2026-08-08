@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -49,6 +50,7 @@ export default function AdminEventsPage() {
   // Delete Confirmation Modal State
   const [eventToDelete, setEventToDelete] = useState<EnrichedAdminEvent | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
 
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -135,12 +137,17 @@ export default function AdminEventsPage() {
   // 3. Delete Confirmation Dialog Opener
   const openDeleteConfirmation = (evt: EnrichedAdminEvent) => {
     setEventToDelete(evt);
+    setConfirmDeleteText('');
     setIsDeleteModalOpen(true);
   };
 
   // 4. Permanent Cascade Delete Execution (DB Confirmation FIRST, then UI Update)
   const handleConfirmDelete = async () => {
     if (!eventToDelete) return;
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm deletion');
+      return;
+    }
     const targetId = eventToDelete.id;
 
     setProcessingId(targetId);
@@ -154,6 +161,7 @@ export default function AdminEventsPage() {
       toast.success('Event deleted successfully.');
       setIsDeleteModalOpen(false);
       setEventToDelete(null);
+      setConfirmDeleteText('');
 
       // 3. Re-fetch to ensure complete sync
       await fetchEvents();
@@ -488,45 +496,63 @@ export default function AdminEventsPage() {
 
       {/* DELETE CONFIRMATION MODAL */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
             <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" /> Delete Event
+              <AlertTriangle className="h-5 w-5" /> Permanently Delete Event
             </DialogTitle>
-            <DialogDescription className="text-xs pt-2 leading-relaxed">
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
               Are you sure you want to permanently delete this event? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
-          {eventToDelete && (
-            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs my-2">
-              <p className="font-bold text-red-900 dark:text-red-200">{eventToDelete.title}</p>
-              <p className="text-[11px] text-red-700 dark:text-red-300 mt-0.5">Category: {eventToDelete.category || 'General'}</p>
+          <div className="space-y-3 py-2">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Deleting an event permanently removes all associated registrations, teams, volunteers, certificates, payments, attendance, and feedback.
             </div>
-          )}
 
-          <DialogFooter className="gap-2 sm:gap-0 pt-4 border-t border-slate-100 dark:border-slate-800">
+            {eventToDelete && (
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
+                <p className="font-bold text-slate-900 dark:text-white">{eventToDelete.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Category: {eventToDelete.category || 'General'}</p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => { setIsDeleteModalOpen(false); setEventToDelete(null); }}
-              className="text-xs font-bold rounded-xl h-9 px-4"
+              onClick={() => { setIsDeleteModalOpen(false); setEventToDelete(null); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
             >
               Cancel
             </Button>
             <Button
               type="button"
               variant="destructive"
-              disabled={!!processingId}
+              disabled={confirmDeleteText.trim() !== 'DELETE' || !!processingId}
               onClick={handleConfirmDelete}
-              className="text-xs font-bold rounded-xl h-9 px-5 cursor-pointer"
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
             >
               {processingId ? (
                 <>
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Deleting...
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Deleting Event...
                 </>
               ) : (
-                'Delete'
+                'Confirm Delete'
               )}
             </Button>
           </DialogFooter>

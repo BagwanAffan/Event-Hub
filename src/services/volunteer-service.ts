@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { dataSync } from "@/lib/data-sync";
+import { logDeletionAudit } from "@/lib/deletion-framework";
 import type { Volunteer, VolunteerTask, ChecklistItem, TaskPriority, VolunteerAttendanceStatus } from "@/types/database.types";
 
 const supabase = createClient();
@@ -578,5 +579,128 @@ export const volunteerService = {
     } catch {
       return [];
     }
+  },
+
+  async deleteVolunteerPermanently(id: string) {
+    if (!id) throw new Error("Volunteer ID is required for deletion");
+
+    // 1. Fetch volunteer application record first
+    const { data: vol, error: fetchErr } = await supabase
+      .from("volunteers")
+      .select("id, user_id, event_id")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchErr) {
+      console.error("[deleteVolunteerPermanently] Fetch volunteer error:", fetchErr);
+    }
+
+    const userId = vol?.user_id;
+    const eventId = vol?.event_id;
+
+    // 2. Remove volunteer tasks
+    if (id) {
+      await supabase.from("volunteer_tasks").delete().eq("volunteer_id", id);
+    }
+    if (userId && eventId) {
+      const { data: volRows } = await supabase
+        .from("volunteers")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("event_id", eventId);
+
+      if (volRows && volRows.length > 0) {
+        const volIds = volRows.map((v: any) => v.id);
+        await supabase.from("volunteer_tasks").delete().in("volunteer_id", volIds);
+      }
+    }
+
+    // 3. Remove attendance related to volunteer role
+    if (userId && eventId) {
+      await supabase
+        .from("attendance")
+        .delete()
+        .eq("user_id", userId)
+        .eq("event_id", eventId)
+        .is("registration_id", null);
+    }
+
+    // 4. Revoke & delete volunteer certificate if issued
+    if (userId && eventId) {
+      const { data: certs } = await supabase
+        .from("certificates")
+        .select("id, verification_id, pdf_url, file_path")
+        .eq("user_id", userId)
+        .eq("event_id", eventId)
+        .eq("certificate_type", "volunteer");
+
+      if (certs && certs.length > 0) {
+        for (const cert of certs) {
+          const pdfUrl = (cert as any).pdf_url || (cert as any).file_path;
+          if (pdfUrl) {
+            try {
+              let filePath = pdfUrl;
+              if (filePath.includes('/certificates/')) {
+                filePath = filePath.split('/certificates/').pop() || filePath;
+              }
+              await supabase.storage.from('certificates').remove([filePath, `${cert.id}.pdf`, `${cert.verification_id}.pdf`]);
+            } catch (storageErr) {
+              console.warn("[deleteVolunteerPermanently] Storage removal note:", storageErr);
+            }
+          }
+        }
+
+        await supabase
+          .from("certificates")
+          .delete()
+          .eq("user_id", userId)
+          .eq("event_id", eventId)
+          .eq("certificate_type", "volunteer");
+      }
+    }
+
+    // 5. Delete volunteer application row from database
+    const { error: deleteErr } = await supabase
+      .from("volunteers")
+      .delete()
+      .eq("id", id);
+
+    if (deleteErr) {
+      throw new Error(deleteErr.message || "Failed to delete volunteer record");
+    }
+
+    // Log deletion event to audit_logs
+    await logDeletionAudit({
+      action: "DELETE_VOLUNTEER",
+      resourceType: "volunteer",
+      resourceId: id,
+      details: { event_id: eventId, user_id: userId }
+    });
+
+    // 6. Update volunteer slot count on events table
+    if (eventId) {
+      try {
+        const { count: remainingApproved } = await supabase
+          .from("volunteers")
+          .select("id", { count: "exact", head: true })
+          .eq("event_id", eventId)
+          .eq("application_status", "approved");
+
+        await supabase
+          .from("events")
+          .update({
+            volunteers_assigned: remainingApproved || 0,
+            volunteers_count: remainingApproved || 0,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", eventId);
+      } catch (slotErr) {
+        console.warn("[deleteVolunteerPermanently] Slot count update note:", slotErr);
+      }
+    }
+
+    // 7. Trigger real-time sync across volunteers, events, certificates, and attendance
+    dataSync.notify("volunteers", "events", "certificates", "attendance");
+    return true;
   },
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/use-auth';
 import { profileService } from '@/services/profile-service';
@@ -8,11 +8,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { accountDeletionService, type AccountDeletionRequest } from '@/services/account-deletion-service';
 import {
   Settings,
   Sun,
@@ -34,7 +36,8 @@ import {
   Sparkles,
   ExternalLink,
   Edit2,
-  ShieldCheck
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -73,8 +76,22 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
   // Role-Specific Notifications State
   const [notifPrefs, setNotifPrefs] = useState<Record<string, boolean>>({});
 
-  // Modal State
+  // Account Deletion Request State
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [latestDeletionRequest, setLatestDeletionRequest] = useState<AccountDeletionRequest | null>(null);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [submittingDeletion, setSubmittingDeletion] = useState(false);
+
+  const fetchDeletionRequest = useCallback(async () => {
+    if (!profile?.id) return;
+    try {
+      const req = await accountDeletionService.getLatestRequest(profile.id);
+      setLatestDeletionRequest(req);
+    } catch (err) {
+      console.error('Error fetching deletion request:', err);
+    }
+  }, [profile?.id]);
 
   useEffect(() => {
     setMounted(true);
@@ -84,8 +101,42 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
     if (profile?.id || role) {
       const loaded = loadNotificationPreferences(profile?.id, role as UserRole);
       setNotifPrefs(loaded);
+      fetchDeletionRequest();
     }
-  }, [profile?.id, role]);
+  }, [profile?.id, role, fetchDeletionRequest]);
+
+  const handleSubmitDeletionRequest = async () => {
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm deletion request');
+      return;
+    }
+    if (!profile?.id) {
+      toast.error('User session invalid. Please log in again.');
+      return;
+    }
+
+    try {
+      setSubmittingDeletion(true);
+      const created = await accountDeletionService.createRequest({
+        userId: profile.id,
+        role: profile.role || role,
+        name: profile.full_name || 'User',
+        email: profile.email || '',
+        reason: deleteReason,
+      });
+
+      setLatestDeletionRequest(created);
+      setIsDeleteOpen(false);
+      setConfirmDeleteText('');
+      setDeleteReason('');
+      toast.success('Account deletion request submitted successfully! Status: Pending');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to submit deletion request');
+    } finally {
+      setSubmittingDeletion(false);
+    }
+  };
+
 
   const handleTogglePref = (key: string, val: boolean) => {
     setNotifPrefs((prev) => ({ ...prev, [key]: val }));
@@ -477,7 +528,7 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
             </div>
 
             {/* Account Actions Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div className="space-y-4 pt-2">
               <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-card flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-slate-900 dark:text-white">Export Personal Data</p>
@@ -492,18 +543,78 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
                 </Button>
               </div>
 
-              <div className="p-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-red-600 dark:text-red-400">Account Deletion</p>
-                  <p className="text-[11px] text-muted-foreground">Permanently remove account & credentials</p>
+              {/* Account Deletion Request Section */}
+              <div className="p-5 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/20 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
+                      <h3 className="text-sm font-bold text-red-600 dark:text-red-400">Account Deletion</h3>
+                      {latestDeletionRequest && (
+                        <Badge
+                          className={cn(
+                            "capitalize font-bold text-[10px] px-2.5 py-0.5 rounded-full ml-1",
+                            latestDeletionRequest.status === 'pending'
+                              ? "bg-amber-500 text-white"
+                              : latestDeletionRequest.status === 'approved'
+                              ? "bg-emerald-600 text-white"
+                              : "bg-red-500 text-white"
+                          )}
+                        >
+                          {latestDeletionRequest.status === 'pending' ? 'Pending Review' : latestDeletionRequest.status}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
+                      Warning: Requesting account deletion is permanent. If approved by campus administration, your profile, credentials, event passes, and digital certificates will be revoked.
+                    </p>
+                  </div>
+
+                  {latestDeletionRequest?.status === 'pending' ? (
+                    <Button
+                      disabled
+                      variant="outline"
+                      className="h-10 px-4 rounded-xl font-bold text-xs bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800 opacity-90 shrink-0 cursor-not-allowed"
+                    >
+                      <Clock className="mr-1.5 h-4 w-4 animate-spin" /> Deletion Request Pending
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        setConfirmDeleteText('');
+                        setDeleteReason('');
+                        setIsDeleteOpen(true);
+                      }}
+                      className="h-10 px-4 rounded-xl font-bold text-xs bg-red-600 hover:bg-red-700 text-white shadow-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shrink-0"
+                    >
+                      <AlertTriangle className="mr-1.5 h-4 w-4" /> Delete Account
+                    </Button>
+                  )}
                 </div>
-                <Button
-                  variant="destructive"
-                  onClick={() => setIsDeleteOpen(true)}
-                  className="text-xs font-bold rounded-xl h-9 px-3 cursor-pointer shrink-0"
-                >
-                  <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> Delete Account
-                </Button>
+
+                {latestDeletionRequest && (
+                  <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 text-xs space-y-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">
+                        Request Status: <strong className="capitalize text-slate-900 dark:text-white">{latestDeletionRequest.status}</strong>
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">
+                        Requested on {format(new Date(latestDeletionRequest.requested_at), 'MMM dd, yyyy, h:mm a')}
+                      </span>
+                    </div>
+                    {latestDeletionRequest.reason && (
+                      <p className="text-slate-600 dark:text-slate-400 italic">
+                        Reason provided: "{latestDeletionRequest.reason}"
+                      </p>
+                    )}
+                    {latestDeletionRequest.status === 'rejected' && (
+                      <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                        Your previous deletion request was rejected. You can submit another deletion request above.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -556,21 +667,66 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
 
       {/* Delete Account Confirmation Dialog */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-red-600 dark:text-red-400 font-bold flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" /> Delete Account Confirmation
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-3 text-center sm:text-center">
+            <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto shadow-xs">
+              <AlertTriangle className="h-7 w-7" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white text-center">
+              Delete Account Confirmation
             </DialogTitle>
-            <DialogDescription className="text-xs pt-2 leading-relaxed">
-              Are you sure you want to request account deletion? This action will permanently revoke your access, event passes, and earned digital certificates.
+            <DialogDescription className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-center">
+              Are you sure you want to request deletion of your account?
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0 mt-4">
-            <Button variant="outline" size="sm" onClick={() => setIsDeleteOpen(false)} className="text-xs font-bold">
+
+          <div className="space-y-4 py-2">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Account deletion is permanent. Submitting this form creates an official deletion request for administrator review.
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                Reason for Deletion (Optional)
+              </Label>
+              <Textarea
+                placeholder="Tell us why you want to delete your account..."
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                className="text-xs min-h-[70px]"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDeleteOpen(false)}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
               Cancel
             </Button>
-            <Button variant="destructive" size="sm" onClick={handleDeleteAccount} className="text-xs font-bold">
-              Confirm Delete
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || submittingDeletion}
+              onClick={handleSubmitDeletionRequest}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {submittingDeletion ? 'Submitting Request...' : 'Confirm Request'}
             </Button>
           </DialogFooter>
         </DialogContent>

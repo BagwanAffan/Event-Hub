@@ -51,7 +51,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import {
   LayoutDashboard, Calendar, ClipboardList, Users, Award, Bell, User, Settings,
-  CreditCard, Heart, ScanLine, BarChart3, Sparkles, CheckSquare, UserCheck, FileText, LogOut, Loader2
+  CreditCard, Heart, ScanLine, BarChart3, Sparkles, CheckSquare, UserCheck, FileText, UserX, LogOut, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -101,6 +101,7 @@ function SidebarMobileContent() {
       { name: 'Organizers', icon: Users, href: '/admin/organizers' },
       { name: 'Events', icon: Calendar, href: '/admin/events' },
       { name: 'Users', icon: Users, href: '/admin/users' },
+      { name: 'Deletion Requests', icon: UserX, href: '/admin/deletion-requests' },
       { name: 'Reports', icon: FileText, href: '/admin/reports' },
       { name: 'Settings', icon: Settings, href: '/admin/settings' },
     ],

@@ -15,6 +15,8 @@ import type { Notification } from '@/types/database.types';
 import { PROFILE_REMINDER_TITLE } from '@/hooks/use-profile-completion';
 import { useRouter } from 'next/navigation';
 
+import { toast } from 'sonner';
+
 export default function VolunteerNotificationsPage() {
   const { profile } = useAuth();
   const router = useRouter();
@@ -46,9 +48,21 @@ export default function VolunteerNotificationsPage() {
     ));
     try {
       await notificationService.markAllAsRead(profile.id);
+      toast.success("All notifications marked as read");
     } catch (error) {
       console.error('Error marking all as read:', error);
       setNotifications(previous);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!profile?.id) return;
+    try {
+      await notificationService.clearAllNotifications(profile.id);
+      setNotifications(prev => prev.filter(n => n.title === PROFILE_REMINDER_TITLE));
+      toast.success("All notifications cleared");
+    } catch (error) {
+      toast.error("Failed to clear notifications");
     }
   };
 
@@ -72,7 +86,8 @@ export default function VolunteerNotificationsPage() {
     const previous = [...notifications];
     setNotifications(prev => prev.filter(n => n.id !== notification.id));
     try {
-      await notificationService.deleteNotification(notification.id);
+      await notificationService.deleteNotification(notification.id, profile?.id);
+      toast.success("Notification deleted");
     } catch (error) {
       console.error('Error deleting notification:', error);
       setNotifications(previous);
@@ -98,6 +113,7 @@ export default function VolunteerNotificationsPage() {
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
+  const deletableCount = notifications.filter(n => n.title !== PROFILE_REMINDER_TITLE).length;
 
   return (
     <div className="space-y-6 fade-in max-w-4xl mx-auto">
@@ -105,11 +121,18 @@ export default function VolunteerNotificationsPage() {
         title="Notifications"
         description="Stay updated with your volunteer assignments, task updates, and announcements"
       >
-        {unreadCount > 0 && (
-          <Button variant="outline" onClick={handleMarkAllRead} className="shrink-0">
-            <Check className="mr-2 h-4 w-4" /> Mark all as read
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <Button variant="outline" onClick={handleMarkAllRead} className="shrink-0 text-xs font-bold">
+              <Check className="mr-1.5 h-3.5 w-3.5" /> Mark all read
+            </Button>
+          )}
+          {deletableCount > 0 && (
+            <Button variant="outline" onClick={handleClearAll} className="shrink-0 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Clear all
+            </Button>
+          )}
+        </div>
       </PageHeader>
 
       {loading ? (

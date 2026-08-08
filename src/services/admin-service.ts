@@ -489,7 +489,23 @@ export const adminService = {
     if (!eventId) throw new Error("Event ID is required for deletion");
 
     try {
-      // 1. Fetch team IDs belonging to this event to delete team_members first
+      const response = await fetch('/api/admin/delete-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId }),
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete event and dependent records');
+      }
+
+      dataSync.notify("events", "registrations", "volunteers", "certificates", "admin", "notifications");
+      return true;
+    } catch (err: any) {
+      console.warn("[adminService] API event deletion failed, falling back to direct query:", err);
+
+      // Fallback: Direct database cascade delete
       const { data: teamRows } = await supabase
         .from("teams")
         .select("id")
@@ -500,7 +516,6 @@ export const adminService = {
         await supabase.from("team_members").delete().in("team_id", teamIds);
       }
 
-      // 2. Purge child dependency records in exact FK cascade order
       await Promise.allSettled([
         supabase.from("payments").delete().eq("event_id", eventId),
         supabase.from("attendance").delete().eq("event_id", eventId),
@@ -515,47 +530,17 @@ export const adminService = {
         supabase.from("feedback").delete().eq("event_id", eventId),
       ]);
 
-      // 3. Delete event row from database
-      const { data: hardData, error: hardErr } = await supabase
+      const { error: hardErr } = await supabase
         .from("events")
         .delete()
-        .eq("id", eventId)
-        .select();
+        .eq("id", eventId);
 
-      if (hardErr || !hardData || hardData.length === 0) {
-        // Soft-delete fallback
-        const { data: softData, error: softErr } = await supabase
-          .from("events")
-          .update({
-            is_soft_deleted: true,
-            is_disabled: true,
-            status: 'cancelled',
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", eventId)
-          .select();
-
-        if (softErr || !softData || softData.length === 0) {
-          const { error: directErr } = await supabase
-            .from("events")
-            .update({
-              is_disabled: true,
-              status: 'cancelled',
-              updated_at: new Date().toISOString()
-            })
-            .eq("id", eventId);
-
-          if (directErr) {
-            throw new Error(hardErr?.message || softErr?.message || directErr.message || "Failed to delete event record");
-          }
-        }
+      if (hardErr) {
+        throw new Error(hardErr.message || "Failed to delete event record");
       }
 
-      dataSync.notify("events", "registrations", "volunteers", "certificates", "admin");
+      dataSync.notify("events", "registrations", "volunteers", "certificates", "admin", "notifications");
       return true;
-    } catch (err: any) {
-      console.error("[adminService] deleteEventPermanently error:", err);
-      throw new Error(err?.message || "Failed to delete event and related records");
     }
   },
 

@@ -1,12 +1,16 @@
 'use client';
 
 import { use, useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, MapPin, Users, Award, QrCode, ArrowLeft, Edit2, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Calendar, MapPin, Users, Award, QrCode, ArrowLeft, Edit2, ShieldCheck, CheckCircle2, Clock, Trash2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { eventService } from '@/services/event-service';
 import { useDataSync } from '@/lib/data-sync';
@@ -15,10 +19,16 @@ import { getEventStatusDetails } from '@/utils/event-status';
 
 export default function OrganizerEventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const { profile } = useAuth();
   const [event, setEvent] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Delete Event Modal State
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   const loadEventData = useCallback(async () => {
     try {
@@ -38,6 +48,26 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
   }, [id, event]);
 
   useDataSync(['events', 'registrations', 'volunteers', 'attendance', 'certificates'], loadEventData, [id]);
+
+  const handleDeleteEvent = async () => {
+    if (!event?.id) return;
+    if (confirmDeleteText.trim() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm deletion');
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await eventService.deleteEvent(event.id);
+      toast.success('Event and all associated data permanently deleted.');
+      setIsDeleteOpen(false);
+      router.push('/organizer/events');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete event');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -70,7 +100,7 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
 
   return (
     <div className="w-full space-y-6 sm:space-y-8 animate-fade-in pb-12">
-      {/* Top Action Bar: Back Button & Status Badge */}
+      {/* Top Action Bar: Back Button, Status Badge & Delete Action */}
       <div className="flex items-center justify-between gap-4 w-full">
         <Button asChild variant="outline" size="sm" className="h-9 px-3.5 rounded-lg border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-xs sm:text-sm transition-colors shadow-2xs">
           <Link href="/organizer/events" className="inline-flex items-center gap-2">
@@ -78,17 +108,31 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
             <span>Back to Events</span>
           </Link>
         </Button>
-        <Badge className={`capitalize text-xs font-semibold px-3 py-1 rounded-full shadow-2xs ${
-          event.status === 'draft'
-            ? 'bg-amber-500 text-white'
-            : statusDetails.timeStatus === 'ongoing'
-            ? 'bg-[#007C46] text-white'
-            : statusDetails.timeStatus === 'upcoming'
-            ? 'bg-[#01424E] text-[#7CEAAB]'
-            : 'bg-slate-500 text-white'
-        }`}>
-          {event.status === 'draft' ? 'Draft' : statusDetails.badgeLabel}
-        </Badge>
+
+        <div className="flex items-center gap-2">
+          <Badge className={`capitalize text-xs font-semibold px-3 py-1 rounded-full shadow-2xs ${
+            event.status === 'draft'
+              ? 'bg-amber-500 text-white'
+              : statusDetails.timeStatus === 'ongoing'
+              ? 'bg-[#007C46] text-white'
+              : statusDetails.timeStatus === 'upcoming'
+              ? 'bg-[#01424E] text-[#7CEAAB]'
+              : 'bg-slate-500 text-white'
+          }`}>
+            {event.status === 'draft' ? 'Draft' : statusDetails.badgeLabel}
+          </Badge>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              setConfirmDeleteText('');
+              setIsDeleteOpen(true);
+            }}
+            className="h-9 px-3 text-xs font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-2xs cursor-pointer"
+          >
+            <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete Event
+          </Button>
+        </div>
       </div>
 
       {/* Hero Banner Card */}
@@ -268,6 +312,65 @@ export default function OrganizerEventDetailsPage({ params }: { params: Promise<
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Event Modal */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-red-600 dark:text-red-400 font-bold text-lg flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" /> Permanently Delete Event
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-1 leading-relaxed">
+              Are you sure you want to permanently delete this event? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+              <strong>Warning:</strong> Deleting an event permanently removes all associated registrations, teams, volunteers, certificates, payments, attendance, and feedback.
+            </div>
+
+            {event && (
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
+                <p className="font-bold text-slate-900 dark:text-white">{event.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Category: {event.category || 'General'}</p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-red-600 dark:text-red-400">
+                Please type "DELETE" to confirm:
+              </Label>
+              <Input
+                placeholder="Type DELETE to confirm"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+                className="text-xs h-10 border-red-300 dark:border-red-800 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setIsDeleteOpen(false); setConfirmDeleteText(''); }}
+              className="text-xs font-bold rounded-xl h-10 flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={confirmDeleteText.trim() !== 'DELETE' || deleting}
+              onClick={handleDeleteEvent}
+              className="text-xs font-bold rounded-xl h-10 flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer"
+            >
+              {deleting ? 'Deleting Event...' : 'Confirm Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
