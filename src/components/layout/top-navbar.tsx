@@ -367,10 +367,10 @@ export function TopNavbar() {
                     <button
                       key={evt.id}
                       onClick={() => handleCommandSelect(`/${role}/events/${evt.id}`)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer border border-transparent hover:border-slate-200 [&_*]:pointer-events-none"
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:text-[#F5F5F5] text-xs text-left font-medium transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/10 [&_*]:pointer-events-none"
                     >
                       <div className="flex flex-col">
-                        <span className="font-semibold text-slate-800 dark:text-slate-200">{evt.title}</span>
+                        <span className="font-semibold text-slate-800 dark:text-[#F5F5F5]">{evt.title}</span>
                         <span className="text-[10px] text-muted-foreground">{evt.category || 'Event'} • {evt.venue || 'Campus'}</span>
                       </div>
                       <span className="text-muted-foreground font-mono">→</span>
@@ -391,7 +391,7 @@ export function TopNavbar() {
                   <button
                     key={idx}
                     onClick={() => handleCommandSelect(item.href)}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-left font-medium transition-colors cursor-pointer [&_*]:pointer-events-none"
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:text-[#F5F5F5] text-xs text-left font-medium transition-colors cursor-pointer [&_*]:pointer-events-none"
                   >
                     <span>{item.label}</span>
                     <span className="text-muted-foreground font-mono">→</span>

@@ -63,7 +63,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
 
           <div className="space-y-6 pt-4 border-t">
             <h3 className="text-xl font-bold text-[#01424E] dark:text-teal-200">About the Event</h3>
-            <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line text-sm leading-relaxed">
+            <p className="text-slate-700 dark:text-[#CFCFCF] whitespace-pre-line text-sm leading-relaxed">
               {event.description}
             </p>
 
@@ -74,7 +74,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
                 </h3>
                 <div className="space-y-3">
                   {event.event_faqs.map((faq: any) => (
-                    <div key={faq.id} className="p-4 rounded-xl border bg-slate-50 dark:bg-slate-900/50 space-y-1">
+                    <div key={faq.id} className="p-4 rounded-xl border bg-slate-50 dark:bg-[#151515]/50 space-y-1">
                       <h4 className="font-bold text-sm text-[#01424E] dark:text-teal-100">Q: {faq.question}</h4>
                       <p className="text-xs text-muted-foreground">A: {faq.answer}</p>
                     </div>
@@ -87,7 +87,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
 
         {/* Sidebar Info & Register */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border rounded-2xl p-6 shadow-lg space-y-6 sticky top-24 border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#151515] border rounded-2xl p-6 shadow-lg space-y-6 sticky top-24 border-slate-200 dark:border-white/[0.08]">
             <div className="flex items-center justify-between border-b pb-4">
               <span className="text-sm font-semibold text-muted-foreground">Registration Fee</span>
               <span className="text-2xl font-extrabold text-[#007C46]">
@@ -99,7 +99,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-[#007C46] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200">Start Date</p>
+                  <p className="font-bold text-slate-800 dark:text-[#F5F5F5]">Start Date</p>
                   <p className="text-muted-foreground">{new Date(event.start_date).toLocaleString()}</p>
                 </div>
               </div>
@@ -107,7 +107,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-[#007C46] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200">Venue</p>
+                  <p className="font-bold text-slate-800 dark:text-[#F5F5F5]">Venue</p>
                   <p className="text-muted-foreground">{event.venue}, {event.building}</p>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
               <div className="flex items-start gap-3">
                 <Users className="h-5 w-5 text-[#007C46] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200">Mode & Capacity</p>
+                  <p className="font-bold text-slate-800 dark:text-[#F5F5F5]">Mode & Capacity</p>
                   <p className="text-muted-foreground capitalize">{event.registration_mode} (Max {event.max_participants} Seats)</p>
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
               <div className="flex items-start gap-3">
                 <Award className="h-5 w-5 text-[#007C46] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200">Certificate</p>
+                  <p className="font-bold text-slate-800 dark:text-[#F5F5F5]">Certificate</p>
                   <p className="text-muted-foreground">Verified QR Pass & Digital Certificate Included</p>
                 </div>
               </div>
@@ -131,11 +131,11 @@ export default function PublicEventDetailsPage({ params }: { params: Promise<{ i
 
             <div className="pt-4 border-t space-y-3">
               {user ? (
-                <Button asChild className="w-full bg-[#007C46] text-white hover:bg-[#007C46]/90 font-bold" size="lg">
+                <Button asChild className="w-full bg-[#007C46] text-white hover:bg-[#007C46]/90 dark:bg-[#22C55E] dark:text-[#052E16] dark:border dark:border-[rgba(74,222,128,0.25)] dark:hover:bg-[#16A34A] dark:hover:text-[#F0FDF4] dark:active:bg-[#15803D] dark:focus-visible:ring-[#22C55E]/25 font-bold transition-all duration-150 ease-in-out hover:-translate-y-px" size="lg">
                   <Link href={`/student/events/${event.id}`}>Register Now <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
               ) : (
-                <Button asChild className="w-full bg-[#01424E] text-[#7CEAAB] hover:bg-[#013540] font-bold" size="lg">
+                <Button asChild className="w-full bg-[#01424E] text-[#7CEAAB] hover:bg-[#013540] dark:bg-[#22C55E] dark:text-[#052E16] dark:border dark:border-[rgba(74,222,128,0.25)] dark:hover:bg-[#16A34A] dark:hover:text-[#F0FDF4] dark:active:bg-[#15803D] dark:focus-visible:ring-[#22C55E]/25 font-bold transition-all duration-150 ease-in-out hover:-translate-y-px" size="lg">
                   <Link href="/login?redirect=/events">Login to Register</Link>
                 </Button>
               )}

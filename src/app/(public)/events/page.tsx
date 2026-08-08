@@ -74,12 +74,12 @@ export default function PublicEventsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 max-w-3xl mx-auto bg-card p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 max-w-3xl mx-auto bg-card p-3 rounded-2xl border border-slate-200 dark:border-white/[0.08] shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search by title, topic or category..." 
-            className="pl-10 text-xs sm:text-sm h-11 rounded-xl border-slate-200 dark:border-slate-800"
+            className="pl-10 text-xs sm:text-sm h-11 rounded-xl border-slate-200 dark:border-white/[0.08]"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -87,7 +87,7 @@ export default function PublicEventsPage() {
         <select 
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="flex h-11 w-full sm:w-[220px] items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-background px-3.5 py-2 text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-[#01424E] outline-none cursor-pointer"
+          className="flex h-11 w-full sm:w-[220px] items-center justify-between rounded-xl border border-slate-200 dark:border-white/[0.08] bg-background px-3.5 py-2 text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-[#01424E] outline-none cursor-pointer"
         >
           <option value="all">All Categories</option>
           <option value="Hackathon">Hackathons &amp; Coding</option>
@@ -106,11 +106,11 @@ export default function PublicEventsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-96 rounded-2xl bg-slate-100 dark:bg-slate-900 animate-pulse" />
+              <div key={i} className="h-96 rounded-2xl bg-slate-100 dark:bg-[#151515] animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 bg-card rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 max-w-xl mx-auto space-y-3">
+          <div className="text-center py-20 bg-card rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.08] max-w-xl mx-auto space-y-3">
             <h3 className="text-lg font-bold text-[#01424E] dark:text-teal-100">No Events Found</h3>
             <p className="text-xs text-muted-foreground">
               No campus events match your current search or category filter. Try clearing your search query.

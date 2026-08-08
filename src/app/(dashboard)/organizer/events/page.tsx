@@ -524,7 +524,7 @@ export default function OrganizerEventsPage() {
                   type="checkbox"
                   checked={editFormData.need_volunteers ?? false}
                   onChange={(e) => setEditFormData(prev => ({ ...prev, need_volunteers: e.target.checked }))}
-                  className="h-4 w-4 rounded border-slate-300 text-[#007C46] focus:ring-[#007C46]"
+                  className="h-4 w-4 rounded border-slate-300 dark:border-white/20 dark:bg-[#141414] dark:accent-[#22C55E] text-[#007C46] focus:ring-[#007C46]"
                 />
               </div>
 

@@ -465,7 +465,7 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
                   variant="outline"
                   size="sm"
                   onClick={handleLogoutOtherDevices}
-                  className="text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="text-xs font-bold border-slate-300 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:text-[#F5F5F5] cursor-pointer"
                 >
                   Logout Other Devices
                 </Button>
@@ -537,7 +537,7 @@ export function UnifiedSettingsView({ role, customPasswordHandler }: UnifiedSett
                 <Button
                   variant="outline"
                   onClick={handleDownloadData}
-                  className="text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer h-9 px-3 shrink-0"
+                  className="text-xs font-bold border-slate-300 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:text-[#F5F5F5] cursor-pointer h-9 px-3 shrink-0"
                 >
                   <Download className="mr-1.5 h-3.5 w-3.5" /> Export Data
                 </Button>

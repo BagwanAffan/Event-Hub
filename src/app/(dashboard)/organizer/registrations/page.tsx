@@ -263,9 +263,9 @@ export default function RegistrationsPage() {
                     </TableCell>
                     <TableCell>
                       <Badge className={
-                        reg.payment_status === 'approved' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
-                        reg.payment_status === 'not_required' ? 'bg-slate-100 text-slate-800' :
-                        'bg-amber-100 text-amber-800'
+                        reg.payment_status === 'approved' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
+                        reg.payment_status === 'not_required' ? 'bg-slate-100 text-slate-800 dark:bg-[#1B1B1B] dark:text-[#CFCFCF]' :
+                        'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
                       }>
                         {reg.payment_status?.replace('_', ' ')}
                       </Badge>

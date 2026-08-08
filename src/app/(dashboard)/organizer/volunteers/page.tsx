@@ -373,7 +373,7 @@ export default function VolunteersPage() {
       case 'rejected':
         return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold';
       default:
-        return 'bg-slate-100 text-slate-800';
+        return 'bg-slate-100 text-slate-800 dark:bg-[#1B1B1B] dark:text-[#CFCFCF]';
     }
   };
 

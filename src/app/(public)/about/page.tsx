@@ -15,13 +15,13 @@ export default function AboutPage() {
             We aim to simplify the chaos of college event organization. From registrations to attendance tracking and certificate generation, EventHub provides a unified digital experience for students, volunteers, and organizers.
           </p>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-900 rounded-3xl aspect-video relative overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+        <div className="bg-slate-100 dark:bg-[#151515] rounded-3xl aspect-video relative overflow-hidden shadow-lg border border-slate-200 dark:border-white/[0.08]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&auto=format&fit=crop&q=60" alt="Students organizing event" className="object-cover w-full h-full" />
         </div>
       </div>
 
-      <div className="bg-slate-50 dark:bg-slate-900/60 rounded-3xl p-8 md:p-12 space-y-8 text-center border border-slate-200 dark:border-slate-800">
+      <div className="bg-slate-50 dark:bg-[#151515]/50 rounded-3xl p-8 md:p-12 space-y-8 text-center border border-slate-200 dark:border-white/[0.08]">
         <h2 className="text-3xl font-bold text-[#01424E] dark:text-teal-100">Platform Features</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
@@ -30,7 +30,7 @@ export default function AboutPage() {
             { title: 'QR Attendance', desc: 'Fast, secure check-ins using dynamic QR codes.' },
             { title: 'Automated Certificates', desc: 'Generate and distribute verifiable certificates instantly.' }
           ].map((feature, i) => (
-            <div key={i} className="bg-white dark:bg-slate-800/80 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700/60 space-y-3">
+            <div key={i} className="bg-white dark:bg-[#181818]/60 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-white/[0.08] space-y-3">
               <h3 className="font-bold text-base text-[#01424E] dark:text-teal-100">{feature.title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">{feature.desc}</p>
             </div>

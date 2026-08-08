@@ -66,7 +66,7 @@ function VerifyCertificateContent() {
         </p>
       </div>
 
-      <Card className="shadow-xl border-slate-200 dark:border-slate-800 mb-8">
+      <Card className="shadow-xl border-slate-200 dark:border-white/[0.08] mb-8">
         <CardContent className="p-8 space-y-6">
           <form onSubmit={handleVerify} className="flex gap-3">
             <Input 
@@ -95,7 +95,7 @@ function VerifyCertificateContent() {
                   </div>
 
                   {/* Verification Attributes Grid */}
-                  <div className="p-5 rounded-xl bg-white dark:bg-slate-900 border grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="p-5 rounded-xl bg-white dark:bg-[#151515] border grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div>
                       <span className="text-muted-foreground uppercase text-[10px] font-bold block mb-1">Recipient</span>
                       <span className="font-bold text-sm text-[#01424E] dark:text-teal-100 flex items-center gap-1.5">
@@ -118,28 +118,28 @@ function VerifyCertificateContent() {
 
                     <div>
                       <span className="text-muted-foreground uppercase text-[10px] font-bold block mb-1">Event Name</span>
-                      <span className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-slate-800 dark:text-[#F5F5F5] flex items-center gap-1.5">
                         <Award className="h-3.5 w-3.5 text-[#007C46]" /> {result.data.eventName}
                       </span>
                     </div>
 
                     <div>
                       <span className="text-muted-foreground uppercase text-[10px] font-bold block mb-1">Organization</span>
-                      <span className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-slate-800 dark:text-[#F5F5F5] flex items-center gap-1.5">
                         <Building className="h-3.5 w-3.5 text-[#007C46]" /> {result.data.organizationName}
                       </span>
                     </div>
 
                     <div>
                       <span className="text-muted-foreground uppercase text-[10px] font-bold block mb-1">Faculty Advisor</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-300">
+                      <span className="font-semibold text-slate-700 dark:text-[#CFCFCF]">
                         {result.data.facultyAdvisorName}
                       </span>
                     </div>
 
                     <div>
                       <span className="text-muted-foreground uppercase text-[10px] font-bold block mb-1">Issue Date & Verification ID</span>
-                      <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                      <span className="font-mono text-xs font-bold text-slate-800 dark:text-[#F5F5F5] block">
                         {result.data.issuedAt}
                       </span>
                       <span className="font-mono text-xs font-extrabold text-[#007C46] block mt-0.5">

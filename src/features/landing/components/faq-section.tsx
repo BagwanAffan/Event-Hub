@@ -18,17 +18,17 @@ export default function FaqSection() {
   ];
 
   return (
-    <section id="faq" className="py-16 lg:py-24 bg-white dark:bg-slate-950">
+    <section id="faq" className="py-16 lg:py-24 bg-white dark:bg-[#090909]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-10 space-y-2">
           <span className="text-[#007C46] dark:text-[#7CEAAB] font-bold text-xs uppercase tracking-wider bg-[#edfcf6] dark:bg-teal-950/50 px-3 py-1 rounded-full border border-[#41B177]/30 inline-block">
             Got Questions?
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F5F5F5] tracking-tight">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
+          <p className="text-sm text-slate-600 dark:text-[#9CA3AF] max-w-xl mx-auto">
             Everything you need to know about EventHub portals, QR passes, and certificate verification.
           </p>
         </div>
@@ -39,12 +39,12 @@ export default function FaqSection() {
             <AccordionItem
               key={i}
               value={`item-${i}`}
-              className="border-b border-slate-200 dark:border-slate-800 py-1"
+              className="border-b border-slate-200 dark:border-white/[0.08] py-1"
             >
               <AccordionTrigger className="text-left font-bold text-base sm:text-lg text-[#01424E] dark:text-teal-100 no-underline hover:no-underline py-3.5 cursor-pointer">
                 {faq.q}
               </AccordionTrigger>
-              <AccordionContent className="text-sm text-slate-600 dark:text-slate-300 pb-4 pt-1 leading-relaxed">
+              <AccordionContent className="text-sm text-slate-600 dark:text-[#CFCFCF] pb-4 pt-1 leading-relaxed">
                 {faq.a}
               </AccordionContent>
             </AccordionItem>

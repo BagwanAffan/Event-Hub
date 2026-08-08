@@ -571,7 +571,7 @@ export default function CreateEventPage() {
                 type="checkbox"
                 checked={formData.need_volunteers}
                 onChange={(e) => handleChange('need_volunteers', e.target.checked)}
-                className="h-5 w-5 rounded border-slate-300 text-[#007C46] focus:ring-[#007C46] cursor-pointer"
+                className="h-5 w-5 rounded border-slate-300 dark:border-white/20 dark:bg-[#141414] dark:accent-[#22C55E] text-[#007C46] focus:ring-[#007C46] cursor-pointer"
               />
             </div>
 

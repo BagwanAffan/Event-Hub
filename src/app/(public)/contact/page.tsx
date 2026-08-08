@@ -70,18 +70,18 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 bg-card border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm">
+        <div className="lg:col-span-2 bg-card border border-slate-200 dark:border-white/[0.08] rounded-3xl p-8 shadow-sm">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Name</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-[#CFCFCF]">Name</label>
                 <Input placeholder="Your name" className="rounded-xl text-xs" {...form.register('name')} />
                 {form.formState.errors.name && (
                   <p className="text-xs text-red-500">{form.formState.errors.name.message}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-[#CFCFCF]">Email</label>
                 <Input placeholder="your.email@example.com" className="rounded-xl text-xs" {...form.register('email')} />
                 {form.formState.errors.email && (
                   <p className="text-xs text-red-500">{form.formState.errors.email.message}</p>
@@ -89,20 +89,24 @@ export default function ContactPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Subject</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-[#CFCFCF]">Subject</label>
               <Input placeholder="How can we help?" className="rounded-xl text-xs" {...form.register('subject')} />
               {form.formState.errors.subject && (
                 <p className="text-xs text-red-500">{form.formState.errors.subject.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Message</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-[#CFCFCF]">Message</label>
               <Textarea placeholder="Write your message here..." className="min-h-[140px] rounded-xl text-xs" {...form.register('message')} />
               {form.formState.errors.message && (
                 <p className="text-xs text-red-500">{form.formState.errors.message.message}</p>
               )}
             </div>
-            <Button type="submit" size="lg" className="bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-xl px-6 cursor-pointer">
+            <Button
+              type="submit"
+              size="lg"
+              className="bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] dark:bg-[#22C55E] dark:text-[#052E16] dark:border dark:border-[rgba(74,222,128,0.25)] dark:hover:bg-[#16A34A] dark:hover:text-[#F0FDF4] dark:active:bg-[#15803D] dark:focus-visible:ring-[#22C55E]/25 font-bold text-xs rounded-xl px-6 cursor-pointer transition-all duration-150 ease-in-out hover:-translate-y-px"
+            >
               Send Message
             </Button>
           </form>

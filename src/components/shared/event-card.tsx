@@ -55,7 +55,7 @@ export function EventCard({ event, linkPrefix = '/events' }: EventCardProps) {
         </Badge>
         
         {/* Fee Badge Top-Right */}
-        <Badge className="absolute top-3 right-3 bg-white text-[#007C46] font-extrabold text-xs shadow-lg border border-[#007C46]/20 px-2.5 py-1">
+        <Badge className="absolute top-3 right-3 bg-white text-[#007C46] dark:bg-[#151515] dark:text-[#22C55E] font-extrabold text-xs shadow-lg border border-[#007C46]/20 dark:border-[#22C55E]/30 px-2.5 py-1">
           {event.registration_fee && event.registration_fee > 0 ? `₹${event.registration_fee}` : 'FREE ENTRY'}
         </Badge>
       </div>
@@ -96,7 +96,7 @@ export function EventCard({ event, linkPrefix = '/events' }: EventCardProps) {
       <CardFooter className="p-5 pt-0 mt-auto shrink-0">
         <Button
           asChild
-          className="w-full h-10 bg-[#01424E] text-[#7CEAAB] hover:bg-[#007C46] hover:text-white font-bold text-xs rounded-xl transition-all duration-200 cursor-pointer shadow-sm group/btn"
+          className="w-full h-10 bg-[#01424E] text-[#7CEAAB] hover:bg-[#007C46] hover:text-white dark:bg-[#22C55E] dark:text-[#052E16] dark:border dark:border-[rgba(74,222,128,0.25)] dark:hover:bg-[#16A34A] dark:hover:text-[#F0FDF4] dark:active:bg-[#15803D] dark:focus-visible:ring-[#22C55E]/25 font-bold text-xs rounded-xl transition-all duration-150 ease-in-out cursor-pointer shadow-sm group/btn hover:-translate-y-px"
         >
           <Link href={href} className="w-full h-full inline-flex items-center justify-center gap-2 cursor-pointer">
             <span>View Details &amp; Register</span>

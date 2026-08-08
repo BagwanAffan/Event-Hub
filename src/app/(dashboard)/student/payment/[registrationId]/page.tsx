@@ -227,10 +227,10 @@ export default function PaymentPage({ params }: { params: Promise<{ registration
                 {!file ? (
                   <Label
                     htmlFor="screenshot-upload"
-                    className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                    className="border-2 border-dashed border-slate-300 dark:border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-50/50 dark:bg-[#141414] hover:bg-slate-100 dark:hover:bg-[#1B1B1B] transition-colors"
                   >
                     <UploadCloud className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-sm font-medium">Click to upload or drag and drop</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-[#F5F5F5]">Click to upload or drag and drop</p>
                     <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP up to 5MB</p>
                     <input 
                       id="screenshot-upload" 
@@ -241,7 +241,7 @@ export default function PaymentPage({ params }: { params: Promise<{ registration
                     />
                   </Label>
                 ) : (
-                  <div className="relative border rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50">
+                  <div className="relative border border-slate-200 dark:border-white/10 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#141414]">
                     <Button 
                       variant="ghost" 
                       size="icon" 

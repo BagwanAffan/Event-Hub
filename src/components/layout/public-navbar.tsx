@@ -95,7 +95,7 @@ export default function PublicNavbar() {
       className={cn(
         "sticky top-0 w-full z-50 transition-all duration-250 ease-in-out",
         isScrolled
-          ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shadow-sm border-b border-slate-200/60 dark:border-slate-800/60"
+          ? "bg-white/90 dark:bg-[#090909]/90 backdrop-blur-md shadow-sm border-b border-slate-200/60 dark:border-white/[0.08]"
           : "bg-transparent border-b border-transparent shadow-none"
       )}
     >
@@ -111,14 +111,14 @@ export default function PublicNavbar() {
               <div className="p-1.5 rounded-xl bg-[#01424E] text-[#7CEAAB] group-hover:scale-105 transition-transform">
                 <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#01424E] dark:text-white select-none">
+              <span className="text-xl font-bold tracking-tight text-[#01424E] dark:text-[#F5F5F5] select-none">
                 EventHub
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/80 p-1.5 rounded-full border border-slate-200/60 dark:border-slate-800/60">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-[#181818] p-1.5 rounded-full border border-slate-200/60 dark:border-white/[0.08]">
             {navLinks.map((link) => {
               const isActive = checkIsActive(link.href, link.id);
               return (
@@ -129,8 +129,8 @@ export default function PublicNavbar() {
                   className={cn(
                     "text-xs font-semibold px-4 py-2 rounded-full transition-all duration-200 cursor-pointer select-none [&_*]:pointer-events-none",
                     isActive
-                      ? "bg-[#01424E] text-[#7CEAAB] shadow-sm font-bold"
-                      : "text-slate-600 dark:text-slate-300 hover:text-[#01424E] dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/60"
+                      ? "bg-[#01424E] text-[#7CEAAB] dark:bg-[#15271B] dark:text-[#22C55E] dark:border dark:border-[#22C55E]/30 shadow-sm font-bold"
+                      : "text-slate-600 dark:text-[#CFCFCF] hover:text-[#01424E] dark:hover:text-[#F5F5F5] hover:bg-white/60 dark:hover:bg-[#1F1F1F]"
                   )}
                 >
                   {link.name}
@@ -146,11 +146,11 @@ export default function PublicNavbar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="h-9 w-9 rounded-full cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="h-9 w-9 rounded-full cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1F1F1F] dark:border dark:border-white/[0.08] transition-colors"
                 title="Toggle Theme"
               >
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500" />
-                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-teal-400" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-[#22C55E]" />
                 <span className="sr-only">Toggle theme</span>
               </Button>
             )}
@@ -158,7 +158,7 @@ export default function PublicNavbar() {
               href="/login"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "h-9 rounded-full font-bold text-xs cursor-pointer px-4 border border-slate-200 dark:border-slate-800 hover:border-[#01424E] transition-colors flex items-center justify-center"
+                "h-9 rounded-full font-bold text-xs cursor-pointer px-4 border border-slate-200 dark:border-white/[0.08] dark:text-[#F5F5F5] dark:hover:bg-[#1F1F1F] hover:border-[#01424E] transition-colors flex items-center justify-center"
               )}
             >
               Log In
@@ -167,7 +167,7 @@ export default function PublicNavbar() {
               href="/signup"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
-                "h-9 bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] font-bold text-xs rounded-full px-5 shadow-sm cursor-pointer transition-colors flex items-center justify-center"
+                "h-9 bg-[#01424E] hover:bg-[#007C46] text-[#7CEAAB] dark:bg-[#22C55E] dark:text-[#090909] dark:hover:bg-[#16A34A] font-bold text-xs rounded-full px-5 shadow-sm cursor-pointer transition-colors flex items-center justify-center"
               )}
             >
               Sign Up

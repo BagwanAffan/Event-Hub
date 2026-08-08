@@ -482,7 +482,7 @@ export default function QRScannerPage() {
                   </h3>
                   
                   {scanResult.data && (
-                    <div className="mt-4 p-4 rounded-xl bg-white dark:bg-slate-900 border text-left space-y-2 text-xs max-w-sm mx-auto shadow-sm">
+                    <div className="mt-4 p-4 rounded-xl bg-white dark:bg-slate-900 border dark:border-white/[0.08] text-slate-800 dark:text-[#F5F5F5] text-left space-y-2 text-xs max-w-sm mx-auto shadow-sm">
                       <div>👤 <strong>Student Name:</strong> {scanResult.data.studentName}</div>
                       <div>🎯 <strong>Event:</strong> {scanResult.data.eventName}</div>
                       <div>🎫 <strong>Registration ID:</strong> {scanResult.data.registrationId}</div>

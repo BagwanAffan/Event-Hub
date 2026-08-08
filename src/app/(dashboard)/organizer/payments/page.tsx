@@ -205,7 +205,7 @@ export default function PaymentsPage() {
             <DialogDescription>Uploaded transaction receipt or UPI confirmation screen</DialogDescription>
           </DialogHeader>
           {selectedProof && (
-            <div className="p-2 rounded-xl border overflow-hidden bg-slate-50">
+            <div className="p-2 rounded-xl border overflow-hidden bg-slate-50 dark:bg-[#141414] dark:border-white/[0.08]">
               <img src={selectedProof} alt="Payment Proof" className="w-full h-auto rounded-lg object-contain max-h-96" />
             </div>
           )}

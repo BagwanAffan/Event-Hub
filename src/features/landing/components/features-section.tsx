@@ -61,13 +61,13 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="py-20 lg:py-32 bg-white dark:bg-slate-950">
+    <section id="features" className="py-20 lg:py-32 bg-white dark:bg-[#090909]">
       <div className="container mx-auto px-3 sm:px-5 lg:px-6 max-w-[1400px]">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-[#41B177] font-semibold tracking-wide uppercase text-sm mb-3">
             Everything You Need
           </h2>
-          <p className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+          <p className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-[#F5F5F5]">
             Powerful features for seamless event management
           </p>
         </div>
@@ -76,15 +76,15 @@ export default function FeaturesSection() {
           {features.map((feature, i) => (
             <div
               key={i}
-              className="group relative p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="group relative p-6 bg-slate-50 dark:bg-[#151515] rounded-2xl border border-slate-200 dark:border-white/[0.08] hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
             >
               <div className={`w-12 h-12 rounded-xl ${feature.bg} flex items-center justify-center mb-6`}>
                 <feature.icon className={`w-6 h-6 ${feature.color}`} />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-[#F5F5F5] mb-2">
                 {feature.title}
               </h3>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-[#9CA3AF]">
                 {feature.description}
               </p>
             </div>
